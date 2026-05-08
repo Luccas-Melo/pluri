@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bel & Luccas | Finanças VIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F0D15">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        :root { --bel: #FFD952; --luccas: #A855F7; --bg: #0F0D15; --card: #1A1722; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #E2E8F0; transition: background 0.3s ease; }
+        .custom-card { background: var(--card); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 20px; }
+        /* Desktop: layout horizontal compacto */
+        .expense-card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid;
+            transition: transform 0.2s ease;
+        }
+        .expense-card:active {
+            transform: scale(0.98);
+        }
+        /* Mobile: cards maiores com layout vertical */
+        @media (max-width: 768px) {
+            .expense-card {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                padding: 20px !important;
+            }
+            .expense-card p.font-bold {
+                font-size: 16px !important;
+            }
+            .expense-card p.font-black {
+                font-size: 18px !important;
+            }
+        }
+        .bel-text { color: var(--bel); }
+        .luccas-text { color: var(--luccas); }
+        .bel-bg { background: var(--bel); color: #000; }
+        .luccas-bg { background: var(--luccas); color: #fff; }
+        
+        /* Estilos Adaptativos */
+        .bel-theme .active-chip { background: var(--bel) !important; color: #000 !important; border-color: var(--bel); transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 217, 82, 0.3); }
+        .luccas-theme .active-chip { background: var(--luccas) !important; color: #fff !important; border-color: var(--luccas); transform: scale(1.05); box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .bel-theme .input-focus:focus { border-color: var(--bel); box-shadow: 0 0 0 1px var(--bel); }
+        .luccas-theme .input-focus:focus { border-color: var(--luccas); box-shadow: 0 0 0 1px var(--luccas); }
+        
+        .input-vr { background: #13111C; border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; border-radius: 12px; padding: 10px; font-size: 12px; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; }
+        .category-chip svg { pointer-events: none; }
+        
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100; }
+        .toast { background: #2D273F; border-left: 4px solid var(--bel); padding: 15px 20px; border-radius: 15px; font-weight: bold; font-size: 12px; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* Scrollbar customizada para dropdowns */
+        #cartaoDropdown::-webkit-scrollbar,
+        #filtroDropdown::-webkit-scrollbar,
+        #editPagadorDropdown::-webkit-scrollbar,
+        #editCategoriaDropdown::-webkit-scrollbar,
+        #editMetodoDropdown::-webkit-scrollbar,
+        #editCartaoDropdown::-webkit-scrollbar { width: 6px; }
+        #cartaoDropdown::-webkit-scrollbar-track,
+        #filtroDropdown::-webkit-scrollbar-track,
+        #editPagadorDropdown::-webkit-scrollbar-track,
+        #editCategoriaDropdown::-webkit-scrollbar-track,
+        #editMetodoDropdown::-webkit-scrollbar-track,
+        #editCartaoDropdown::-webkit-scrollbar-track { background: #13111C; }
+        #cartaoDropdown::-webkit-scrollbar-thumb,
+        #filtroDropdown::-webkit-scrollbar-thumb,
+        #editPagadorDropdown::-webkit-scrollbar-thumb,
+        #editCategoriaDropdown::-webkit-scrollbar-thumb,
+        #editMetodoDropdown::-webkit-scrollbar-thumb,
+        #editCartaoDropdown::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        #cartaoDropdown::-webkit-scrollbar-thumb:hover,
+        #filtroDropdown::-webkit-scrollbar-thumb:hover,
+        #editPagadorDropdown::-webkit-scrollbar-thumb:hover,
+        #editCategoriaDropdown::-webkit-scrollbar-thumb:hover,
+        #editMetodoDropdown::-webkit-scrollbar-thumb:hover,
+        #editCartaoDropdown::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        
+        /* Cores do item selecionado seguem o tema */
+        .bel-theme .cartao-option.selecionado { color: var(--bel); background: rgba(255, 217, 82, 0.15); }
+        .luccas-theme .cartao-option.selecionado { color: var(--luccas); background: rgba(168, 85, 247, 0.15); }
+        
+        /* Fast-Delete: animação de flash no card novo */
+        @keyframes flashBel { 0%, 100% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 20px var(--bel), 0 0 40px rgba(255, 217, 82, 0.5); } }
+        @keyframes flashLuccas { 0%, 100% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 20px var(--luccas), 0 0 40px rgba(168, 85, 247, 0.5); } }
+        .bel-theme .card-novo { animation: flashBel 1s ease-in-out 2; }
+        .luccas-theme .card-novo { animation: flashLuccas 1s ease-in-out 2; }
+        
+        /* Chips de valores rápidos */
+        .valor-chip { background: #1A1722; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; transition: all 0.2s; }
+        .valor-chip:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .bel-theme .valor-chip.ativo { background: var(--bel); color: #000; border-color: var(--bel); }
+        .luccas-theme .valor-chip.ativo { background: var(--luccas); color: #fff; border-color: var(--luccas); }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .auth-tab.active { background: rgba(255,255,255,0.12); color: #fff; }
+    </style>
+    <style>
+        :root {
+            --primary: #f9a72d;
+            --primary-strong: #ec8f0d;
+            --primary-soft: #ffebca;
+            --secondary: #ffd17c;
+            --member-secondary: #cc7a00;
+            --bg: #f7f3ed;
+            --bg-elevated: rgba(255, 255, 255, 0.82);
+            --bg-panel: rgba(255, 255, 255, 0.92);
+            --bg-muted: #efe7dc;
+            --text: #271c13;
+            --text-soft: #7c6a5a;
+            --border: rgba(104, 74, 39, 0.14);
+            --border-strong: rgba(104, 74, 39, 0.22);
+            --shadow: 0 24px 70px rgba(141, 96, 33, 0.10);
+            --shadow-soft: 0 14px 34px rgba(141, 96, 33, 0.08);
+            --overlay: rgba(242, 236, 230, 0.76);
+            --input-bg: rgba(255, 255, 255, 0.94);
+        }
+
+        body.dark-theme {
+            --bg: #17120d;
+            --bg-elevated: rgba(33, 26, 19, 0.84);
+            --bg-panel: rgba(29, 22, 16, 0.92);
+            --bg-muted: #241a13;
+            --text: #f7eee4;
+            --text-soft: #b6a692;
+            --border: rgba(255, 225, 183, 0.10);
+            --border-strong: rgba(255, 225, 183, 0.18);
+            --shadow: 0 26px 70px rgba(0, 0, 0, 0.36);
+            --shadow-soft: 0 14px 36px rgba(0, 0, 0, 0.28);
+            --overlay: rgba(11, 9, 7, 0.72);
+            --input-bg: rgba(23, 18, 13, 0.90);
+            --member-secondary: #ffba4f;
+        }
+
+        html { background: var(--bg); }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(249, 167, 45, 0.18), transparent 24%),
+                radial-gradient(circle at top right, rgba(255, 224, 178, 0.24), transparent 20%),
+                linear-gradient(180deg, rgba(255,255,255,0.18), transparent 35%),
+                var(--bg) !important;
+            color: var(--text) !important;
+            min-height: 100vh;
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(249, 167, 45, 0.12), transparent 18%),
+                radial-gradient(circle at 85% 10%, rgba(249, 167, 45, 0.10), transparent 16%),
+                radial-gradient(circle at 60% 100%, rgba(249, 167, 45, 0.08), transparent 22%);
+            z-index: 0;
+        }
+
+        body > * { position: relative; z-index: 1; }
+
+        .custom-card {
+            background: var(--bg-panel) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 28px !important;
+            box-shadow: var(--shadow) !important;
+            backdrop-filter: blur(22px);
+        }
+
+        .expense-card {
+            background: var(--bg-panel) !important;
+            border-radius: 24px !important;
+            border: 1px solid var(--border) !important;
+            border-left: 5px solid var(--primary) !important;
+            box-shadow: var(--shadow-soft) !important;
+        }
+
+        .expense-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow) !important;
+        }
+
+        .bel-text { color: var(--primary-strong) !important; }
+        .luccas-text { color: var(--member-secondary) !important; }
+        .bel-bg { background: linear-gradient(135deg, var(--primary), #ffbd53) !important; color: #231608 !important; }
+        .luccas-bg { background: linear-gradient(135deg, #ffcd77, #f39b20) !important; color: #231608 !important; }
+
+        .input-vr {
+            background: var(--input-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 18px !important;
+            padding: 14px 16px !important;
+            font-size: 13px !important;
+        }
+
+        .input-vr::placeholder { color: var(--text-soft) !important; }
+
+        .bel-theme .input-focus:focus,
+        .luccas-theme .input-focus:focus,
+        .input-vr:focus {
+            border-color: rgba(249, 167, 45, 0.55) !important;
+            box-shadow: 0 0 0 4px rgba(249, 167, 45, 0.14) !important;
+        }
+
+        .bel-theme .active-chip {
+            background: linear-gradient(135deg, var(--primary), #ffbc4e) !important;
+            color: #24170a !important;
+            border-color: rgba(249, 167, 45, 0.46) !important;
+            box-shadow: 0 12px 24px rgba(249, 167, 45, 0.18) !important;
+        }
+
+        .luccas-theme .active-chip {
+            background: linear-gradient(135deg, #ffd286, #f4a124) !important;
+            color: #24170a !important;
+            border-color: rgba(243, 155, 32, 0.44) !important;
+            box-shadow: 0 12px 24px rgba(243, 155, 32, 0.16) !important;
+        }
+
+        .modal-overlay {
+            background: var(--overlay) !important;
+            backdrop-filter: blur(26px) !important;
+        }
+
+        .toast {
+            background: var(--bg-panel) !important;
+            color: var(--text) !important;
+            border: 1px solid rgba(249, 167, 45, 0.26) !important;
+            border-left: 4px solid var(--primary) !important;
+            border-radius: 18px !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .valor-chip {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-soft) !important;
+        }
+
+        .valor-chip:hover {
+            background: rgba(249, 167, 45, 0.08) !important;
+            border-color: rgba(249, 167, 45, 0.26) !important;
+            color: var(--text) !important;
+        }
+
+        .auth-tab {
+            color: var(--text-soft) !important;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, rgba(249, 167, 45, 0.18), rgba(249, 167, 45, 0.08)) !important;
+            color: var(--primary-strong) !important;
+            box-shadow: inset 0 0 0 1px rgba(249, 167, 45, 0.22) !important;
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .primary-button {
+            background: linear-gradient(135deg, var(--primary), #ffbe52);
+            color: #231608;
+            box-shadow: 0 18px 34px rgba(249, 167, 45, 0.22);
+        }
+
+        .primary-button:hover {
+            filter: brightness(1.02);
+        }
+
+        .brand-shell {
+            display: grid;
+            grid-template-columns: 1.08fr 1fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .brand-panel {
+            background:
+                radial-gradient(circle at top left, rgba(255, 210, 126, 0.7), transparent 38%),
+                linear-gradient(160deg, rgba(249, 167, 45, 0.16), rgba(249, 167, 45, 0.04)),
+                var(--bg-panel);
+            border: 1px solid rgba(249, 167, 45, 0.20);
+            border-radius: 28px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.52);
+            border: 1px solid rgba(249, 167, 45, 0.18);
+            color: var(--primary-strong);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        body.dark-theme .brand-badge,
+        body.dark-theme .brand-bullet { background: rgba(255,255,255,0.04); }
+
+        .brand-bullets {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .brand-bullet {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.48);
+            border: 1px solid rgba(249, 167, 45, 0.15);
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), #ffd388);
+            color: #2c1b08;
+            font-weight: 900;
+            box-shadow: 0 12px 24px rgba(249, 167, 45, 0.22);
+        }
+
+        .auth-card,
+        .onboarding-card {
+            padding: 32px;
+            border-radius: 28px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .kicker {
+            color: var(--primary-strong);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-size: clamp(1.9rem, 3vw, 3.4rem);
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            font-weight: 800;
+        }
+
+        .orb {
+            width: 110px;
+            height: 110px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, var(--primary), #ffcb76);
+            box-shadow: 0 26px 44px rgba(249, 167, 45, 0.22);
+            animation: floatSoft 4s ease-in-out infinite;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 24px 28px;
+            border-radius: 30px;
+            background: linear-gradient(140deg, rgba(255,255,255,0.65), rgba(255,255,255,0.46));
+            border: 1px solid rgba(249, 167, 45, 0.18);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        body.dark-theme .dashboard-header {
+            background: linear-gradient(140deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+        }
+
+        .metric-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            bottom: -58px;
+            width: 122px;
+            height: 122px;
+            border-radius: 999px;
+            background: rgba(249, 167, 45, 0.10);
+        }
+
+        .panel-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+        }
+
+        .soft-panel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .ghost-button {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 18px;
+        }
+
+        .ghost-icon-button {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+        }
+
+        .config-chip {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 999px;
+        }
+
+        .danger-button {
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.20);
+            color: #b91c1c;
+        }
+
+        body.dark-theme .danger-button {
+            color: #fca5a5;
+        }
+
+        .success-button {
+            background: linear-gradient(135deg, #11b981, #3fd29f);
+            color: white;
+            box-shadow: 0 18px 34px rgba(17, 185, 129, 0.18);
+        }
+
+        .form-card {
+            background:
+                radial-gradient(circle at top right, rgba(249, 167, 45, 0.16), transparent 32%),
+                linear-gradient(180deg, rgba(255,255,255,0.5), transparent 22%),
+                var(--bg-panel) !important;
+        }
+
+        .expense-title {
+            color: var(--text);
+        }
+
+        .expense-meta,
+        .expense-secondary {
+            color: var(--text-soft);
+        }
+
+        .expense-amount-primary {
+            color: var(--primary-strong);
+        }
+
+        .expense-amount-secondary {
+            color: var(--member-secondary);
+        }
+
+        #appShell header button:not(.theme-toggle),
+        #modalConfig button,
+        #modalEdit button,
+        #modalDelete button {
+            transition: all 0.2s ease;
+        }
+
+        #appShell header button:not(.theme-toggle) {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 18px !important;
+            box-shadow: var(--shadow-soft);
+        }
+
+        #appShell header button:not(.theme-toggle):hover,
+        #modalConfig button:hover,
+        #modalEdit button:hover,
+        #modalDelete button:hover {
+            transform: translateY(-1px);
+        }
+
+        #userBadge {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-soft) !important;
+            border-radius: 18px !important;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        #formContainer {
+            background: linear-gradient(180deg, rgba(255,255,255,0.45), transparent 20%), var(--bg-panel) !important;
+        }
+
+        #listaGastos:empty::before {
+            content: "Seus lançamentos vão aparecer aqui.";
+            display: block;
+            padding: 24px;
+            border-radius: 22px;
+            background: var(--bg-panel);
+            border: 1px dashed var(--border-strong);
+            color: var(--text-soft);
+            text-align: center;
+            font-size: 13px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        #valor,
+        #descricao,
+        #btnSelectFiltro,
+        #btnSelectCartao,
+        #btnEditPagador,
+        #btnEditCategoria,
+        #btnEditMetodo,
+        #btnEditCartao,
+        #filtroDropdown,
+        #cartaoDropdown,
+        #editPagadorDropdown,
+        #editCategoriaDropdown,
+        #editMetodoDropdown,
+        #editCartaoDropdown,
+        #metaContainer {
+            background: var(--bg-elevated) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+
+        #metaContainer {
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        #valor {
+            border-radius: 24px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        #loading {
+            background:
+                radial-gradient(circle at top left, rgba(249, 167, 45, 0.16), transparent 26%),
+                linear-gradient(180deg, rgba(255,255,255,0.12), transparent 34%),
+                var(--bg) !important;
+            color: var(--text);
+        }
+
+        #loading span {
+            color: var(--primary-strong) !important;
+        }
+
+        #loading .spinner {
+            border-color: rgba(249, 167, 45, 0.26) !important;
+            border-top-color: var(--primary) !important;
+        }
+
+        #setupNotice .custom-card p,
+        #modalConfig .muted-copy,
+        #modalEdit label,
+        #modalDelete p,
+        #appShell .muted-copy,
+        #syncDescription {
+            color: var(--text-soft) !important;
+        }
+
+        #modalConfig h3,
+        #modalEdit label,
+        #appShell .stat-label {
+            color: var(--text-soft) !important;
+        }
+
+        #payerButtons {
+            background: var(--bg-muted) !important;
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 22px;
+        }
+
+        #formContainer .form-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        #formContainer .form-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), #ffd287);
+            color: #2b1a09;
+            box-shadow: 0 18px 30px rgba(249, 167, 45, 0.2);
+            font-weight: 900;
+        }
+
+        #listaGastosWrap .list-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        #listaGastosWrap .list-copy {
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .chip-metodo,
+        .category-chip {
+            background: var(--bg-elevated) !important;
+            border-color: var(--border) !important;
+            color: var(--text-soft) !important;
+        }
+
+        .category-chip span,
+        .chip-metodo {
+            color: inherit !important;
+        }
+
+        #filtroDropdown,
+        #cartaoDropdown,
+        #editPagadorDropdown,
+        #editCategoriaDropdown,
+        #editMetodoDropdown,
+        #editCartaoDropdown {
+            border-radius: 20px !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .filtro-option,
+        .cartao-option,
+        .edit-pagador-option,
+        .edit-categoria-option,
+        .edit-metodo-option,
+        .edit-cartao-option {
+            color: var(--text) !important;
+        }
+
+        .filtro-option:hover,
+        .cartao-option:hover,
+        .edit-pagador-option:hover,
+        .edit-categoria-option:hover,
+        .edit-metodo-option:hover,
+        .edit-cartao-option:hover {
+            background: rgba(249, 167, 45, 0.08) !important;
+        }
+
+        @keyframes floatSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @media (max-width: 1024px) {
+            .brand-shell { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 22px;
+            }
+
+            #listaGastosWrap .list-head {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .expense-card { padding: 20px !important; }
+            .section-title { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body id="mainBody" class="pb-10 px-4 light-theme bel-theme">
+    <div id="loading" class="hidden"></div>
+
+    <div id="toast-container"></div>
+
+    <div id="setupNotice" class="hidden fixed inset-0 z-[9998] bg-black/80 backdrop-blur-md flex items-center justify-center px-4">
+        <div class="custom-card p-8 max-w-lg w-full text-center">
+            <img src="logo-pluri.png" alt="Pluri" class="w-24 h-24 object-contain mx-auto mb-5">
+            <h2 class="text-2xl font-black mb-3">Configurar Supabase</h2>
+            <p class="text-sm mb-4">Preencha `supabase-config.js` com a URL e a anon key do projeto `Pluri` para liberar login e onboarding.</p>
+            <p class="text-xs">Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.</p>
+        </div>
+    </div>
+
+    <div id="authOverlay" class="overlay-shell fixed inset-0 z-[9997] px-4 py-8 overflow-y-auto">
+        <div class="max-w-6xl mx-auto">
+            <div class="brand-shell">
+                <div class="brand-panel">
+                    <div>
+                        <div class="flex items-center justify-between gap-4 mb-6">
+                            <span class="brand-badge">Pluri Finance</span>
+                            <button type="button" class="theme-toggle" onclick="toggleTheme()">
+                                <span id="themeToggleLabelAuth">Tema Claro</span>
+                            </button>
+                        </div>
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="kicker mb-3">Controle compartilhado</p>
+                                <h1 class="section-title mb-4">Finanças leves, bonitas e organizadas.</h1>
+                                <p class="text-sm leading-6" style="color: var(--text-soft);">O Pluri foi redesenhado para parecer um app premium do dia a dia: claro, aconchegante e gostoso de usar no celular ou no desktop.</p>
+                            </div>
+                            <div class="orb shrink-0"></div>
+                        </div>
+                    </div>
+                    <div class="brand-bullets">
+                        <div class="brand-bullet">
+                            <div class="brand-icon">01</div>
+                            <div>
+                                <p class="font-black text-sm">Tudo em uma casa</p>
+                                <p class="text-xs mt-1" style="color: var(--text-soft);">Solo ou casal, com cartões, metas e histórico sincronizado.</p>
+                            </div>
+                        </div>
+                        <div class="brand-bullet">
+                            <div class="brand-icon">02</div>
+                            <div>
+                                <p class="font-black text-sm">Visual que relaxa</p>
+                                <p class="text-xs mt-1" style="color: var(--text-soft);">Luz, contraste e hierarquia pensados para reduzir atrito.</p>
+                            </div>
+                        </div>
+                        <div class="brand-bullet">
+                            <div class="brand-icon">03</div>
+                            <div>
+                                <p class="font-black text-sm">Sempre seu</p>
+                                <p class="text-xs mt-1" style="color: var(--text-soft);">Tema claro por padrão, com dark mode real quando você quiser.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-card">
+                    <img src="logo-pluri.png" alt="Pluri" class="w-20 h-20 object-contain mb-5">
+                    <p class="kicker mb-3">Acesse sua conta</p>
+                    <h2 class="text-3xl font-black tracking-tight mb-2">Entrar no Pluri</h2>
+                    <p class="text-sm mb-6" style="color: var(--text-soft);">Cadastre-se, entre ou recupere o acesso sem sair da mesma experiência.</p>
+
+                    <div class="grid grid-cols-3 gap-2 p-1 rounded-2xl mb-5" style="background: var(--bg-muted); border: 1px solid var(--border);">
+                        <button type="button" id="tabLogin" class="auth-tab active py-3 rounded-xl text-xs font-black uppercase" onclick="switchAuthMode('login')">Entrar</button>
+                        <button type="button" id="tabSignup" class="auth-tab py-3 rounded-xl text-xs font-black uppercase text-slate-400" onclick="switchAuthMode('signup')">Criar conta</button>
+                        <button type="button" id="tabReset" class="auth-tab py-3 rounded-xl text-xs font-black uppercase text-slate-400" onclick="switchAuthMode('reset')">Recuperar</button>
+                    </div>
+
+                    <form id="authForm" class="space-y-4">
+                        <input type="text" id="authName" placeholder="Seu nome" class="input-vr w-full hidden">
+                        <input type="email" id="authEmail" placeholder="voce@email.com" class="input-vr w-full" required>
+                        <input type="password" id="authPassword" placeholder="Sua senha" class="input-vr w-full" required>
+                        <input type="password" id="authPasswordConfirm" placeholder="Confirmar senha" class="input-vr w-full hidden">
+                        <button type="submit" id="authSubmitBtn" class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.18em] primary-button">Entrar</button>
+                    </form>
+
+                    <form id="recoveryForm" class="space-y-4 hidden mt-4">
+                        <input type="password" id="recoveryPassword" placeholder="Nova senha" class="input-vr w-full">
+                        <input type="password" id="recoveryPasswordConfirm" placeholder="Confirmar nova senha" class="input-vr w-full">
+                        <button type="submit" class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.18em] primary-button">Atualizar senha</button>
+                    </form>
+
+                    <p id="authMessage" class="text-xs text-center mt-4" style="color: var(--text-soft);"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="onboardingOverlay" class="hidden overlay-shell fixed inset-0 z-[9996] px-4 py-8 overflow-y-auto">
+        <div class="max-w-5xl mx-auto">
+            <div class="brand-shell">
+                <div class="brand-panel">
+                    <div>
+                        <span class="brand-badge">Onboarding</span>
+                        <h2 class="section-title mt-5 mb-4">Monte sua casa financeira do seu jeito.</h2>
+                        <p class="text-sm leading-6" style="color: var(--text-soft);">Defina o nome do espaço, escolha se o app é solo ou casal e personalize a estrutura inicial em menos de um minuto.</p>
+                    </div>
+                    <div class="brand-bullets">
+                        <div class="brand-bullet">
+                            <div class="brand-icon">A</div>
+                            <div>
+                                <p class="font-black text-sm">Tema leve</p>
+                                <p class="text-xs mt-1" style="color: var(--text-soft);">Visual claro elegante logo no primeiro acesso, com modo escuro disponível quando você quiser.</p>
+                            </div>
+                        </div>
+                        <div class="brand-bullet">
+                            <div class="brand-icon">B</div>
+                            <div>
+                                <p class="font-black text-sm">Estrutura flexível</p>
+                                <p class="text-xs mt-1" style="color: var(--text-soft);">Solo ou casal, sem elementos sobrando e sem ficar preso a um único formato.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="onboarding-card">
+                    <p class="kicker mb-3">Primeira configuração</p>
+                    <h3 class="text-3xl font-black tracking-tight mb-2">Criar meu espaço</h3>
+                    <p class="text-sm mb-6" style="color: var(--text-soft);">Essas escolhas definem a base do seu Pluri e podem ser alteradas depois em configurações.</p>
+
+                    <form id="onboardingForm" class="space-y-5">
+                        <div>
+                            <label class="panel-label mb-2 block">Nome do app</label>
+                            <input type="text" id="onboardingAppName" class="input-vr w-full" placeholder="Ex: Casa Lu e Bel" required>
+                        </div>
+
+                        <div>
+                            <label class="panel-label mb-2 block">Estrutura</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" id="onboardingModeCouple" onclick="setOnboardingHouseholdType('couple')" class="py-3 rounded-2xl font-black text-[10px] uppercase" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);">Casal</button>
+                                <button type="button" id="onboardingModeSolo" onclick="setOnboardingHouseholdType('solo')" class="py-3 rounded-2xl font-black text-[10px] uppercase" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);">Solo</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="panel-label mb-2 block">Pessoa 1</label>
+                                <input type="text" id="onboardingPessoa1" class="input-vr w-full" placeholder="Seu nome" required>
+                            </div>
+                            <div id="onboardingPessoa2Wrap">
+                                <label class="panel-label mb-2 block">Pessoa 2</label>
+                                <input type="text" id="onboardingPessoa2" class="input-vr w-full" placeholder="Nome da outra pessoa">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="onboardingSubmitBtn" class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.18em] primary-button">Criar minha casa</button>
+                    </form>
+
+                    <p id="onboardingMessage" class="text-xs text-center mt-4" style="color: var(--text-soft);"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalConfig" class="modal-overlay">
+        <div class="custom-card p-8 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-black mb-6 flex items-center gap-2">⚙️ Configurações</h2>
+            
+            <div class="mb-8">
+                <h3 class="text-[10px] font-black uppercase mb-3 tracking-widest">Perfil do App</h3>
+                <div class="space-y-4 soft-panel p-4">
+                    <input type="text" id="editAppName" placeholder="Nome do app" class="input-vr w-full">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" id="btnModeCouple" onclick="setHouseholdType('couple')" class="py-3 rounded-xl font-black text-[10px] uppercase">Casal</button>
+                        <button type="button" id="btnModeSolo" onclick="setHouseholdType('solo')" class="py-3 rounded-xl font-black text-[10px] uppercase">Solo</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input type="text" id="editPessoa1Nome" placeholder="Pessoa 1" class="input-vr">
+                        <input type="text" id="editPessoa2Nome" placeholder="Pessoa 2" class="input-vr">
+                    </div>
+                    <p class="text-[10px] muted-copy">No modo solo, a segunda pessoa fica oculta da interface.</p>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-[10px] font-black uppercase mb-3 tracking-widest">Meta de Economia</h3>
+                <div class="space-y-4 soft-panel p-4">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="metaAtiva" onchange="toggleMetaInputs()" class="w-5 h-5">
+                        <label for="metaAtiva" class="text-xs font-bold uppercase">Ativar Meta</label>
+                    </div>
+                    <div id="metaFields" class="grid grid-cols-1 md:grid-cols-2 gap-3 opacity-50 pointer-events-none">
+                        <input type="text" id="editMetaNome" placeholder="Nome" class="input-vr col-span-full">
+                        <input type="number" id="editMetaAlvo" placeholder="Alvo R$" class="input-vr">
+                        <input type="number" id="editMetaAtual" placeholder="Atual R$" class="input-vr">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-[10px] font-black uppercase mb-3 tracking-widest">Meus Cartões</h3>
+                <div class="soft-panel p-4 space-y-4">
+                    <div class="flex gap-2">
+                        <input type="text" id="novoCartaoNome" placeholder="Ex: Nubank PJ" class="input-vr flex-1">
+                        <button onclick="addCartao()" class="primary-button px-4 rounded-xl font-black text-xs">+</button>
+                    </div>
+                    <div id="listaCartoesConfig" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <div id="syncSection" class="mb-6">
+                <h3 class="text-[10px] font-black uppercase mb-3 tracking-widest">Sincronização</h3>
+                <button id="syncButton" onclick="forceSync()" class="w-full py-3 primary-button rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                    Sincronizar com Planilha
+                </button>
+                <p id="syncDescription" class="text-[9px] mt-2 text-center">Baixa todos os gastos salvos na planilha</p>
+            </div>
+
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeModal('modalConfig')" class="flex-1 font-bold text-xs uppercase ghost-button">Fechar</button>
+                <button onclick="saveConfig()" class="flex-1 py-4 rounded-xl font-black text-xs uppercase primary-button">Salvar Tudo</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDelete" class="modal-overlay">
+        <div class="custom-card p-8 max-w-xs text-center">
+            <p class="font-bold mb-6">Excluir registro?</p>
+            <div class="flex gap-2">
+                <button onclick="closeModal('modalDelete')" class="flex-1 py-3 text-xs font-bold ghost-button">Não</button>
+                <button id="confirmDeleteBtn" class="flex-1 py-3 rounded-xl font-black text-xs danger-button">Sim</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEdit" class="modal-overlay">
+        <div class="custom-card p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-black mb-4 flex items-center gap-2">✏️ Editar Gasto</h2>
+            <form id="formEditarGasto" class="space-y-4">
+                <input type="hidden" id="editId">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Descrição</label>
+                    <input type="text" id="editDescricao" class="w-full input-vr input-focus p-3">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Valor (R$)</label>
+                        <input type="number" id="editValor" step="0.01" min="0" oninput="if(this.value < 0) this.value = Math.abs(this.value)" class="w-full input-vr input-focus p-3 text-lg font-black">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Data</label>
+                        <input type="date" id="editData" class="w-full input-vr input-focus p-3">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Pagador</label>
+                        <div class="relative">
+                            <button type="button" id="btnEditPagador" class="w-full input-vr input-focus flex items-center justify-between text-left p-3" onclick="toggleEditDropdown('pagador')">
+                                <span id="editPagadorText">Pessoa 1</span>
+                                <svg class="w-4 h-4 text-slate-400 transition-transform" id="editPagadorArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div id="editPagadorDropdown" class="hidden fixed mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-[9999] max-h-48 overflow-y-auto shadow-2xl" style="width: var(--dropdown-width, 200px);">
+                            </div>
+                            <input type="hidden" id="editPagador" value="Pessoa 1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Categoria</label>
+                        <div class="relative">
+                            <button type="button" id="btnEditCategoria" class="w-full input-vr input-focus flex items-center justify-between text-left p-3" onclick="toggleEditDropdown('categoria')">
+                                <span id="editCategoriaText">Comida</span>
+                                <svg class="w-4 h-4 text-slate-400 transition-transform" id="editCategoriaArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div id="editCategoriaDropdown" class="hidden fixed mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-[9999] max-h-48 overflow-y-auto shadow-2xl" style="width: var(--dropdown-width, 200px);">
+                                <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300 selecionado" data-value="Comida" onclick="selectEditCategoria('Comida')">Comida</div>
+                                <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="Lazer" onclick="selectEditCategoria('Lazer')">Lazer</div>
+                                <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="Mercado" onclick="selectEditCategoria('Mercado')">Mercado</div>
+                                <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="Viagem" onclick="selectEditCategoria('Viagem')">Viagem</div>
+                                <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="Outros" onclick="selectEditCategoria('Outros')">Outros</div>
+                            </div>
+                            <input type="hidden" id="editCategoria" value="Comida">
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Método</label>
+                        <div class="relative">
+                            <button type="button" id="btnEditMetodo" class="w-full input-vr input-focus flex items-center justify-between text-left p-3" onclick="toggleEditDropdown('metodo')">
+                                <span id="editMetodoText">PIX</span>
+                                <svg class="w-4 h-4 text-slate-400 transition-transform" id="editMetodoArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div id="editMetodoDropdown" class="hidden fixed mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-[9999] shadow-2xl" style="width: var(--dropdown-width, 200px);">
+                                <div class="edit-metodo-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300 selecionado" data-value="PIX" onclick="selectEditMetodo('PIX')">PIX</div>
+                                <div class="edit-metodo-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="Cartão" onclick="selectEditMetodo('Cartão')">Cartão</div>
+                            </div>
+                            <input type="hidden" id="editMetodo" value="PIX">
+                        </div>
+                    </div>
+                    <div id="editCartaoContainer" class="hidden">
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Cartão</label>
+                        <div class="relative">
+                            <button type="button" id="btnEditCartao" class="w-full input-vr input-focus flex items-center justify-between text-left p-3" onclick="toggleEditDropdown('cartao')">
+                                <span id="editCartaoText">Selecionar</span>
+                                <svg class="w-4 h-4 text-slate-400 transition-transform" id="editCartaoArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div id="editCartaoDropdown" class="hidden fixed mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-[9999] max-h-48 overflow-y-auto shadow-2xl" style="width: var(--dropdown-width, 200px);">
+                                <!-- Opções preenchidas via JS -->
+                            </div>
+                            <input type="hidden" id="editCartao" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeModal('modalEdit')" class="flex-1 py-3 rounded-xl font-bold text-xs uppercase ghost-button">Cancelar</button>
+                    <button type="submit" id="btnSalvarEdicao" class="flex-1 py-3 rounded-xl font-black text-xs uppercase success-button">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="appShell" class="hidden max-w-6xl mx-auto pt-8">
+        <header class="dashboard-header mb-8">
+            <div class="flex items-start gap-4">
+                <img src="logo-pluri.png" alt="Pluri" class="w-14 h-14 object-contain rounded-2xl" style="background: rgba(249, 167, 45, 0.12); padding: 8px;">
+                <div>
+                    <p class="kicker mb-2">Dashboard Pluri</p>
+                    <h1 id="headerTitle" class="text-3xl font-black tracking-tight"></h1>
+                    <p class="text-sm mt-2" style="color: var(--text-soft);">Seus gastos em um espaço mais claro, leve e agradável de acompanhar.</p>
+                </div>
+            </div>
+            <div class="flex gap-2 flex-wrap justify-end">
+                <button type="button" class="theme-toggle" onclick="toggleTheme()">
+                    <span id="themeToggleLabelApp">Tema Claro</span>
+                </button>
+                <div id="userBadge" class="hidden px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase text-slate-300"></div>
+                <button onclick="exportarRelatorio()" class="px-4 py-2 border border-white/10 rounded-xl font-bold text-[10px] uppercase hover:bg-white/5 flex items-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Exportar
+                </button>
+                <button onclick="openConfigModal()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl font-bold text-[10px] uppercase">
+                    ⚙️ Configs
+                </button>
+                <button id="logoutButton" onclick="logout()" class="hidden px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl font-bold text-[10px] uppercase text-red-300">Sair</button>
+            </div>
+        </header>
+
+        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="metric-card">
+                <p class="text-[9px] font-bold stat-label uppercase">Gasto Geral</p>
+                <p id="totalGeral" class="text-2xl font-black">R$ 0,00</p>
+            </div>
+            <div id="memberCard0" class="metric-card">
+                <p id="totalLabel0" class="text-[9px] font-bold bel-text uppercase">Pessoa 1</p>
+                <p id="totalMember0" class="text-2xl font-black">R$ 0,00</p>
+            </div>
+            <div id="memberCard1" class="metric-card">
+                <p id="totalLabel1" class="text-[9px] font-bold luccas-text uppercase">Pessoa 2</p>
+                <p id="totalMember1" class="text-2xl font-black">R$ 0,00</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-8 space-y-6">
+                <div id="metaContainer" class="custom-card p-6 flex items-center justify-between gap-6">
+                    <div class="flex-1">
+                        <span id="labelMeta" class="text-[10px] font-black uppercase text-emerald-400">Meta Off</span>
+                        <div class="w-full bg-black/40 h-2 rounded-full overflow-hidden mt-2">
+                            <div id="barraMeta" class="bg-emerald-500 h-full w-0 transition-all duration-1000"></div>
+                        </div>
+                    </div>
+                    <div class="w-16 h-16"><canvas id="chartDivisao"></canvas></div>
+                </div>
+                
+                <div id="listaGastosWrap">
+                    <div class="list-head">
+                        <div>
+                            <p class="kicker mb-2">Histórico</p>
+                            <h2 class="text-2xl font-black tracking-tight">Seus lançamentos</h2>
+                            <p class="list-copy">Navegue pelos registros com uma leitura mais limpa, rápida e confortável.</p>
+                        </div>
+                        <div id="customSelectFiltro" class="relative w-full md:w-52 shrink-0">
+                            <button type="button" id="btnSelectFiltro" class="w-full input-vr input-focus flex items-center justify-between text-left font-bold uppercase">
+                                <span id="filtroSelecionadoText">Todos os Meses</span>
+                                <svg class="w-4 h-4 text-slate-400 transition-transform" id="filtroArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div id="filtroDropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-50 max-h-48 overflow-y-auto">
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="all">Todos os Meses</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="01">Janeiro</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="02">Fevereiro</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="03">Março</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="04">Abril</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="05">Maio</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="06">Junho</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="07">Julho</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="08">Agosto</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="09">Setembro</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="10">Outubro</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="11">Novembro</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="12">Dezembro</div>
+                            </div>
+                            <input type="hidden" id="filtroMes" value="all">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="listaGastos" class="space-y-3"></div>
+            </div>
+
+            <div class="lg:col-span-4">
+                <div class="custom-card form-card p-6 lg:sticky lg:top-6 border-t-4 transition-all" id="formContainer" style="border-color: var(--bel)">
+                    <div class="form-head">
+                        <div>
+                            <p class="kicker mb-2">Novo gasto</p>
+                            <h2 class="text-2xl font-black tracking-tight">Adicionar lançamento</h2>
+                            <p class="muted-copy text-sm mt-2">Entrada rápida, categorias visuais e seleção de pagador sem atrito.</p>
+                        </div>
+                        <div class="form-badge">+</div>
+                    </div>
+
+                    <div id="payerButtons" class="flex mb-6"></div>
+
+                    <form id="formGasto" class="space-y-4">
+                        <!-- Chips de valores rápidos -->
+                        <div class="flex gap-2 justify-center">
+                            <button type="button" onclick="setValorRapido(5)" class="valor-chip px-3 py-2 rounded-lg text-xs font-bold">R$ 5</button>
+                            <button type="button" onclick="setValorRapido(10)" class="valor-chip px-3 py-2 rounded-lg text-xs font-bold">R$ 10</button>
+                            <button type="button" onclick="setValorRapido(20)" class="valor-chip px-3 py-2 rounded-lg text-xs font-bold">R$ 20</button>
+                            <button type="button" onclick="setValorRapido(50)" class="valor-chip px-3 py-2 rounded-lg text-xs font-bold">R$ 50</button>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="valor" step="0.01" inputmode="decimal" pattern="[0-9]*" min="0" required placeholder="0,00" oninput="if(this.value < 0) this.value = Math.abs(this.value)" class="w-full p-4 pr-12 rounded-xl text-3xl font-black text-center bg-[#13111C] border border-white/5 outline-none input-focus">
+                            <button type="button" onclick="limparValor()" class="absolute right-3 top-1/2 -translate-y-1/2 ghost-icon-button hover:text-red-400 active:scale-95 transition-all" title="Limpar valor">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" id="dataGasto" class="input-vr font-bold input-focus">
+                            <div class="flex items-center justify-center rounded-xl gap-2 soft-panel px-3">
+                                <input type="checkbox" id="isFixo" class="w-4 h-4 cursor-pointer"><label for="isFixo" class="text-[8px] font-bold uppercase" style="color: var(--text-soft);">Fixo</label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setMetodo('PIX')" id="met-PIX" class="chip-metodo py-3 rounded-xl border border-white/5 bg-[#13111C] text-[10px] font-bold active-chip">PIX</button>
+                            <button type="button" onclick="setMetodo('Cartão')" id="met-Cartão" class="chip-metodo py-3 rounded-xl border border-white/5 bg-[#13111C] text-[10px] font-bold">CARTÃO</button>
+                        </div>
+
+                        <div id="seletorCartao" class="relative hidden">
+                            <div id="customSelectCartao" class="relative">
+                                <button type="button" id="btnSelectCartao" class="w-full input-vr input-focus flex items-center justify-between text-left">
+                                    <span id="cartaoSelecionadoText">Selecionar cartão</span>
+                                    <svg class="w-4 h-4 text-slate-400 transition-transform" id="cartaoArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div id="cartaoDropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-50 max-h-48 overflow-y-auto">
+                                    <!-- Opções serão inseridas aqui -->
+                                </div>
+                            </div>
+                            <input type="hidden" id="tipoCartao" name="tipoCartao">
+                        </div>
+
+                        <div id="categoryGrid" class="grid grid-cols-3 gap-2"></div>
+                        
+                        <input type="text" id="descricao" placeholder="Descrição..." class="w-full p-3 rounded-xl text-xs bg-[#13111C] border border-white/5 outline-none input-focus">
+                        
+                        <button type="submit" id="btnSubmit" class="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95" style="background: var(--bel); color: #000;">
+                            Registrar Gasto
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        /*
+        const categories = [
+            {id: 'Comida', svg: '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>'},
+            {id: 'Lazer', svg: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="15" cy="13" r="1"/>'}, 
+            {id: 'Mercado', svg: '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>'},
+            {id: 'Viagem', svg: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>'},
+            {id: 'Outros', svg: '<circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/>'}
+        ];
+
+        let gastos = JSON.parse(localStorage.getItem('gastos_v12')) || [];
+        let meta = JSON.parse(localStorage.getItem('meta_v12')) || { ativa: false, nome: '', alvo: 0, atual: 0 };
+        let cartoes = JSON.parse(localStorage.getItem('cartoes_v12')) || ['Nubank', 'Inter'];
+        let pagadorAtual = 'Bel', categoriaSelecionada = 'Comida', metodoPagamento = 'PIX', chart, deleteIdTemp, lastSyncTime = 0;
+        
+        // URL do Google Apps Script - substitua pela sua URL após a implantação
+        const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbxbkFnLzQDsp9Rb-rd3oqce6WRaDrlusAbV-Xpzln7I0PwuLemc0w0AN8npBIAiLiQzzg/exec";
+
+        document.getElementById('dataGasto').valueAsDate = new Date();
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast'; t.innerText = msg;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function setPayer(p) {
+            pagadorAtual = p;
+            const body = document.getElementById('mainBody');
+            const container = document.getElementById('formContainer');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const bBel = document.getElementById('btnBel');
+            const bLuc = document.getElementById('btnLuccas');
+
+            if(p === 'Bel') {
+                body.className = 'pb-10 px-4 bel-theme';
+                container.style.borderColor = 'var(--bel)';
+                btnSubmit.style.background = 'var(--bel)'; btnSubmit.style.color = '#000';
+                bBel.className = "flex-1 py-2 text-[10px] font-black rounded-lg bel-bg transition-all";
+                bLuc.className = "flex-1 py-2 text-[10px] font-black rounded-lg text-slate-500 transition-all";
+            } else {
+                body.className = 'pb-10 px-4 luccas-theme';
+                container.style.borderColor = 'var(--luccas)';
+                btnSubmit.style.background = 'var(--luccas)'; btnSubmit.style.color = '#fff';
+                bLuc.className = "flex-1 py-2 text-[10px] font-black rounded-lg luccas-bg transition-all";
+                bBel.className = "flex-1 py-2 text-[10px] font-black rounded-lg text-slate-500 transition-all";
+            }
+            
+            // Pre-seleciona o cartão favorito do usuário
+            selecionarCartaoFavorito(p);
+        }
+        
+        function selecionarCartaoFavorito(pagador) {
+            const favorito = cartaoFavorito[pagador];
+            // Só seleciona se o cartão favorito existe na lista atual
+            if (favorito && cartoes.includes(favorito)) {
+                cartaoSelecionado = favorito;
+                document.getElementById('tipoCartao').value = favorito;
+                document.getElementById('cartaoSelecionadoText').innerText = favorito;
+                updateSeletorCartaoForm();
+            }
+        }
+        
+        function salvarCartaoFavorito(pagador, cartao) {
+            cartaoFavorito[pagador] = cartao;
+            localStorage.setItem('cartaoFavorito_v12', JSON.stringify(cartaoFavorito));
+        }
+
+        function toggleMetaInputs() {
+            const ativa = document.getElementById('metaAtiva').checked;
+            const fields = document.getElementById('metaFields');
+            fields.style.opacity = ativa ? '1' : '0.5';
+            fields.style.pointerEvents = ativa ? 'all' : 'none';
+        }
+
+        function openConfigModal() {
+            document.getElementById('metaAtiva').checked = meta.ativa;
+            document.getElementById('editMetaNome').value = meta.nome;
+            document.getElementById('editMetaAlvo').value = meta.alvo;
+            document.getElementById('editMetaAtual').value = meta.atual;
+            renderListaCartoesConfig();
+            toggleMetaInputs();
+            openModal('modalConfig');
+        }
+
+        function renderListaCartoesConfig() {
+            const container = document.getElementById('listaCartoesConfig');
+            container.innerHTML = cartoes.map(c => `
+                <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-full flex items-center gap-2 text-[10px] font-bold uppercase">
+                    ${c} <button onclick="removeCartao('${c}')" class="text-red-500 ml-1">✕</button>
+                </div>
+            `).join('');
+            updateSeletorCartaoForm();
+        }
+
+        async function syncCartoesSheets() {
+            if (!URL_GOOGLE_SHEETS || !URL_GOOGLE_SHEETS.includes("script.google.com")) return;
+            try {
+                const params = new URLSearchParams({
+                    action: 'saveCartoes',
+                    cartoes: JSON.stringify(cartoes)
+                });
+                await fetch(`${URL_GOOGLE_SHEETS}?${params.toString()}`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                console.log('Cartões sincronizados com Sheets');
+            } catch (error) {
+                console.error('Erro ao sincronizar cartões:', error);
+            }
+        }
+
+        async function carregarCartoesSheets() {
+            if (!URL_GOOGLE_SHEETS || !URL_GOOGLE_SHEETS.includes("script.google.com")) {
+                console.log('URL do Sheets não configurada');
+                return;
+            }
+            try {
+                const params = new URLSearchParams({ action: 'getCartoes', t: Date.now() });
+                const url = `${URL_GOOGLE_SHEETS}?${params.toString()}`;
+                console.log('Buscando cartões em:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                console.log('Status resposta cartões:', response.status);
+                
+                if (!response.ok) throw new Error('Erro na resposta: ' + response.status);
+                const text = await response.text();
+                console.log('Resposta cartões:', text.substring(0, 200));
+                
+                // Verifica se a resposta é JSON válido
+                if (!text || text.startsWith('SKIP') || text.trim() === '') {
+                    console.log('Sem cartões no Sheets, usando locais');
+                    return;
+                }
+                try {
+                    let cartoesSheets = JSON.parse(text);
+                    console.log('Cartões parsed:', cartoesSheets);
+                    
+                    // Se veio como array de objetos com {tipo, valor}, extrai os valores
+                    if (cartoesSheets && Array.isArray(cartoesSheets)) {
+                        if (cartoesSheets.length > 0 && typeof cartoesSheets[0] === 'object' && cartoesSheets[0].valor) {
+                            cartoesSheets = cartoesSheets
+                                .filter(item => item.tipo === 'cartao' && item.valor)
+                                .map(item => item.valor);
+                        }
+                        // Filtra apenas strings válidas
+                        cartoesSheets = cartoesSheets.filter(c => typeof c === 'string' && c.trim() !== '');
+                        if (cartoesSheets.length > 0) {
+                            cartoes = cartoesSheets;
+                            localStorage.setItem('cartoes_v12', JSON.stringify(cartoes));
+                            renderListaCartoesConfig();
+                            updateSeletorCartaoForm();
+                            console.log('Cartões carregados do Sheets:', cartoes.length);
+                        } else {
+                            console.log('Nenhum cartão válido encontrado na resposta');
+                        }
+                    } else {
+                        console.log('Resposta não é array:', cartoesSheets);
+                    }
+                } catch (error) {
+                    console.error('Erro ao fazer parse dos cartões:', error, text);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cartões do Sheets:', error);
+            }
+        }
+
+        function addCartao() {
+            const nome = document.getElementById('novoCartaoNome').value.trim();
+            if (nome && !cartoes.includes(nome)) {
+                cartoes.push(nome);
+                document.getElementById('novoCartaoNome').value = '';
+                renderListaCartoesConfig();
+                localStorage.setItem('cartoes_v12', JSON.stringify(cartoes));
+                updateSeletorCartaoForm();
+                syncCartoesSheets(); // Sincroniza com Sheets
+            }
+        }
+
+        function removeCartao(nome) {
+            cartoes = cartoes.filter(c => c !== nome);
+            renderListaCartoesConfig();
+            localStorage.setItem('cartoes_v12', JSON.stringify(cartoes));
+            updateSeletorCartaoForm();
+            syncCartoesSheets(); // Sincroniza com Sheets
+        }
+
+        let cartaoSelecionado = cartoes[0] || '';
+        
+        // Cartão favorito/último usado por perfil
+        let cartaoFavorito = JSON.parse(localStorage.getItem('cartaoFavorito_v12')) || { Bel: '', Luccas: '' };
+
+        function updateSeletorCartaoForm() {
+            const dropdown = document.getElementById('cartaoDropdown');
+            const hiddenInput = document.getElementById('tipoCartao');
+            const textDisplay = document.getElementById('cartaoSelecionadoText');
+            
+            // Preenche o dropdown com classe 'selecionado' para seguir o tema CSS
+            dropdown.innerHTML = cartoes.map(c => `
+                <div class="cartao-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors ${c === cartaoSelecionado ? 'selecionado' : ''}" data-value="${c}">
+                    ${c}
+                </div>
+            `).join('');
+            
+            // Adiciona eventos de clique
+            dropdown.querySelectorAll('.cartao-option').forEach(option => {
+                option.onclick = () => {
+                    cartaoSelecionado = option.dataset.value;
+                    hiddenInput.value = cartaoSelecionado;
+                    textDisplay.innerText = cartaoSelecionado;
+                    toggleCartaoDropdown(false);
+                    updateSeletorCartaoForm(); // Atualiza classes ativas
+                };
+            });
+            
+            // Define valor inicial
+            if (cartoes.length > 0 && !hiddenInput.value) {
+                cartaoSelecionado = cartoes[0];
+                hiddenInput.value = cartaoSelecionado;
+                textDisplay.innerText = cartaoSelecionado;
+            }
+        }
+
+        function toggleCartaoDropdown(show) {
+            const dropdown = document.getElementById('cartaoDropdown');
+            const arrow = document.getElementById('cartaoArrow');
+            
+            if (show === undefined) {
+                show = dropdown.classList.contains('hidden');
+            }
+            
+            if (show) {
+                dropdown.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        // Eventos do select customizado de cartões
+        document.getElementById('btnSelectCartao').onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCartaoDropdown();
+        };
+
+        // Fecha ao clicar fora
+        document.addEventListener('click', (e) => {
+            const containerCartao = document.getElementById('customSelectCartao');
+            const containerFiltro = document.getElementById('customSelectFiltro');
+            if (!containerCartao.contains(e.target)) {
+                toggleCartaoDropdown(false);
+            }
+            if (!containerFiltro.contains(e.target)) {
+                toggleFiltroDropdown(false);
+            }
+        });
+
+        // Select customizado de filtro de meses
+        function toggleFiltroDropdown(show) {
+            const dropdown = document.getElementById('filtroDropdown');
+            const arrow = document.getElementById('filtroArrow');
+            
+            if (show === undefined) {
+                show = dropdown.classList.contains('hidden');
+            }
+            
+            if (show) {
+                dropdown.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        document.getElementById('btnSelectFiltro').onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFiltroDropdown();
+        };
+
+        // Eventos das opções do filtro
+        document.querySelectorAll('.filtro-option').forEach(option => {
+            option.onclick = () => {
+                const valor = option.dataset.value;
+                const texto = option.innerText;
+                document.getElementById('filtroMes').value = valor;
+                document.getElementById('filtroSelecionadoText').innerText = texto;
+                toggleFiltroDropdown(false);
+                render();
+            };
+        });
+
+        function setMetodo(m) {
+            metodoPagamento = m;
+            document.querySelectorAll('.chip-metodo').forEach(c => c.classList.remove('active-chip'));
+            document.getElementById(`met-${m}`).classList.add('active-chip');
+            document.getElementById('seletorCartao').classList.toggle('hidden', m !== 'Cartão');
+        }
+
+        // Chips de valores rápidos - soma valores
+        function setValorRapido(valor) {
+            const inputValor = document.getElementById('valor');
+            const valorAtual = parseFloat(inputValor.value) || 0;
+            const novoValor = valorAtual + valor;
+            inputValor.value = novoValor.toFixed(2);
+        }
+
+        // Limpa o campo de valor
+        function limparValor() {
+            document.getElementById('valor').value = '';
+            document.getElementById('valor').focus();
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `category-chip bg-[#13111C] p-2 rounded-xl border border-white/5 flex flex-col items-center transition-all ${cat.id === categoriaSelecionada ? 'active-chip' : ''}`;
+                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${cat.svg}</svg><span class="text-[7px] font-bold uppercase mt-1">${cat.id}</span>`;
+                btn.onclick = () => {
+                    categoriaSelecionada = cat.id;
+                    document.querySelectorAll('.category-chip').forEach(el => el.classList.remove('active-chip'));
+                    btn.classList.add('active-chip');
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        document.getElementById('formGasto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Desabilita botão para evitar cliques múltiplos
+            const btnSubmit = document.getElementById('btnSubmit');
+            const textoOriginal = btnSubmit.innerText;
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Salvando...</span>';
+            btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+            
+            const dataInput = document.getElementById('dataGasto').value;
+            const dataObj = new Date(dataInput + 'T12:00:00');
+            const cartaoUsado = document.getElementById('tipoCartao').value;
+            const finalMetodo = metodoPagamento === 'Cartão' ? ` ${cartaoUsado}` : ' PIX';
+            
+            // Salva cartão como favorito para este usuário
+            if (metodoPagamento === 'Cartão' && cartaoUsado) {
+                salvarCartaoFavorito(pagadorAtual, cartaoUsado);
+            }
+
+            const gastoId = Date.now();
+            const novoGasto = { 
+                id: gastoId, valor: parseFloat(document.getElementById('valor').value), categoria: categoriaSelecionada, 
+                descricao: document.getElementById('descricao').value || categoriaSelecionada, pagador: pagadorAtual, 
+                metodo: finalMetodo, mes: (dataObj.getMonth()+1).toString().padStart(2,'0'), dataRaw: dataInput, 
+                dataDisplay: dataObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}),
+                createdAt: Date.now() // Marca quando foi criado localmente
+            };
+
+            // --- ENVIO PARA GOOGLE SHEETS ---
+            if (URL_GOOGLE_SHEETS && URL_GOOGLE_SHEETS.includes("script.google.com")) {
+                showToast('Salvando na nuvem...');
+                try {
+                    // Envia valor como número puro (sem formatação) para evitar problema com vírgula
+                    const params = new URLSearchParams({
+                        dataRaw: novoGasto.dataRaw,
+                        descricao: novoGasto.descricao,
+                        valor: novoGasto.valor.toString(),
+                        pagador: novoGasto.pagador,
+                        categoria: novoGasto.categoria,
+                        metodo: novoGasto.metodo,
+                        id: gastoId.toString()  // ID na coluna G para futura exclusão
+                    });
+                    await fetch(`${URL_GOOGLE_SHEETS}?${params.toString()}`, {
+                        method: 'GET',
+                        mode: 'no-cors'
+                    });
+                    showToast('Gravado na Planilha!');
+                } catch (error) {
+                    console.error('Erro ao salvar no Sheets:', error);
+                    showToast('Erro ao salvar online.');
+                }
+            }
+            // --------------------------------
+
+            gastos.push(novoGasto);
+            gastos.sort((a,b) => new Date(b.dataRaw) - new Date(a.dataRaw));
+            localStorage.setItem('gastos_v12', JSON.stringify(gastos));
+            render();
+            e.target.reset();
+            setMetodo('PIX');
+            document.getElementById('dataGasto').valueAsDate = new Date();
+            showToast('Gasto registrado!');
+            
+            // Reabilita botão
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = textoOriginal;
+            btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+        });
+
+        function confirmDelete(id) { 
+            deleteIdTemp = id; 
+            openModal('modalDelete'); 
+            // Reabilita o botão caso tenha sido desabilitado antes
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.innerText = 'SIM';
+        }
+        
+        document.getElementById('confirmDeleteBtn').onclick = async () => { 
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed', 'flex', 'items-center', 'justify-center', 'gap-2');
+            btn.innerHTML = '<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Excluindo...';
+
+            // Remove do localStorage
+            gastos = gastos.filter(g => g.id !== deleteIdTemp); 
+            localStorage.setItem('gastos_v12', JSON.stringify(gastos)); 
+            
+            // Sincroniza exclusão com Google Sheets
+            if (URL_GOOGLE_SHEETS && URL_GOOGLE_SHEETS.includes("script.google.com")) {
+                try {
+                    const deleteParams = new URLSearchParams({
+                        action: 'delete',
+                        id: deleteIdTemp.toString()
+                    });
+                    await fetch(`${URL_GOOGLE_SHEETS}?${deleteParams.toString()}`, {
+                        method: 'GET',
+                        mode: 'no-cors'
+                    });
+                    showToast('Removido da planilha!');
+                } catch (error) {
+                    console.error('Erro ao deletar do Sheets:', error);
+                }
+            }
+            
+            closeModal('modalDelete'); 
+            render(); 
+        };
+
+        async function forceSync() {
+            showToast('Sincronizando com planilha...');
+            await carregarDadosSheets(false);
+        }
+
+        function saveConfig() {
+            meta.ativa = document.getElementById('metaAtiva').checked;
+            meta.nome = document.getElementById('editMetaNome').value;
+            meta.alvo = parseFloat(document.getElementById('editMetaAlvo').value) || 0;
+            meta.atual = parseFloat(document.getElementById('editMetaAtual').value) || 0;
+            localStorage.setItem('meta_v12', JSON.stringify(meta));
+            closeModal('modalConfig');
+            render();
+            showToast('Configurações salvas!');
+        }
+
+        function toggleEditDropdown(tipo, show) {
+            const dropdown = document.getElementById(`edit${tipo.charAt(0).toUpperCase() + tipo.slice(1)}Dropdown`);
+            const arrow = document.getElementById(`edit${tipo.charAt(0).toUpperCase() + tipo.slice(1)}Arrow`);
+            const btn = document.getElementById(`btnEdit${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+            
+            if (show === undefined) {
+                show = dropdown.classList.contains('hidden');
+            }
+            
+            // Fecha todos os outros dropdowns do modal de edição
+            ['Pagador', 'Categoria', 'Metodo', 'Cartao'].forEach(t => {
+                if (t.toLowerCase() !== tipo) {
+                    const otherDropdown = document.getElementById(`edit${t}Dropdown`);
+                    const otherArrow = document.getElementById(`edit${t}Arrow`);
+                    if (otherDropdown && !otherDropdown.classList.contains('hidden')) {
+                        otherDropdown.classList.add('hidden');
+                        if (otherArrow) otherArrow.classList.remove('rotate-180');
+                    }
+                }
+            });
+            
+            if (show) {
+                // Posiciona o dropdown fixo abaixo do botão
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    dropdown.style.left = rect.left + 'px';
+                    dropdown.style.top = (rect.bottom + 8) + 'px';
+                    dropdown.style.setProperty('--dropdown-width', rect.width + 'px');
+                }
+                dropdown.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        function selectEditPagador(valor) {
+            document.getElementById('editPagador').value = valor;
+            document.getElementById('editPagadorText').innerText = valor;
+            toggleEditDropdown('pagador', false);
+            // Atualiza classes selecionadas
+            document.querySelectorAll('.edit-pagador-option').forEach(opt => {
+                opt.classList.toggle('selecionado', opt.dataset.value === valor);
+            });
+        }
+
+        function selectEditCategoria(valor) {
+            document.getElementById('editCategoria').value = valor;
+            document.getElementById('editCategoriaText').innerText = valor;
+            toggleEditDropdown('categoria', false);
+            // Atualiza classes selecionadas
+            document.querySelectorAll('.edit-categoria-option').forEach(opt => {
+                opt.classList.toggle('selecionado', opt.dataset.value === valor);
+            });
+        }
+
+        function selectEditMetodo(valor) {
+            document.getElementById('editMetodo').value = valor;
+            document.getElementById('editMetodoText').innerText = valor;
+            toggleEditDropdown('metodo', false);
+            // Atualiza classes selecionadas
+            document.querySelectorAll('.edit-metodo-option').forEach(opt => {
+                opt.classList.toggle('selecionado', opt.dataset.value === valor);
+            });
+            // Mostra/esconde select de cartão
+            toggleEditCartao();
+        }
+
+        function selectEditCartao(valor) {
+            document.getElementById('editCartao').value = valor;
+            document.getElementById('editCartaoText').innerText = valor;
+            toggleEditDropdown('cartao', false);
+            // Atualiza classes selecionadas
+            document.querySelectorAll('.edit-cartao-option').forEach(opt => {
+                opt.classList.toggle('selecionado', opt.dataset.value === valor);
+            });
+        }
+
+        function toggleEditCartao() {
+            const metodo = document.getElementById('editMetodo').value;
+            const cartaoContainer = document.getElementById('editCartaoContainer');
+            const cartaoDropdown = document.getElementById('editCartaoDropdown');
+            
+            if (metodo === 'Cartão') {
+                cartaoContainer.classList.remove('hidden');
+                // Preenche opções de cartões
+                cartaoDropdown.innerHTML = cartoes.map(c => 
+                    `<div class="edit-cartao-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="${c}" onclick="selectEditCartao('${c}')">${c}</div>`
+                ).join('');
+            } else {
+                cartaoContainer.classList.add('hidden');
+            }
+        }
+
+        function openEditModal(id) {
+            const gasto = gastos.find(g => g.id === id);
+            if (gasto) {
+                document.getElementById('editId').value = gasto.id;
+                document.getElementById('editDescricao').value = gasto.descricao;
+                document.getElementById('editValor').value = gasto.valor;
+                document.getElementById('editData').value = gasto.dataRaw;
+                
+                // Pagador
+                selectEditPagador(gasto.pagador);
+                
+                // Categoria
+                selectEditCategoria(gasto.categoria);
+                
+                // Verifica se é PIX ou Cartão
+                const isCartao = gasto.metodo && !gasto.metodo.includes('PIX');
+                if (isCartao) {
+                    selectEditMetodo('Cartão');
+                    // Extrai o nome do cartão do método
+                    const cartaoNome = gasto.metodo.trim();
+                    if (cartaoNome && cartoes.includes(cartaoNome)) {
+                        setTimeout(() => selectEditCartao(cartaoNome), 10);
+                    }
+                } else {
+                    selectEditMetodo('PIX');
+                }
+                
+                openModal('modalEdit');
+            }
+        }
+
+        document.getElementById('formEditarGasto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const gasto = gastos.find(g => g.id === parseInt(id));
+            if (gasto) {
+                gasto.descricao = document.getElementById('editDescricao').value;
+                gasto.valor = parseFloat(document.getElementById('editValor').value);
+                gasto.dataRaw = document.getElementById('editData').value;
+                gasto.pagador = document.getElementById('editPagador').value;
+                gasto.categoria = document.getElementById('editCategoria').value;
+                const metodoEdit = document.getElementById('editMetodo').value;
+                const cartaoEdit = document.getElementById('editCartao').value;
+                gasto.metodo = metodoEdit === 'Cartão' ? ` ${cartaoEdit}` : ' PIX';
+                gasto.mes = gasto.dataRaw.substring(5, 7);
+                const dataObj = new Date(gasto.dataRaw + 'T12:00:00');
+                gasto.dataDisplay = dataObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'});
+                gastos.sort((a,b) => new Date(b.dataRaw) - new Date(a.dataRaw));
+                localStorage.setItem('gastos_v12', JSON.stringify(gastos));
+                
+                // Sincroniza edição com Google Sheets
+                if (URL_GOOGLE_SHEETS && URL_GOOGLE_SHEETS.includes("script.google.com")) {
+                    try {
+                        const params = new URLSearchParams({
+                            action: 'update',
+                            id: id,
+                            dataRaw: gasto.dataRaw,
+                            descricao: gasto.descricao,
+                            valor: gasto.valor.toString(),
+                            pagador: gasto.pagador,
+                            categoria: gasto.categoria,
+                            metodo: gasto.metodo
+                        });
+                        await fetch(`${URL_GOOGLE_SHEETS}?${params.toString()}`, {
+                            method: 'GET',
+                            mode: 'no-cors'
+                        });
+                        showToast('Editado na planilha!');
+                    } catch (error) {
+                        console.error('Erro ao editar no Sheets:', error);
+                    }
+                }
+                
+                render();
+                closeModal('modalEdit');
+                showToast('Gasto editado!');
+            }
+        });
+
+        function render() {
+            const lista = document.getElementById('listaGastos'), filtro = document.getElementById('filtroMes').value;
+            let tBel = 0, tLuccas = 0;
+            lista.innerHTML = '';
+            
+            // Filtra registros válidos antes de renderizar
+            const gastosValidos = gastos.filter(g => 
+                g.id && 
+                !isNaN(parseFloat(g.valor)) && 
+                parseFloat(g.valor) > 0 &&
+                g.pagador && 
+                (g.pagador === 'Bel' || g.pagador === 'Luccas')
+            );
+            
+            // Atualiza array se necessário
+            if (gastosValidos.length !== gastos.length) {
+                gastos = gastosValidos;
+                localStorage.setItem('gastos_v12', JSON.stringify(gastos));
+            }
+            
+            const filtrados = filtro === 'all' ? gastos : gastos.filter(g => g.mes === filtro);
+            
+            filtrados.forEach(g => {
+                const isBel = g.pagador === 'Bel';
+                if(isBel) tBel += g.valor; else tLuccas += g.valor;
+                lista.innerHTML += `
+                    <div class="expense-card p-3 lg:p-4 ${isBel ? 'border-[var(--bel)]' : 'border-[var(--luccas)]'}">
+                        <!-- Desktop: layout horizontal -->
+                        <div class="hidden lg:flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2 h-2 rounded-full ${isBel ? 'bg-[var(--bel)]' : 'bg-[var(--luccas)]'}"></span>
+                                <div>
+                                    <p class="font-bold text-xs">${g.descricao}</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">${g.pagador} • ${g.metodo} • ${g.dataDisplay}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <p class="font-black text-xs">R$ ${g.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="openEditModal(${g.id})" class="text-slate-600 hover:text-yellow-500 transition-colors" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                    <button onclick="confirmDelete(${g.id})" class="text-slate-800 hover:text-red-500" title="Excluir">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Mobile: layout vertical em card -->
+                        <div class="lg:hidden">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full ${isBel ? 'bg-[var(--bel)]' : 'bg-[var(--luccas)]'}"></span>
+                                    <span class="text-xs font-bold uppercase text-slate-400">${g.pagador}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="openEditModal(${g.id})" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:bg-[var(--bel)]/20 hover:text-[var(--bel)] active:scale-95 transition-all" title="Editar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                    <button onclick="confirmDelete(${g.id})" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/20 hover:text-red-400 active:scale-95 transition-all text-lg" title="Excluir">✕</button>
+                                </div>
+                            </div>
+                            <p class="font-bold text-base text-white mb-3">${g.descricao}</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs text-slate-500 font-medium">${g.metodo} • ${g.dataDisplay}</p>
+                                <p class="font-black text-base ${isBel ? 'text-[var(--bel)]' : 'text-[var(--luccas)]'}">R$ ${g.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            if (meta.ativa) {
+                document.getElementById('metaContainer').classList.remove('hidden');
+                document.getElementById('labelMeta').innerText = `${meta.nome} (${Math.round((meta.atual/meta.alvo)*100)}%)`;
+                document.getElementById('barraMeta').style.width = Math.min((meta.atual / meta.alvo) * 100, 100) + '%';
+            } else {
+                document.getElementById('metaContainer').classList.add('hidden');
+            }
+
+            document.getElementById('totalGeral').innerText = `R$ ${(tBel + tLuccas).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+            document.getElementById('totalBel').innerText = `R$ ${tBel.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+            document.getElementById('totalLuccas').innerText = `R$ ${tLuccas.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+            updateChart(tBel, tLuccas);
+        }
+
+        function updateChart(b, l) {
+            const ctx = document.getElementById('chartDivisao').getContext('2d');
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [b||1, l||1], backgroundColor: ['#FFD952', '#A855F7'], borderWidth: 0 }] }, options: { cutout: '75%', plugins: { tooltip: { enabled: false } } } });
+        }
+
+        function exportarRelatorio() {
+            const filtro = document.getElementById('filtroMes').value;
+            const filtrados = filtro === 'all' ? gastos : gastos.filter(g => g.mes === filtro);
+            let txt = `RELATÓRIO FINANCEIRO BEL & LUCCAS\n===============================\n`;
+            filtrados.forEach(g => { txt += `${g.dataDisplay} | ${g.pagador} | ${g.metodo} | ${g.descricao}: R$ ${g.valor.toFixed(2)}\n`; });
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `relatorio_${filtro}.txt`; a.click();
+        }
+        
+        async function carregarDadosSheets(silent = true) {
+            // Evita sincronizações muito frequentes (mínimo 5 segundos entre chamadas)
+            const now = Date.now();
+            if (now - lastSyncTime < 5000) return;
+            lastSyncTime = now;
+            
+            try {
+                const params = new URLSearchParams({ action: 'get', t: now });
+                const response = await fetch(`${URL_GOOGLE_SHEETS}?${params.toString()}`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) throw new Error('Erro na resposta');
+                
+                const dadosSheets = await response.json();
+                console.log('Dados carregados do Sheets:', dadosSheets.length);
+                
+                if (dadosSheets && Array.isArray(dadosSheets)) {
+                    // Filtra registros válidos (com ID e valor válidos)
+                    const dadosValidos = dadosSheets.filter(g => 
+                        g.id && 
+                        !isNaN(parseFloat(g.valor)) && 
+                        parseFloat(g.valor) > 0 &&
+                        g.pagador && 
+                        (g.pagador === 'Bel' || g.pagador === 'Luccas')
+                    );
+                    
+                    // Sempre prioriza dados do Sheets - substitui localStorage
+                    const idsSheets = new Set(dadosValidos.map(g => g.id));
+                    const now = Date.now();
+                    
+                    // Mantém apenas gastos locais criados recentemente (últimos 60s) que ainda não foram sincronizados
+                    // Gastos mais antigos que não estão no Sheets foram deletados em outro dispositivo
+                    const gastosLocaisNaoSync = gastos.filter(g => {
+                        const isNovo = g.createdAt && (now - g.createdAt < 60000); // Criado há menos de 60s
+                        const naoEstaNoSheets = !idsSheets.has(g.id);
+                        return isNovo && naoEstaNoSheets;
+                    });
+                    
+                    // Prepara dados do Sheets
+                    const dadosProcessados = dadosValidos.map(g => {
+                        // Converte data do Sheets (pode vir como objeto Date ou string)
+                        let dataStr = g.dataRaw;
+                        
+                        // Se veio como ISO string (2026-04-13T03:00:00.000Z), extrai só a data
+                        if (typeof dataStr === 'string' && dataStr.includes('T')) {
+                            dataStr = dataStr.split('T')[0]; // Pega só "2026-04-13"
+                        }
+                        
+                        if (typeof dataStr === 'object' && dataStr instanceof Date) {
+                            // Se veio como objeto Date do Sheets, converte para YYYY-MM-DD
+                            const d = new Date(dataStr);
+                            dataStr = d.toISOString().split('T')[0];
+                        }
+                        // Se já é string no formato DD/MM/YYYY ou outro, tenta converter
+                        if (typeof dataStr === 'string' && dataStr.includes('/')) {
+                            const parts = dataStr.split('/');
+                            if (parts.length === 3) {
+                                // DD/MM/YYYY -> YYYY-MM-DD
+                                dataStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                            }
+                        }
+                        
+                        const dataObj = new Date(dataStr + 'T12:00:00');
+                        const mes = dataStr && dataStr.includes('-') ? dataStr.substring(5, 7) : '01';
+                        
+                        return {
+                            ...g,
+                            dataRaw: dataStr,
+                            mes: mes,
+                            dataDisplay: isNaN(dataObj.getTime()) 
+                                ? dataStr 
+                                : dataObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'})
+                        };
+                    });
+                    
+                    // Combina: dados do Sheets + gastos locais não sincronizados ainda
+                    gastos = [...dadosProcessados, ...gastosLocaisNaoSync];
+                    gastos.sort((a,b) => new Date(b.dataRaw) - new Date(a.dataRaw));
+                    localStorage.setItem('gastos_v12', JSON.stringify(gastos));
+                    render();
+                    if (!silent) showToast(`${dadosValidos.length} gastos sincronizados!`);
+                    console.log('Dados sincronizados com sucesso!');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar do Sheets:', error);
+                if (!silent) showToast('Erro ao sincronizar: ' + error.message);
+            }
+        }
+        
+        // Sincronização automática a cada 15 segundos
+        setInterval(() => carregarDadosSheets(true), 15000);
+        
+        // Sincroniza quando a aba volta a ficar ativa
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarDadosSheets(true);
+            }
+        });
+
+        renderCategories();
+        render();
+        updateSeletorCartaoForm();
+        carregarCartoesSheets(); // Carrega cartões da nuvem ao iniciar
+        carregarDadosSheets(); // Carrega dados da nuvem ao iniciar
+
+        // Hide loading
+        setTimeout(() => {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.style.opacity = '0';
+                loading.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 300);
+            }
+        }, 2000);
+        */
+    </script>
+    <div id="update-banner" style="
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#1A1722;
+color:white;
+padding:12px 20px;
+border-radius:20px;
+display:none;
+z-index:9999;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+">
+  Nova versão disponível 🚀
+  <button onclick="updateApp()" style="
+    margin-left:10px;
+    background:#FFD952;
+    border:none;
+    padding:6px 12px;
+    border-radius:10px;
+    font-weight:bold;
+    color:#000;
+    cursor:pointer;
+  ">
+    Atualizar
+  </button>
+</div>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.unregister());
+      });
+    }
+
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => caches.delete(key));
+      });
+    }
+
+    function showUpdateUI() {
+      document.getElementById('update-banner').style.display = 'block';
+    }
+
+    function updateApp() {
+      window.location.reload();
+    }
+    </script>
+</body>
+</html>
