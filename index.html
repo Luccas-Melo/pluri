@@ -2506,6 +2506,18 @@
                 background: rgba(255,255,255,0.14);
             }
 
+            .primary-theme .active-chip,
+            .secondary-theme .active-chip,
+            .primary-button,
+            .member-primary-bg,
+            .member-secondary-bg,
+            #formContainer .form-badge,
+            .profile-avatar,
+            .profile-progress span,
+            .summary-bar-item span {
+                background-image: none !important;
+            }
+
             @keyframes mobileNavIn {
                 from {
                     opacity: 0;
@@ -2572,6 +2584,43 @@
             .summary-modal-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .primary-button {
+            background: var(--primary) !important;
+            color: var(--member-primary-text-contrast, #fff) !important;
+        }
+
+        .member-primary-bg {
+            background: var(--member-primary) !important;
+            color: var(--member-primary-text-contrast, #fff) !important;
+        }
+
+        .member-secondary-bg {
+            background: var(--member-secondary-color) !important;
+            color: var(--member-secondary-text-contrast, #fff) !important;
+        }
+
+        .primary-theme .active-chip {
+            background: var(--member-primary) !important;
+            color: var(--member-primary-text-contrast, #fff) !important;
+            border-color: var(--member-primary) !important;
+            box-shadow: 0 12px 24px color-mix(in srgb, var(--member-primary) 24%, transparent) !important;
+        }
+
+        .secondary-theme .active-chip {
+            background: var(--member-secondary-color) !important;
+            color: var(--member-secondary-text-contrast, #fff) !important;
+            border-color: var(--member-secondary-color) !important;
+            box-shadow: 0 12px 24px color-mix(in srgb, var(--member-secondary-color) 24%, transparent) !important;
+        }
+
+        #formContainer .form-badge,
+        .profile-avatar,
+        .profile-progress span,
+        .summary-bar-item span {
+            background: var(--primary) !important;
+            color: var(--member-primary-text-contrast, #fff) !important;
         }
     </style>
 </head>

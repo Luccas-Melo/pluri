@@ -983,6 +983,16 @@ function getMemberColorByTheme(theme) {
     return normalizeHexColor(member?.color) || defaultMemberColors[theme] || defaultMemberColors.primary;
 }
 
+function getReadableTextColor(hexColor) {
+    const color = normalizeHexColor(hexColor);
+    if (!color) return '#ffffff';
+    const red = parseInt(color.slice(1, 3), 16);
+    const green = parseInt(color.slice(3, 5), 16);
+    const blue = parseInt(color.slice(5, 7), 16);
+    const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+    return luminance > 160 ? '#102033' : '#ffffff';
+}
+
 function getMemberColorFieldIds(theme) {
     const isSecondary = theme === 'secondary';
     return {
@@ -1060,18 +1070,23 @@ async function insertMemberConfig(payload) {
 function applyMemberColors() {
     const primary = getMemberColorByTheme('primary');
     const secondary = getMemberColorByTheme('secondary');
+    const primaryText = getReadableTextColor(primary);
+    const secondaryText = getReadableTextColor(secondary);
     document.documentElement.style.setProperty('--member-primary', primary);
     document.documentElement.style.setProperty('--primary', primary);
     document.documentElement.style.setProperty('--primary-strong', primary);
+    document.documentElement.style.setProperty('--member-primary-text-contrast', primaryText);
     document.documentElement.style.setProperty('--member-secondary-color', secondary);
     document.documentElement.style.setProperty('--member-secondary', secondary);
     document.documentElement.style.setProperty('--secondary', secondary);
+    document.documentElement.style.setProperty('--member-secondary-text-contrast', secondaryText);
 }
 
 function getThemeStyles(theme) {
+    const color = getMemberColorByTheme(theme === 'secondary' ? 'secondary' : 'primary');
     return theme === 'secondary'
-        ? { bodyClass: 'secondary-theme', colorVar: getMemberColorByTheme('secondary'), textColor: '#fff', buttonClass: 'member-secondary-bg' }
-        : { bodyClass: 'primary-theme', colorVar: getMemberColorByTheme('primary'), textColor: '#fff', buttonClass: 'member-primary-bg' };
+        ? { bodyClass: 'secondary-theme', colorVar: color, textColor: getReadableTextColor(color), buttonClass: 'member-secondary-bg' }
+        : { bodyClass: 'primary-theme', colorVar: color, textColor: getReadableTextColor(color), buttonClass: 'member-primary-bg' };
 }
 
 function getFavoriteKeyByName(name) {
