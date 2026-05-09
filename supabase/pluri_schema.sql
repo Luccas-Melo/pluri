@@ -18,6 +18,7 @@ create table if not exists public.profiles (
   email text unique,
   full_name text,
   avatar_url text,
+  monthly_income numeric(12,2),
   onboarding_completed boolean not null default false,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
@@ -44,6 +45,7 @@ create table if not exists public.household_members (
   display_name text not null,
   role text not null default 'member' check (role in ('owner', 'member')),
   color_key text not null default 'primary' check (color_key in ('primary', 'secondary')),
+  custom_color text,
   is_active boolean not null default true,
   sort_order integer not null default 0,
   created_at timestamptz not null default timezone('utc', now()),
@@ -155,12 +157,13 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, full_name, avatar_url)
+  insert into public.profiles (id, email, full_name, avatar_url, monthly_income)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
-    new.raw_user_meta_data->>'avatar_url'
+    new.raw_user_meta_data->>'avatar_url',
+    nullif(new.raw_user_meta_data->>'monthly_income', '')::numeric
   )
   on conflict (id) do nothing;
 
@@ -172,7 +175,8 @@ create or replace function public.create_household_with_members(
   p_name text,
   p_household_type text,
   p_primary_name text,
-  p_secondary_name text default null
+  p_secondary_name text default null,
+  p_monthly_income numeric default null
 )
 returns uuid
 language plpgsql
@@ -260,7 +264,8 @@ begin
   update public.profiles
   set
     onboarding_completed = true,
-    full_name = coalesce(nullif(full_name, ''), btrim(p_primary_name))
+    full_name = coalesce(nullif(full_name, ''), btrim(p_primary_name)),
+    monthly_income = coalesce(p_monthly_income, monthly_income)
   where id = v_user_id;
 
   return v_household_id;
@@ -416,6 +421,27 @@ on public.expenses
 for all
 using (public.is_household_member(household_id))
 with check (public.is_household_member(household_id));
+
+create or replace function public.delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_user_id uuid := auth.uid();
+begin
+  if v_user_id is null then
+    raise exception 'Usuario nao autenticado';
+  end if;
+
+  delete from auth.users
+  where id = v_user_id;
+end;
+$$;
+
+revoke all on function public.delete_my_account() from public;
+grant execute on function public.delete_my_account() to authenticated;
 
 -- Example bootstrap flow after signup:
 -- 1. insert into public.households (...)

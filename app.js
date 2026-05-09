@@ -6,6 +6,31 @@ const categories = [
     { id: 'Outros', svg: '<circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/>' }
 ];
 
+const APP_URL = 'https://pluri.netlify.app';
+
+const monthLabels = {
+    'pt-BR': ['Todos os Meses', 'Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    'en-US': ['All Months', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    'es-ES': ['Todos los meses', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+};
+
+const categoryLabels = {
+    'pt-BR': { Comida: 'Comida', Lazer: 'Lazer', Mercado: 'Mercado', Viagem: 'Viagem', Outros: 'Outros' },
+    'en-US': { Comida: 'Food', Lazer: 'Fun', Mercado: 'Groceries', Viagem: 'Travel', Outros: 'Other' },
+    'es-ES': { Comida: 'Comida', Lazer: 'Ocio', Mercado: 'Mercado', Viagem: 'Viaje', Outros: 'Otros' }
+};
+
+const defaultMemberColors = {
+    primary: '#0e7490',
+    secondary: '#ec4899'
+};
+
+const localeByLanguage = {
+    'pt-BR': 'pt-BR',
+    'en-US': 'en-US',
+    'es-ES': 'es-ES'
+};
+
 window.addEventListener('error', (event) => {
     console.error(event.error || event.message || event);
     setLoading(false);
@@ -23,8 +48,8 @@ const defaultAppConfig = {
     appName: 'Pluri',
     householdType: 'couple',
     members: [
-        { name: 'Pessoa 1', theme: 'bel' },
-        { name: 'Pessoa 2', theme: 'luccas' }
+        { name: 'Pessoa 1', theme: 'primary', color: '' },
+        { name: 'Pessoa 2', theme: 'secondary', color: '' }
     ]
 };
 
@@ -41,6 +66,7 @@ let currentRecoveryMode = false;
 let authMode = 'login';
 let onboardingHouseholdType = 'couple';
 let currentThemeMode = 'light';
+let currentLanguage = localStorage.getItem('pluri_language') || 'pt-BR';
 
 let gastos = [];
 let meta = { ...defaultMeta };
@@ -67,9 +93,611 @@ function loadThemePreference() {
 }
 
 function updateThemeLabels() {
-    const nextLabel = currentThemeMode === 'dark' ? 'Tema Escuro' : 'Tema Claro';
-    if ($('themeToggleLabelAuth')) $('themeToggleLabelAuth').innerText = nextLabel;
-    if ($('themeToggleLabelApp')) $('themeToggleLabelApp').innerText = nextLabel;
+    const labelMap = {
+        'pt-BR': { dark: 'Tema Escuro', light: 'Tema Claro' },
+        'en-US': { dark: 'Dark Theme', light: 'Light Theme' },
+        'es-ES': { dark: 'Tema Oscuro', light: 'Tema Claro' }
+    };
+    const labels = labelMap[currentLanguage] || labelMap['pt-BR'];
+    const nextLabel = currentThemeMode === 'dark' ? labels.dark : labels.light;
+    document.querySelectorAll('.theme-toggle').forEach((button) => {
+        button.setAttribute('aria-label', nextLabel);
+        button.setAttribute('title', nextLabel);
+    });
+    document.querySelectorAll('.theme-toggle').forEach((button) => {
+        button.classList.toggle('is-dark', currentThemeMode === 'dark');
+    });
+}
+
+const translations = {
+    'pt-BR': {
+        heroTitle: 'Bem-vindo.',
+        authModes: {
+            login: {
+                kicker: 'Acesse sua conta',
+                title: 'Entrar no Pluri',
+                subtitle: 'Sua area financeira segura e sincronizada.'
+            },
+            signup: {
+                kicker: 'Comece seu controle',
+                title: 'Criar conta no Pluri',
+                subtitle: 'Monte seu espaco financeiro em poucos segundos.'
+            },
+            reset: {
+                kicker: 'Recupere o acesso',
+                title: 'Esqueci minha senha',
+                subtitle: 'Informe seu email para receber o link de recuperacao.'
+            }
+        },
+        login: 'Entrar',
+        signup: 'Criar conta',
+        reset: 'Recuperar',
+        sendLink: 'Enviar link',
+        createAccount: 'Criar conta',
+        google: 'Continuar com Google',
+        logoutConfirm: 'Tem certeza que deseja deslogar?',
+        logoutTitle: 'Sair da conta?',
+        logoutCancel: 'Continuar logado',
+        logoutConfirmAction: 'Sim, sair',
+        deleteAccountTitle: 'Apagar conta?',
+        deleteAccountText: 'Essa acao remove sua conta e os dados vinculados a ela. Nao da para desfazer.',
+        deleteAccountButton: 'Apagar conta',
+        deleteAccountCancel: 'Cancelar',
+        deleteAccountConfirm: 'Sim, apagar',
+        deleteAccountMissingRpc: 'A funcao delete_my_account ainda nao existe no Supabase. Rode o SQL de apagar conta.',
+        fixed: 'Fixo',
+        updatePassword: 'Atualizar senha',
+        settingsKicker: 'Preferencias',
+        settingsTitle: 'Configuracoes',
+        languageLabel: 'Idioma',
+        appProfileLabel: 'Perfil do App',
+        savingsGoalLabel: 'Meta de Economia',
+        activateGoal: 'Ativar Meta',
+        myCardsLabel: 'Meus Cartoes',
+        syncLabel: 'Sincronizacao',
+        syncButton: 'Sincronizar com Planilha',
+        close: 'Fechar',
+        saveAll: 'Salvar Tudo',
+        namePlaceholder: 'Seu nome',
+        emailPlaceholder: 'voce@email.com',
+        passwordPlaceholder: 'Sua senha',
+        confirmPasswordPlaceholder: 'Confirmar senha',
+        newPasswordPlaceholder: 'Nova senha',
+        confirmNewPasswordPlaceholder: 'Confirmar nova senha',
+        incomePlaceholder: 'Renda mensal',
+        onboardingIncomeLabel: 'Renda mensal',
+        onboardingIncomePlaceholder: 'Ex: 5000',
+        appNamePlaceholder: 'Nome do app',
+        memberOnePlaceholder: 'Pessoa 1',
+        memberTwoPlaceholder: 'Pessoa 2',
+        goalNamePlaceholder: 'Nome',
+        goalTargetPlaceholder: 'Alvo R$',
+        goalCurrentPlaceholder: 'Atual R$',
+        totalGeneral: 'Gasto Geral',
+        historyKicker: 'Historico',
+        historyTitle: 'Seus lancamentos',
+        historySubtitle: 'Navegue pelos registros com uma leitura mais limpa, rapida e confortavel.',
+        newExpenseKicker: 'Novo gasto',
+        newExpenseTitle: 'Adicionar lancamento',
+        newExpenseSubtitle: 'Entrada rapida, categorias visuais e selecao de pagador sem atrito.',
+        registerExpense: 'Registrar Gasto',
+        descriptionPlaceholder: 'Descricao...',
+        cardMethod: 'Cartao',
+        selectCard: 'Selecionar cartao',
+        noExpenses: 'Seus lancamentos vao aparecer aqui.',
+        metaOff: 'Meta Off',
+        saving: 'Salvando...',
+        personOne: 'Pessoa 1',
+        personTwo: 'Pessoa 2',
+        edit: 'Editar',
+        delete: 'Excluir',
+        appHeaderKicker: 'Painel Pluri',
+        appHeaderSubtitle: 'Seus gastos em um espaco mais claro, leve e agradavel de acompanhar.',
+        home: 'Inicio',
+        profile: 'Perfil',
+        profileKicker: 'Conta',
+        profileTitle: 'Meu perfil',
+        profileSubtitle: 'Gerencie seus dados, renda e preferencias principais do Pluri.',
+        profilePersonalData: 'Dados pessoais',
+        profileSummary: 'Resumo da conta',
+        profileEmail: 'Email',
+        profileHousehold: 'Casa',
+        profileIncome: 'Renda mensal',
+        profileEntries: 'Lancamentos',
+        profileCards: 'Cartoes',
+        profileMembers: 'Pessoas',
+        profileBack: 'Voltar ao painel',
+        profileNameLabel: 'Nome',
+        profileIncomeLabel: 'Renda mensal',
+        profileSave: 'Salvar perfil',
+        profileUpdated: 'Perfil atualizado.',
+        summaryReadyTitle: 'Seu resumo financeiro esta pronto',
+        summaryReadyText: 'Veja como seus gastos fecharam este mes e onde voce pode ajustar antes do proximo ciclo.',
+        summaryOpen: 'Ver resumo',
+        summaryTest: 'Testar resumo',
+        summaryDismiss: 'Depois',
+        summaryTitle: 'Resumo financeiro',
+        summarySubtitle: 'Uma leitura rapida do seu mes atual.',
+        summaryTotal: 'Total do mes',
+        summaryAverage: 'Media por lancamento',
+        summaryTopCategory: 'Maior categoria',
+        summaryNoCategory: 'Sem categoria',
+        summaryTransactions: 'Lancamentos',
+        settings: 'Configuracoes',
+        export: 'Exportar',
+        logout: 'Sair',
+        colorLabel: 'Cor',
+        defaultColor: 'Padrao',
+        useDefaultColor: 'Usar padrao',
+        exportTitle: 'Exportar relatorio',
+        exportSubtitle: 'Escolha o formato ideal para baixar ou compartilhar seus lancamentos filtrados.',
+        exportCsv: 'Planilha CSV',
+        exportTxt: 'Texto TXT',
+        exportXls: 'Excel XLS',
+        exportWhatsapp: 'WhatsApp',
+        exportEmpty: 'Nao ha lancamentos para exportar.',
+        exportReportHeading: 'RELATORIO FINANCEIRO',
+        exportHeaderDate: 'Data',
+        exportHeaderPayer: 'Pagador',
+        exportHeaderCategory: 'Categoria',
+        exportHeaderMethod: 'Metodo',
+        exportHeaderDescription: 'Descricao',
+        exportHeaderAmount: 'Valor'
+    },
+    'en-US': {
+        heroTitle: 'Welcome.',
+        authModes: {
+            login: {
+                kicker: 'Access your account',
+                title: 'Sign in to Pluri',
+                subtitle: 'Your secure and synced finance area.'
+            },
+            signup: {
+                kicker: 'Start your control',
+                title: 'Create your Pluri account',
+                subtitle: 'Set up your finance space in a few seconds.'
+            },
+            reset: {
+                kicker: 'Recover access',
+                title: 'Forgot your password',
+                subtitle: 'Enter your email to receive the recovery link.'
+            }
+        },
+        login: 'Sign in',
+        signup: 'Create account',
+        reset: 'Recover',
+        sendLink: 'Send link',
+        createAccount: 'Create account',
+        google: 'Continue with Google',
+        logoutConfirm: 'Are you sure you want to sign out?',
+        logoutTitle: 'Sign out?',
+        logoutCancel: 'Stay signed in',
+        logoutConfirmAction: 'Yes, sign out',
+        deleteAccountTitle: 'Delete account?',
+        deleteAccountText: 'This removes your account and linked data. This cannot be undone.',
+        deleteAccountButton: 'Delete account',
+        deleteAccountCancel: 'Cancel',
+        deleteAccountConfirm: 'Yes, delete',
+        deleteAccountMissingRpc: 'The delete_my_account function does not exist in Supabase yet. Run the delete account SQL.',
+        fixed: 'Fixed',
+        updatePassword: 'Update password',
+        settingsKicker: 'Preferences',
+        settingsTitle: 'Settings',
+        languageLabel: 'Language',
+        appProfileLabel: 'App Profile',
+        savingsGoalLabel: 'Savings Goal',
+        activateGoal: 'Activate Goal',
+        myCardsLabel: 'My Cards',
+        syncLabel: 'Sync',
+        syncButton: 'Sync with Cloud',
+        close: 'Close',
+        saveAll: 'Save All',
+        namePlaceholder: 'Your name',
+        emailPlaceholder: 'you@email.com',
+        passwordPlaceholder: 'Your password',
+        confirmPasswordPlaceholder: 'Confirm password',
+        newPasswordPlaceholder: 'New password',
+        confirmNewPasswordPlaceholder: 'Confirm new password',
+        incomePlaceholder: 'Monthly income',
+        onboardingIncomeLabel: 'Monthly income',
+        onboardingIncomePlaceholder: 'Ex: 5000',
+        appNamePlaceholder: 'App name',
+        memberOnePlaceholder: 'Person 1',
+        memberTwoPlaceholder: 'Person 2',
+        goalNamePlaceholder: 'Name',
+        goalTargetPlaceholder: 'Target $',
+        goalCurrentPlaceholder: 'Current $',
+        totalGeneral: 'Total Spent',
+        historyKicker: 'History',
+        historyTitle: 'Your entries',
+        historySubtitle: 'Browse your records with a cleaner, faster and more comfortable view.',
+        newExpenseKicker: 'New expense',
+        newExpenseTitle: 'Add entry',
+        newExpenseSubtitle: 'Quick entry, visual categories and smooth payer selection.',
+        registerExpense: 'Register Expense',
+        descriptionPlaceholder: 'Description...',
+        cardMethod: 'Card',
+        selectCard: 'Select card',
+        noExpenses: 'Your entries will appear here.',
+        metaOff: 'Goal Off',
+        saving: 'Saving...',
+        personOne: 'Person 1',
+        personTwo: 'Person 2',
+        edit: 'Edit',
+        delete: 'Delete',
+        appHeaderKicker: 'Pluri Panel',
+        appHeaderSubtitle: 'Track your expenses in a clearer, lighter and more pleasant space.',
+        home: 'Home',
+        profile: 'Profile',
+        profileKicker: 'Account',
+        profileTitle: 'My profile',
+        profileSubtitle: 'Manage your data, income and main Pluri preferences.',
+        profilePersonalData: 'Personal data',
+        profileSummary: 'Account summary',
+        profileEmail: 'Email',
+        profileHousehold: 'Household',
+        profileIncome: 'Monthly income',
+        profileEntries: 'Entries',
+        profileCards: 'Cards',
+        profileMembers: 'People',
+        profileBack: 'Back to dashboard',
+        profileNameLabel: 'Name',
+        profileIncomeLabel: 'Monthly income',
+        profileSave: 'Save profile',
+        profileUpdated: 'Profile updated.',
+        summaryReadyTitle: 'Your financial summary is ready',
+        summaryReadyText: 'See how your spending closed this month and where you can adjust before the next cycle.',
+        summaryOpen: 'View summary',
+        summaryTest: 'Test summary',
+        summaryDismiss: 'Later',
+        summaryTitle: 'Financial summary',
+        summarySubtitle: 'A quick read of your current month.',
+        summaryTotal: 'Month total',
+        summaryAverage: 'Average per entry',
+        summaryTopCategory: 'Top category',
+        summaryNoCategory: 'No category',
+        summaryTransactions: 'Entries',
+        settings: 'Settings',
+        export: 'Export',
+        logout: 'Sign out',
+        colorLabel: 'Color',
+        defaultColor: 'Default',
+        useDefaultColor: 'Use default',
+        exportTitle: 'Export report',
+        exportSubtitle: 'Choose the best format to download or share your filtered entries.',
+        exportCsv: 'CSV spreadsheet',
+        exportTxt: 'TXT text',
+        exportXls: 'Excel XLS',
+        exportWhatsapp: 'WhatsApp',
+        exportEmpty: 'There are no entries to export.',
+        exportReportHeading: 'FINANCIAL REPORT',
+        exportHeaderDate: 'Date',
+        exportHeaderPayer: 'Payer',
+        exportHeaderCategory: 'Category',
+        exportHeaderMethod: 'Method',
+        exportHeaderDescription: 'Description',
+        exportHeaderAmount: 'Amount'
+    },
+    'es-ES': {
+        heroTitle: 'Bienvenido.',
+        authModes: {
+            login: {
+                kicker: 'Accede a tu cuenta',
+                title: 'Entrar en Pluri',
+                subtitle: 'Tu area financiera segura y sincronizada.'
+            },
+            signup: {
+                kicker: 'Empieza tu control',
+                title: 'Crear cuenta en Pluri',
+                subtitle: 'Configura tu espacio financiero en pocos segundos.'
+            },
+            reset: {
+                kicker: 'Recupera el acceso',
+                title: 'Olvide mi contrasena',
+                subtitle: 'Informa tu email para recibir el enlace de recuperacion.'
+            }
+        },
+        login: 'Entrar',
+        signup: 'Crear cuenta',
+        reset: 'Recuperar',
+        sendLink: 'Enviar enlace',
+        createAccount: 'Crear cuenta',
+        google: 'Continuar con Google',
+        logoutConfirm: 'Estas seguro de que quieres salir?',
+        logoutTitle: 'Salir de la cuenta?',
+        logoutCancel: 'Seguir conectado',
+        logoutConfirmAction: 'Si, salir',
+        deleteAccountTitle: 'Eliminar cuenta?',
+        deleteAccountText: 'Esto elimina tu cuenta y los datos vinculados. No se puede deshacer.',
+        deleteAccountButton: 'Eliminar cuenta',
+        deleteAccountCancel: 'Cancelar',
+        deleteAccountConfirm: 'Si, eliminar',
+        deleteAccountMissingRpc: 'La funcion delete_my_account aun no existe en Supabase. Ejecuta el SQL para eliminar cuenta.',
+        fixed: 'Fijo',
+        updatePassword: 'Actualizar contrasena',
+        settingsKicker: 'Preferencias',
+        settingsTitle: 'Configuracion',
+        languageLabel: 'Idioma',
+        appProfileLabel: 'Perfil de la app',
+        savingsGoalLabel: 'Meta de ahorro',
+        activateGoal: 'Activar meta',
+        myCardsLabel: 'Mis tarjetas',
+        syncLabel: 'Sincronizacion',
+        syncButton: 'Sincronizar con la nube',
+        close: 'Cerrar',
+        saveAll: 'Guardar todo',
+        namePlaceholder: 'Tu nombre',
+        emailPlaceholder: 'tu@email.com',
+        passwordPlaceholder: 'Tu contrasena',
+        confirmPasswordPlaceholder: 'Confirmar contrasena',
+        newPasswordPlaceholder: 'Nueva contrasena',
+        confirmNewPasswordPlaceholder: 'Confirmar nueva contrasena',
+        incomePlaceholder: 'Ingreso mensual',
+        onboardingIncomeLabel: 'Ingreso mensual',
+        onboardingIncomePlaceholder: 'Ej: 5000',
+        appNamePlaceholder: 'Nombre de la app',
+        memberOnePlaceholder: 'Persona 1',
+        memberTwoPlaceholder: 'Persona 2',
+        goalNamePlaceholder: 'Nombre',
+        goalTargetPlaceholder: 'Meta $',
+        goalCurrentPlaceholder: 'Actual $',
+        totalGeneral: 'Gasto total',
+        historyKicker: 'Historial',
+        historyTitle: 'Tus movimientos',
+        historySubtitle: 'Navega tus registros con una lectura mas limpia, rapida y comoda.',
+        newExpenseKicker: 'Nuevo gasto',
+        newExpenseTitle: 'Agregar movimiento',
+        newExpenseSubtitle: 'Entrada rapida, categorias visuales y seleccion de pagador sin friccion.',
+        registerExpense: 'Registrar gasto',
+        descriptionPlaceholder: 'Descripcion...',
+        cardMethod: 'Tarjeta',
+        selectCard: 'Seleccionar tarjeta',
+        noExpenses: 'Tus movimientos apareceran aqui.',
+        metaOff: 'Meta Off',
+        saving: 'Guardando...',
+        personOne: 'Persona 1',
+        personTwo: 'Persona 2',
+        edit: 'Editar',
+        delete: 'Eliminar',
+        appHeaderKicker: 'Panel Pluri',
+        appHeaderSubtitle: 'Acompana tus gastos en un espacio mas claro, ligero y agradable.',
+        home: 'Inicio',
+        profile: 'Perfil',
+        profileKicker: 'Cuenta',
+        profileTitle: 'Mi perfil',
+        profileSubtitle: 'Gestiona tus datos, ingresos y preferencias principales de Pluri.',
+        profilePersonalData: 'Datos personales',
+        profileSummary: 'Resumen de la cuenta',
+        profileEmail: 'Email',
+        profileHousehold: 'Casa',
+        profileIncome: 'Ingreso mensual',
+        profileEntries: 'Movimientos',
+        profileCards: 'Tarjetas',
+        profileMembers: 'Personas',
+        profileBack: 'Volver al panel',
+        profileNameLabel: 'Nombre',
+        profileIncomeLabel: 'Ingreso mensual',
+        profileSave: 'Guardar perfil',
+        profileUpdated: 'Perfil actualizado.',
+        summaryReadyTitle: 'Tu resumen financiero esta listo',
+        summaryReadyText: 'Mira como cerraron tus gastos este mes y donde puedes ajustar antes del proximo ciclo.',
+        summaryOpen: 'Ver resumen',
+        summaryTest: 'Probar resumen',
+        summaryDismiss: 'Luego',
+        summaryTitle: 'Resumen financiero',
+        summarySubtitle: 'Una lectura rapida de tu mes actual.',
+        summaryTotal: 'Total del mes',
+        summaryAverage: 'Promedio por movimiento',
+        summaryTopCategory: 'Mayor categoria',
+        summaryNoCategory: 'Sin categoria',
+        summaryTransactions: 'Movimientos',
+        settings: 'Configuracion',
+        export: 'Exportar',
+        logout: 'Salir',
+        colorLabel: 'Color',
+        defaultColor: 'Predeterminado',
+        useDefaultColor: 'Usar predeterminado',
+        exportTitle: 'Exportar informe',
+        exportSubtitle: 'Elige el mejor formato para descargar o compartir tus movimientos filtrados.',
+        exportCsv: 'Planilla CSV',
+        exportTxt: 'Texto TXT',
+        exportXls: 'Excel XLS',
+        exportWhatsapp: 'WhatsApp',
+        exportEmpty: 'No hay movimientos para exportar.',
+        exportReportHeading: 'INFORME FINANCIERO',
+        exportHeaderDate: 'Fecha',
+        exportHeaderPayer: 'Pagador',
+        exportHeaderCategory: 'Categoria',
+        exportHeaderMethod: 'Metodo',
+        exportHeaderDescription: 'Descripcion',
+        exportHeaderAmount: 'Valor'
+    }
+};
+
+function getAuthModeCopy(text) {
+    return text.authModes?.[authMode] || text.authModes?.login || {};
+}
+
+function getCurrentMonths() {
+    return monthLabels[currentLanguage] || monthLabels['pt-BR'];
+}
+
+function getCurrentLocale() {
+    return localeByLanguage[currentLanguage] || 'pt-BR';
+}
+
+function getDisplayMemberName(name) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if (name === 'Pessoa 1' || name === 'Person 1' || name === 'Persona 1') return text.personOne;
+    if (name === 'Pessoa 2' || name === 'Person 2' || name === 'Persona 2') return text.personTwo;
+    return name;
+}
+
+function getCategoryLabel(id) {
+    const labels = categoryLabels[currentLanguage] || categoryLabels['pt-BR'];
+    return labels[id] || id;
+}
+
+function updateMonthFilterLabels() {
+    const months = getCurrentMonths();
+    document.querySelectorAll('.filtro-option').forEach((option) => {
+        const value = option.dataset.value;
+        const index = value === 'all' ? 0 : Number(value);
+        option.innerText = months[index] || option.innerText;
+    });
+    const selected = $('filtroMes')?.value || 'all';
+    const selectedIndex = selected === 'all' ? 0 : Number(selected);
+    if ($('filtroSelecionadoText')) $('filtroSelecionadoText').innerText = months[selectedIndex] || months[0];
+}
+
+function setLanguage(language) {
+    currentLanguage = translations[language] ? language : 'pt-BR';
+    localStorage.setItem('pluri_language', currentLanguage);
+    const text = translations[currentLanguage];
+    const authCopy = getAuthModeCopy(text);
+
+    if ($('languageSelect')) $('languageSelect').value = currentLanguage;
+    document.querySelectorAll('.language-option').forEach((option) => {
+        const active = option.dataset.value === currentLanguage;
+        option.classList.toggle('active', active);
+        if (active && $('languageSelectText')) $('languageSelectText').innerText = option.dataset.label || option.innerText.trim();
+    });
+    updateThemeLabels();
+    if ($('authHeroTitle')) $('authHeroTitle').innerText = text.heroTitle;
+    if ($('authKicker')) $('authKicker').innerText = authCopy.kicker || '';
+    if ($('authTitle')) $('authTitle').innerText = authCopy.title || '';
+    if ($('authSubtitle')) $('authSubtitle').innerText = authCopy.subtitle || '';
+    if ($('tabLogin')) $('tabLogin').innerText = text.login;
+    if ($('tabSignup')) $('tabSignup').innerText = text.signup;
+    if ($('tabReset')) $('tabReset').innerText = text.reset;
+    if ($('authLangPt')) $('authLangPt').classList.toggle('active', currentLanguage === 'pt-BR');
+    if ($('authLangEn')) $('authLangEn').classList.toggle('active', currentLanguage === 'en-US');
+    if ($('googleAuthLabel')) $('googleAuthLabel').innerText = text.google;
+    if ($('recoverySubmitBtn')) $('recoverySubmitBtn').innerText = text.updatePassword;
+    if ($('fixedLabel')) $('fixedLabel').innerText = text.fixed;
+    if ($('settingsKicker')) $('settingsKicker').innerText = text.settingsKicker;
+    if ($('settingsTitle')) $('settingsTitle').innerText = text.settingsTitle;
+    if ($('settingsLanguageLabel')) $('settingsLanguageLabel').innerText = text.languageLabel;
+    if ($('settingsAppProfileLabel')) $('settingsAppProfileLabel').innerText = text.appProfileLabel;
+    if ($('settingsGoalLabel')) $('settingsGoalLabel').innerText = text.savingsGoalLabel;
+    if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
+    if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
+    if ($('settingsCloseBtn')) $('settingsCloseBtn').innerText = text.close;
+    if ($('settingsSaveBtn')) $('settingsSaveBtn').innerText = text.saveAll;
+    if ($('deleteAccountSettingsBtn')) $('deleteAccountSettingsBtn').innerText = text.deleteAccountButton;
+    if ($('authName')) $('authName').placeholder = text.namePlaceholder;
+    if ($('authEmail')) $('authEmail').placeholder = text.emailPlaceholder;
+    if ($('authPassword')) $('authPassword').placeholder = text.passwordPlaceholder;
+    if ($('authPasswordConfirm')) $('authPasswordConfirm').placeholder = text.confirmPasswordPlaceholder;
+    if ($('authIncome')) $('authIncome').placeholder = text.incomePlaceholder;
+    if ($('profileFullName')) $('profileFullName').placeholder = text.namePlaceholder;
+    if ($('profileMonthlyIncome')) $('profileMonthlyIncome').placeholder = text.onboardingIncomePlaceholder;
+    if ($('recoveryPassword')) $('recoveryPassword').placeholder = text.newPasswordPlaceholder;
+    if ($('recoveryPasswordConfirm')) $('recoveryPasswordConfirm').placeholder = text.confirmNewPasswordPlaceholder;
+    if ($('onboardingIncomeLabel')) $('onboardingIncomeLabel').innerText = text.onboardingIncomeLabel;
+    if ($('onboardingIncome')) $('onboardingIncome').placeholder = text.onboardingIncomePlaceholder;
+    if ($('editAppName')) $('editAppName').placeholder = text.appNamePlaceholder;
+    if ($('editPessoa1Nome')) $('editPessoa1Nome').placeholder = text.memberOnePlaceholder;
+    if ($('editPessoa2Nome')) $('editPessoa2Nome').placeholder = text.memberTwoPlaceholder;
+    if ($('editMetaNome')) $('editMetaNome').placeholder = text.goalNamePlaceholder;
+    if ($('editMetaAlvo')) $('editMetaAlvo').placeholder = text.goalTargetPlaceholder;
+    if ($('editMetaAtual')) $('editMetaAtual').placeholder = text.goalCurrentPlaceholder;
+    if ($('totalGeneralLabel')) $('totalGeneralLabel').innerText = text.totalGeneral;
+    if ($('historyKicker')) $('historyKicker').innerText = text.historyKicker;
+    if ($('historyTitle')) $('historyTitle').innerText = text.historyTitle;
+    if ($('historySubtitle')) $('historySubtitle').innerText = text.historySubtitle;
+    if ($('newExpenseKicker')) $('newExpenseKicker').innerText = text.newExpenseKicker;
+    if ($('newExpenseTitle')) $('newExpenseTitle').innerText = text.newExpenseTitle;
+    if ($('newExpenseSubtitle')) $('newExpenseSubtitle').innerText = text.newExpenseSubtitle;
+    if ($('btnSubmit')) $('btnSubmit').innerText = text.registerExpense;
+    if ($('descricao')) $('descricao').placeholder = text.descriptionPlaceholder;
+    if ($('met-Cartao')) $('met-Cartao').innerText = text.cardMethod.toUpperCase();
+    if ($('cartaoSelecionadoText') && !$('tipoCartao')?.value) $('cartaoSelecionadoText').innerText = text.selectCard;
+    document.documentElement.style.setProperty('--empty-expenses-text', `"${text.noExpenses}"`);
+    if ($('labelMeta') && !$('metaAtiva')?.checked) $('labelMeta').innerText = text.metaOff;
+    updateMonthFilterLabels();
+    renderCategories();
+    if ($('appShell') && !$('appShell').classList.contains('hidden')) {
+        updateIdentityUI();
+        renderPayerButtons();
+        updateSeletorCartaoForm();
+        render();
+    }
+    if ($('appHeaderKicker')) $('appHeaderKicker').innerText = text.appHeaderKicker;
+    if ($('appHeaderSubtitle')) $('appHeaderSubtitle').innerText = text.appHeaderSubtitle;
+    if ($('mobileMenuHome')) $('mobileMenuHome').innerText = text.home;
+    if ($('mobileMenuProfile')) $('mobileMenuProfile').innerText = text.profile;
+    if ($('mobileMenuSettings')) $('mobileMenuSettings').innerText = text.settings;
+    if ($('mobileMenuExport')) $('mobileMenuExport').innerText = text.export;
+    if ($('mobileMenuLogout')) $('mobileMenuLogout').innerText = text.logout;
+    if ($('menuProfile')) $('menuProfile').innerText = text.profile;
+    if ($('profilePageKicker')) $('profilePageKicker').innerText = text.profileKicker;
+    if ($('profilePageTitle')) $('profilePageTitle').innerText = text.profileTitle;
+    if ($('profilePageSubtitle')) $('profilePageSubtitle').innerText = text.profileSubtitle;
+    if ($('profilePersonalDataTitle')) $('profilePersonalDataTitle').innerText = text.profilePersonalData;
+    if ($('profileSummaryTitle')) $('profileSummaryTitle').innerText = text.profileSummary;
+    if ($('profileEmailLabel')) $('profileEmailLabel').innerText = text.profileEmail;
+    if ($('profileHouseholdLabel')) $('profileHouseholdLabel').innerText = text.profileHousehold;
+    if ($('profileIncomeStatLabel')) $('profileIncomeStatLabel').innerText = text.profileIncome;
+    if ($('profileEntriesLabel')) $('profileEntriesLabel').innerText = text.profileEntries;
+    if ($('profileCardsLabel')) $('profileCardsLabel').innerText = text.profileCards;
+    if ($('profileMembersLabel')) $('profileMembersLabel').innerText = text.profileMembers;
+    if ($('profileBackBtn')) $('profileBackBtn').innerText = text.profileBack;
+    if ($('profileNameLabel')) $('profileNameLabel').innerText = text.profileNameLabel;
+    if ($('profileIncomeLabel')) $('profileIncomeLabel').innerText = text.profileIncomeLabel;
+    if ($('profileSaveBtn')) $('profileSaveBtn').innerText = text.profileSave;
+    if ($('summaryReadyTitle')) $('summaryReadyTitle').innerText = text.summaryReadyTitle;
+    if ($('summaryReadyText')) $('summaryReadyText').innerText = text.summaryReadyText;
+    if ($('summaryOpenBtn')) $('summaryOpenBtn').innerText = text.summaryOpen;
+    if ($('summaryTestBtn')) $('summaryTestBtn').innerText = text.summaryTest;
+    if ($('summaryDismissBtn')) $('summaryDismissBtn').innerText = text.summaryDismiss;
+    if ($('summaryModalTitle')) $('summaryModalTitle').innerText = text.summaryTitle;
+    if ($('summaryModalSubtitle')) $('summaryModalSubtitle').innerText = text.summarySubtitle;
+    if ($('summaryTotalLabel')) $('summaryTotalLabel').innerText = text.summaryTotal;
+    if ($('summaryAverageLabel')) $('summaryAverageLabel').innerText = text.summaryAverage;
+    if ($('summaryTopCategoryLabel')) $('summaryTopCategoryLabel').innerText = text.summaryTopCategory;
+    if ($('summaryTransactionsLabel')) $('summaryTransactionsLabel').innerText = text.summaryTransactions;
+    if ($('menuSettings')) $('menuSettings').innerText = text.settings;
+    if ($('menuExport')) $('menuExport').innerText = text.export;
+    if ($('menuLogout')) $('menuLogout').innerText = text.logout;
+    if ($('logoutModalTitle')) $('logoutModalTitle').innerText = text.logoutTitle;
+    if ($('logoutModalText')) $('logoutModalText').innerText = text.logoutConfirm;
+    if ($('logoutModalCancel')) $('logoutModalCancel').innerText = text.logoutCancel;
+    if ($('logoutModalConfirm')) $('logoutModalConfirm').innerText = text.logoutConfirmAction;
+    if ($('deleteAccountModalTitle')) $('deleteAccountModalTitle').innerText = text.deleteAccountTitle;
+    if ($('deleteAccountModalText')) $('deleteAccountModalText').innerText = text.deleteAccountText;
+    if ($('deleteAccountModalCancel')) $('deleteAccountModalCancel').innerText = text.deleteAccountCancel;
+    if ($('deleteAccountModalConfirm')) $('deleteAccountModalConfirm').innerText = text.deleteAccountConfirm;
+    if ($('person1ColorLabel')) $('person1ColorLabel').innerText = text.colorLabel;
+    if ($('person2ColorLabel')) $('person2ColorLabel').innerText = text.colorLabel;
+    if ($('person1ColorDefaultBtn')) $('person1ColorDefaultBtn').innerText = text.useDefaultColor;
+    if ($('person2ColorDefaultBtn')) $('person2ColorDefaultBtn').innerText = text.useDefaultColor;
+    if ($('exportModalKicker')) $('exportModalKicker').innerText = text.export;
+    if ($('exportModalTitle')) $('exportModalTitle').innerText = text.exportTitle;
+    if ($('exportModalSubtitle')) $('exportModalSubtitle').innerText = text.exportSubtitle;
+    if ($('exportCsvLabel')) $('exportCsvLabel').innerText = text.exportCsv;
+    if ($('exportTxtLabel')) $('exportTxtLabel').innerText = text.exportTxt;
+    if ($('exportXlsLabel')) $('exportXlsLabel').innerText = text.exportXls;
+    if ($('exportWhatsappLabel')) $('exportWhatsappLabel').innerText = text.exportWhatsapp;
+    if ($('headerExportLabel')) $('headerExportLabel').innerText = text.export;
+    if ($('headerSettingsLabel')) $('headerSettingsLabel').innerText = text.settings;
+    if ($('logoutButton')) $('logoutButton').innerText = text.logout;
+    if ($('authSubmitBtn')) {
+        $('authSubmitBtn').innerText = authMode === 'signup' ? text.createAccount : authMode === 'reset' ? text.sendLink : text.login;
+    }
+    updateColorPickerLabels();
+}
+
+function toggleLanguageDropdown(force) {
+    const select = $('languageSelectWrap');
+    if (!select) return;
+    const shouldOpen = force === undefined ? !select.classList.contains('open') : Boolean(force);
+    select.classList.toggle('open', shouldOpen);
+}
+
+function selectLanguageOption(language) {
+    setLanguage(language);
+    toggleLanguageDropdown(false);
 }
 
 function applyTheme(mode) {
@@ -108,7 +736,7 @@ function isCartaoMetodo(value) {
 
 function formatExpenseDate(dateStr) {
     const date = new Date(`${dateStr}T12:00:00`);
-    return isNaN(date.getTime()) ? dateStr : date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    return isNaN(date.getTime()) ? dateStr : date.toLocaleDateString(getCurrentLocale(), { day: '2-digit', month: 'short' });
 }
 
 function showToast(msg) {
@@ -120,18 +748,177 @@ function showToast(msg) {
 }
 
 function openModal(id) {
-    $(id).style.display = 'flex';
+    const modal = $(id);
+    modal.style.display = 'flex';
+    if (modal.classList.contains('settings-page')) {
+        requestAnimationFrame(() => modal.classList.add('is-open'));
+    }
 }
 
 function closeModal(id) {
-    $(id).style.display = 'none';
+    const modal = $(id);
+    if (!modal) return;
+    if (modal.classList.contains('settings-page')) {
+        modal.classList.remove('is-open');
+        window.setTimeout(() => {
+            if (!modal.classList.contains('is-open')) modal.style.display = 'none';
+        }, 180);
+        setMobileNavActive(getCurrentNavTarget());
+        return;
+    }
+    modal.style.display = 'none';
+    if (['modalExport', 'modalLogout'].includes(id)) setMobileNavActive(getCurrentNavTarget());
+}
+
+function getCurrentNavTarget() {
+    return $('profilePage') && !$('profilePage').classList.contains('hidden') ? 'profile' : 'home';
+}
+
+function closeAppOverlays(exceptId = '') {
+    ['modalConfig', 'modalExport', 'modalMonthlySummary', 'modalEdit', 'modalDelete', 'modalLogout', 'modalDeleteAccount'].forEach((id) => {
+        if (id !== exceptId && $(id)) closeModal(id);
+    });
+    toggleLanguageDropdown(false);
+    toggleAppMenu(false);
+}
+
+function setMobileNavActive(target) {
+    document.querySelectorAll('.mobile-bottom-item').forEach((item) => {
+        item.classList.toggle('is-active', item.dataset.nav === target);
+    });
+}
+
+function toggleAppMenu(force) {
+    const menu = $('appMenu');
+    if (!menu) return;
+    const shouldOpen = force === undefined ? !menu.classList.contains('open') : Boolean(force);
+    menu.classList.toggle('open', shouldOpen);
+    const trigger = menu.querySelector('.menu-trigger');
+    if (trigger) trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+}
+
+function openProfileModal() {
+    closeAppOverlays();
+    setMobileNavActive('profile');
+    updateProfilePage();
+    if ($('profileMessage')) $('profileMessage').innerText = '';
+    if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('profilePage')) $('profilePage').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showDashboardPage() {
+    closeAppOverlays();
+    setMobileNavActive('home');
+    if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProfilePage() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const activeMembers = getActiveMembers();
+    const fullName = currentProfile?.full_name || activeMembers[0]?.name || text.personOne;
+    const email = currentSession?.user?.email || '-';
+    const income = Number(currentProfile?.monthly_income || 0);
+
+    if ($('profileAvatarInitials')) {
+        $('profileAvatarInitials').innerText = String(fullName)
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase() || 'P';
+    }
+    if ($('profileDisplayName')) $('profileDisplayName').innerText = fullName;
+    if ($('profileDisplayEmail')) $('profileDisplayEmail').innerText = email;
+    if ($('profileEmail')) $('profileEmail').innerText = email;
+    if ($('profileHousehold')) $('profileHousehold').innerText = currentHousehold?.name || appConfig.appName || '-';
+    if ($('profileIncomeStat')) $('profileIncomeStat').innerText = `R$ ${income.toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
+    if ($('profileEntriesCount')) $('profileEntriesCount').innerText = String(gastos.length);
+    if ($('profileCardsCount')) $('profileCardsCount').innerText = String(cartoes.length);
+    if ($('profileMembersCount')) $('profileMembersCount').innerText = String(activeMembers.length);
+    if ($('profileFullName')) $('profileFullName').value = currentProfile?.full_name || '';
+    if ($('profileMonthlyIncome')) $('profileMonthlyIncome').value = currentProfile?.monthly_income || '';
+    if ($('profileMonthlyBudget')) {
+        const totalMonth = getCurrentMonthExpenses().reduce((total, item) => total + item.valor, 0);
+        const percent = income > 0 ? Math.min((totalMonth / income) * 100, 100) : 0;
+        $('profileMonthlyBudget').style.width = `${percent}%`;
+    }
+}
+
+function getCurrentMonthKey() {
+    return String(new Date().getMonth() + 1).padStart(2, '0');
+}
+
+function getCurrentMonthExpenses() {
+    return gastos.filter((item) => item.mes === getCurrentMonthKey());
+}
+
+function getMonthlySummaryData() {
+    const currentMonthExpenses = getCurrentMonthExpenses();
+    const total = currentMonthExpenses.reduce((sum, item) => sum + item.valor, 0);
+    const average = currentMonthExpenses.length ? total / currentMonthExpenses.length : 0;
+    const byCategory = {};
+    currentMonthExpenses.forEach((item) => {
+        byCategory[item.categoria] = (byCategory[item.categoria] || 0) + item.valor;
+    });
+    const topCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0];
+    return {
+        expenses: currentMonthExpenses,
+        total,
+        average,
+        topCategoryName: topCategory?.[0] || '',
+        topCategoryTotal: topCategory?.[1] || 0
+    };
+}
+
+function shouldShowMonthlySummaryNotice() {
+    const today = new Date();
+    const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    return today.getDate() >= 25 && localStorage.getItem('pluri_summary_dismissed') !== monthKey;
+}
+
+function updateMonthlySummaryNotice() {
+    const notice = $('monthlySummaryNotice');
+    if (!notice) return;
+    const summary = getMonthlySummaryData();
+    notice.classList.toggle('hidden', !shouldShowMonthlySummaryNotice() || !summary.expenses.length);
+}
+
+function dismissMonthlySummaryNotice() {
+    const today = new Date();
+    localStorage.setItem('pluri_summary_dismissed', `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
+    updateMonthlySummaryNotice();
+}
+
+function openMonthlySummary() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const summary = getMonthlySummaryData();
+    const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
+    if ($('summaryTotalValue')) $('summaryTotalValue').innerText = currency(summary.total);
+    if ($('summaryAverageValue')) $('summaryAverageValue').innerText = currency(summary.average);
+    if ($('summaryTopCategoryValue')) $('summaryTopCategoryValue').innerText = summary.topCategoryName
+        ? `${getCategoryLabel(summary.topCategoryName)} · ${currency(summary.topCategoryTotal)}`
+        : text.summaryNoCategory;
+    if ($('summaryTransactionsValue')) $('summaryTransactionsValue').innerText = String(summary.expenses.length);
+    if ($('summaryBars')) {
+        const max = Math.max(...summary.expenses.map((item) => item.valor), 1);
+        $('summaryBars').innerHTML = summary.expenses.slice(0, 8).map((item) => `
+            <div class="summary-bar-item">
+                <span style="height:${Math.max((item.valor / max) * 100, 8)}%"></span>
+            </div>
+        `).join('');
+    }
+    openModal('modalMonthlySummary');
 }
 
 function setLoading(visible, text = 'Carregando...') {
     const loading = $('loading');
     if (!loading) return;
     loading.style.display = visible ? 'flex' : 'none';
-    const label = loading.querySelector('span');
+    const label = loading.querySelector('.loading-text');
     if (label) label.innerText = text;
 }
 
@@ -143,6 +930,10 @@ function hideAllOverlays() {
 
 function showAppShell(show) {
     $('appShell').classList.toggle('hidden', !show);
+    if (!show) {
+        if ($('profilePage')) $('profilePage').classList.add('hidden');
+        if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
+    }
 }
 
 function getSupabaseConfig() {
@@ -179,13 +970,108 @@ function getActiveMembers() {
 
 function getMemberTheme(name) {
     const index = getActiveMembers().findIndex((member) => member.name === name);
-    return index === 1 ? 'luccas' : 'bel';
+    return index === 1 ? 'secondary' : 'primary';
+}
+
+function normalizeHexColor(value) {
+    const color = String(value || '').trim();
+    return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '';
+}
+
+function getMemberColorByTheme(theme) {
+    const member = appConfig.members.find((item) => item.theme === theme);
+    return normalizeHexColor(member?.color) || defaultMemberColors[theme] || defaultMemberColors.primary;
+}
+
+function getMemberColorFieldIds(theme) {
+    const isSecondary = theme === 'secondary';
+    return {
+        hidden: isSecondary ? 'editPessoa2Cor' : 'editPessoa1Cor',
+        picker: isSecondary ? 'editPessoa2CorPicker' : 'editPessoa1CorPicker',
+        text: isSecondary ? 'editPessoa2CorText' : 'editPessoa1CorText'
+    };
+}
+
+function setMemberColorInput(theme, color) {
+    const ids = getMemberColorFieldIds(theme);
+    const customColor = normalizeHexColor(color);
+    const fallbackColor = defaultMemberColors[theme] || defaultMemberColors.primary;
+    if ($(ids.hidden)) $(ids.hidden).value = customColor;
+    if ($(ids.picker)) $(ids.picker).value = customColor || fallbackColor;
+    if ($(ids.text)) {
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        $(ids.text).innerText = customColor || text.defaultColor;
+    }
+}
+
+function syncMemberColorInputs() {
+    setMemberColorInput('primary', appConfig.members[0]?.color);
+    setMemberColorInput('secondary', appConfig.members[1]?.color);
+}
+
+function setMemberColorDraft(theme, value) {
+    setMemberColorInput(theme, value);
+}
+
+function clearMemberColorDraft(theme) {
+    setMemberColorInput(theme, '');
+}
+
+function updateColorPickerLabels() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    ['primary', 'secondary'].forEach((theme) => {
+        const ids = getMemberColorFieldIds(theme);
+        if ($(ids.text) && !normalizeHexColor($(ids.hidden)?.value)) {
+            $(ids.text).innerText = text.defaultColor;
+        }
+    });
+}
+
+function isMissingCustomColorColumn(error) {
+    const message = String(error?.message || '');
+    return message.includes('custom_color') && message.includes('schema cache');
+}
+
+async function persistMemberConfig(member, payload) {
+    if (!member) return { error: null };
+    const { custom_color: customColor, ...fallbackPayload } = payload;
+    const result = await supabaseClient
+        .from('household_members')
+        .update(payload)
+        .eq('id', member.id);
+    if (!result.error || !isMissingCustomColorColumn(result.error)) return result;
+
+    showToast('A coluna custom_color ainda nao existe no Supabase. Salvando sem a cor por enquanto.');
+    return supabaseClient
+        .from('household_members')
+        .update(fallbackPayload)
+        .eq('id', member.id);
+}
+
+async function insertMemberConfig(payload) {
+    const { custom_color: customColor, ...fallbackPayload } = payload;
+    const result = await supabaseClient.from('household_members').insert(payload);
+    if (!result.error || !isMissingCustomColorColumn(result.error)) return result;
+
+    showToast('A coluna custom_color ainda nao existe no Supabase. Salvando sem a cor por enquanto.');
+    return supabaseClient.from('household_members').insert(fallbackPayload);
+}
+
+function applyMemberColors() {
+    const primary = getMemberColorByTheme('primary');
+    const secondary = getMemberColorByTheme('secondary');
+    document.documentElement.style.setProperty('--member-primary', primary);
+    document.documentElement.style.setProperty('--primary', primary);
+    document.documentElement.style.setProperty('--primary-strong', primary);
+    document.documentElement.style.setProperty('--member-secondary-color', secondary);
+    document.documentElement.style.setProperty('--member-secondary', secondary);
+    document.documentElement.style.setProperty('--secondary', secondary);
 }
 
 function getThemeStyles(theme) {
-    return theme === 'luccas'
-        ? { bodyClass: 'luccas-theme', colorVar: 'var(--luccas)', textColor: '#fff', buttonClass: 'luccas-bg' }
-        : { bodyClass: 'bel-theme', colorVar: 'var(--bel)', textColor: '#000', buttonClass: 'bel-bg' };
+    return theme === 'secondary'
+        ? { bodyClass: 'secondary-theme', colorVar: getMemberColorByTheme('secondary'), textColor: '#fff', buttonClass: 'member-secondary-bg' }
+        : { bodyClass: 'primary-theme', colorVar: getMemberColorByTheme('primary'), textColor: '#fff', buttonClass: 'member-primary-bg' };
 }
 
 function getFavoriteKeyByName(name) {
@@ -226,17 +1112,19 @@ function makeUiExpense(row) {
 
 function updateIdentityUI() {
     const activeMembers = getActiveMembers();
+    applyMemberColors();
     document.title = `${appConfig.appName} | Pluri`;
 
     if (activeMembers.length === 1) {
-        $('headerTitle').innerHTML = `<span class="bel-text">${escapeHtml(activeMembers[0].name).toUpperCase()}</span>`;
+        $('headerTitle').innerHTML = `<span class="member-primary-text">${escapeHtml(getDisplayMemberName(activeMembers[0].name)).toUpperCase()}</span>`;
     } else {
-        $('headerTitle').innerHTML = `<span class="bel-text">${escapeHtml(activeMembers[0].name).toUpperCase()}</span> & <span class="luccas-text">${escapeHtml(activeMembers[1].name).toUpperCase()}</span>`;
+        $('headerTitle').innerHTML = `<span class="member-primary-text">${escapeHtml(getDisplayMemberName(activeMembers[0].name)).toUpperCase()}</span> & <span class="member-secondary-text">${escapeHtml(getDisplayMemberName(activeMembers[1].name)).toUpperCase()}</span>`;
     }
 
-    $('totalLabel0').innerText = activeMembers[0]?.name || 'Pessoa 1';
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    $('totalLabel0').innerText = getDisplayMemberName(activeMembers[0]?.name || text.personOne);
     $('memberCard1').classList.toggle('hidden', activeMembers.length === 1);
-    if (activeMembers[1]) $('totalLabel1').innerText = activeMembers[1].name;
+    if (activeMembers[1]) $('totalLabel1').innerText = getDisplayMemberName(activeMembers[1].name);
 
     const badge = $('userBadge');
     if (currentSession?.user?.email) {
@@ -245,6 +1133,7 @@ function updateIdentityUI() {
     } else {
         badge.classList.add('hidden');
     }
+    if ($('mobileMenuName')) $('mobileMenuName').innerText = appConfig.appName || 'Pluri';
     $('logoutButton').classList.toggle('hidden', !currentSession);
 }
 
@@ -256,7 +1145,7 @@ function renderPayerButtons() {
         const theme = getThemeStyles(member.theme);
         return `
             <button type="button" onclick='setPayer(${quoteJs(member.name)})' class="flex-1 py-3 text-[10px] font-black rounded-2xl transition-all ${active ? theme.buttonClass : ''}" style="${active ? '' : 'color: var(--text-soft); background: transparent;'}">
-                ${escapeHtml(member.name).toUpperCase()}
+                ${escapeHtml(getDisplayMemberName(member.name)).toUpperCase()}
             </button>
         `;
     }).join('');
@@ -331,25 +1220,52 @@ function toggleMetaInputs() {
 }
 
 function updateSyncUi() {
+    if (!$('syncButton') || !$('syncDescription')) return;
     const usingSupabase = Boolean(supabaseClient);
+    const text = translations[currentLanguage] || translations['pt-BR'];
     $('syncButton').innerHTML = usingSupabase
-        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Sincronizar agora'
-        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Sincronizar com Planilha';
+        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> <span id="syncButtonText">${text.syncButton}</span>`
+        : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> <span id="syncButtonText">${text.syncButton}</span>`;
     $('syncDescription').innerText = usingSupabase
         ? 'Recarrega gastos, cartões e meta direto do Supabase.'
         : 'Baixa todos os gastos salvos na planilha';
+}
+
+function animateAuthPanel(nextVisibleId) {
+    const authForm = $('authForm');
+    const recoveryForm = $('recoveryForm');
+    const panels = [authForm, recoveryForm].filter(Boolean);
+    const nextPanel = $(nextVisibleId);
+    const currentPanel = panels.find((panel) => !panel.classList.contains('hidden'));
+
+    if (!nextPanel || currentPanel === nextPanel) return;
+
+    if (currentPanel) currentPanel.classList.add('is-leaving');
+    nextPanel.classList.remove('hidden');
+    nextPanel.classList.add('is-entering');
+
+    window.setTimeout(() => {
+        if (currentPanel) {
+            currentPanel.classList.add('hidden');
+            currentPanel.classList.remove('is-leaving');
+        }
+
+        nextPanel.classList.remove('is-entering');
+    }, 180);
 }
 
 function switchAuthMode(mode) {
     authMode = mode;
     currentRecoveryMode = false;
     $('authName').classList.toggle('hidden', mode !== 'signup');
+    $('authIncome').classList.toggle('hidden', mode !== 'signup');
     $('authPasswordConfirm').classList.toggle('hidden', mode !== 'signup');
     $('authPassword').classList.toggle('hidden', mode === 'reset');
     $('authPassword').required = mode !== 'reset';
     $('authPasswordConfirm').required = mode === 'signup';
-    $('recoveryForm').classList.add('hidden');
-    $('authForm').classList.remove('hidden');
+    $('authIncome').required = mode === 'signup';
+    $('googleAuthButton')?.classList.toggle('hidden', mode === 'reset');
+    animateAuthPanel('authForm');
 
     const tabs = {
         login: $('tabLogin'),
@@ -362,16 +1278,41 @@ function switchAuthMode(mode) {
         element.classList.toggle('text-slate-400', key !== mode);
     });
 
-    $('authSubmitBtn').innerText = mode === 'signup' ? 'Criar conta' : mode === 'reset' ? 'Enviar link' : 'Entrar';
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const authCopy = getAuthModeCopy(text);
+    if ($('authKicker')) $('authKicker').innerText = authCopy.kicker || '';
+    if ($('authTitle')) $('authTitle').innerText = authCopy.title || '';
+    if ($('authSubtitle')) $('authSubtitle').innerText = authCopy.subtitle || '';
+    $('authSubmitBtn').innerText = mode === 'signup' ? text.createAccount : mode === 'reset' ? text.sendLink : text.login;
     $('authMessage').innerText = '';
 }
 
 function showRecoveryForm() {
     currentRecoveryMode = true;
     $('authOverlay').classList.remove('hidden');
-    $('authForm').classList.add('hidden');
-    $('recoveryForm').classList.remove('hidden');
+    animateAuthPanel('recoveryForm');
     $('authMessage').innerText = 'Defina sua nova senha.';
+}
+
+function setAuthButtonLoading(button, isLoading, label = '') {
+    if (!button) return;
+    button.disabled = isLoading;
+    button.classList.toggle('opacity-70', isLoading);
+    button.classList.toggle('cursor-not-allowed', isLoading);
+    if (isLoading) {
+        button.innerHTML = `<span class="button-spinner"></span><span>${escapeHtml(label)}</span>`;
+    }
+}
+
+async function signInWithGoogle() {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: APP_URL
+        }
+    });
+    if (error) $('authMessage').innerText = error.message;
 }
 
 async function handleAuthSubmit(event) {
@@ -381,12 +1322,17 @@ async function handleAuthSubmit(event) {
     const email = $('authEmail').value.trim();
     const password = $('authPassword').value;
     const fullName = $('authName').value.trim();
+    const monthlyIncome = parseFloat($('authIncome')?.value || '0') || null;
     const submitButton = $('authSubmitBtn');
     const originalText = submitButton.innerText;
+    const loadingLabel = authMode === 'login'
+        ? 'Entrando...'
+        : authMode === 'signup'
+            ? 'Criando...'
+            : 'Enviando...';
 
-    submitButton.disabled = true;
-    submitButton.classList.add('opacity-70', 'cursor-not-allowed');
-    $('authMessage').innerText = 'Processando...';
+    setAuthButtonLoading(submitButton, true, loadingLabel);
+    $('authMessage').innerText = '';
 
     try {
         if (authMode === 'signup') {
@@ -399,7 +1345,8 @@ async function handleAuthSubmit(event) {
                 email,
                 password,
                 options: {
-                    data: { full_name: fullName }
+                    emailRedirectTo: APP_URL,
+                    data: { full_name: fullName, monthly_income: monthlyIncome }
                 }
             });
 
@@ -408,8 +1355,7 @@ async function handleAuthSubmit(event) {
         }
 
         if (authMode === 'reset') {
-            const redirectTo = window.location.href.split('#')[0];
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
             $('authMessage').innerText = error ? error.message : 'Enviamos o link de redefinicao para seu email.';
             return;
         }
@@ -420,8 +1366,6 @@ async function handleAuthSubmit(event) {
             return;
         }
 
-        $('authMessage').innerText = 'Entrando...';
-
         if (data?.session) {
             window.setTimeout(() => {
                 handleAuthState(data.session).catch((stateError) => {
@@ -431,8 +1375,7 @@ async function handleAuthSubmit(event) {
             }, 0);
         }
     } finally {
-        submitButton.disabled = false;
-        submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
+        setAuthButtonLoading(submitButton, false);
         submitButton.innerText = originalText;
     }
 }
@@ -462,7 +1405,83 @@ async function handleRecoverySubmit(event) {
 
 async function logout() {
     if (!supabaseClient) return;
+    closeModal('modalLogout');
     await supabaseClient.auth.signOut();
+}
+
+function requestLogout() {
+    closeAppOverlays('modalLogout');
+    setMobileNavActive('logout');
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if ($('logoutModalTitle')) $('logoutModalTitle').innerText = text.logoutTitle;
+    if ($('logoutModalText')) $('logoutModalText').innerText = text.logoutConfirm;
+    if ($('logoutModalCancel')) $('logoutModalCancel').innerText = text.logoutCancel;
+    if ($('logoutModalConfirm')) $('logoutModalConfirm').innerText = text.logoutConfirmAction;
+    openModal('modalLogout');
+}
+
+function requestDeleteAccount() {
+    closeAppOverlays('modalDeleteAccount');
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if ($('deleteAccountModalTitle')) $('deleteAccountModalTitle').innerText = text.deleteAccountTitle;
+    if ($('deleteAccountModalText')) $('deleteAccountModalText').innerText = text.deleteAccountText;
+    if ($('deleteAccountModalCancel')) $('deleteAccountModalCancel').innerText = text.deleteAccountCancel;
+    if ($('deleteAccountModalConfirm')) $('deleteAccountModalConfirm').innerText = text.deleteAccountConfirm;
+    openModal('modalDeleteAccount');
+}
+
+async function deleteAccount() {
+    if (!supabaseClient || !currentSession) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const button = $('deleteAccountModalConfirm');
+    if (button) {
+        button.disabled = true;
+        button.innerText = text.saving;
+    }
+
+    const { error } = await supabaseClient.rpc('delete_my_account');
+    if (error) {
+        if (String(error.message || '').includes('delete_my_account')) {
+            showToast(text.deleteAccountMissingRpc);
+        } else {
+            showToast(error.message);
+        }
+        if (button) {
+            button.disabled = false;
+            button.innerText = text.deleteAccountConfirm;
+        }
+        return;
+    }
+
+    closeModal('modalDeleteAccount');
+    await supabaseClient.auth.signOut();
+}
+
+async function handleProfileSubmit(event) {
+    event.preventDefault();
+    if (!supabaseClient || !currentSession) return;
+
+    const fullName = $('profileFullName').value.trim();
+    const monthlyIncome = parseFloat($('profileMonthlyIncome')?.value || 0) || null;
+    const message = $('profileMessage');
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    message.innerText = text.saving;
+
+    const { data, error } = await supabaseClient
+        .from('profiles')
+        .update({ full_name: fullName || null, monthly_income: monthlyIncome })
+        .eq('id', currentSession.user.id)
+        .select()
+        .maybeSingle();
+
+    if (error) {
+        message.innerText = error.message;
+        return;
+    }
+
+    currentProfile = data || currentProfile;
+    updateProfilePage();
+    message.innerText = text.profileUpdated;
 }
 
 async function handleAuthState(session) {
@@ -587,8 +1606,8 @@ async function loadRemoteState() {
         appName: currentHousehold.name,
         householdType: currentHousehold.household_type,
         members: [
-            { name: currentMembers[0]?.display_name || 'Pessoa 1', theme: 'bel' },
-            { name: currentMembers[1]?.display_name || 'Pessoa 2', theme: 'luccas' }
+            { name: currentMembers[0]?.display_name || 'Pessoa 1', theme: 'primary', color: currentMembers[0]?.custom_color || '' },
+            { name: currentMembers[1]?.display_name || 'Pessoa 2', theme: 'secondary', color: currentMembers[1]?.custom_color || '' }
         ]
     };
     householdTypeDraft = appConfig.householdType;
@@ -631,6 +1650,7 @@ function prefFillOnboarding() {
     $('onboardingAppName').value = currentProfile?.full_name ? `Casa ${currentProfile.full_name}` : 'Meu Pluri';
     $('onboardingPessoa1').value = currentProfile?.full_name || '';
     $('onboardingPessoa2').value = '';
+    $('onboardingIncome').value = currentProfile?.monthly_income || '';
     setOnboardingHouseholdType('couple');
     $('onboardingMessage').innerText = '';
 }
@@ -642,8 +1662,9 @@ async function handleOnboardingSubmit(event) {
     const appName = $('onboardingAppName').value.trim();
     const pessoa1 = $('onboardingPessoa1').value.trim();
     const pessoa2 = $('onboardingPessoa2').value.trim();
+    const monthlyIncome = parseFloat($('onboardingIncome').value || '0') || null;
 
-    if (!appName || !pessoa1 || (onboardingHouseholdType === 'couple' && !pessoa2)) {
+    if (!appName || !pessoa1 || !monthlyIncome || (onboardingHouseholdType === 'couple' && !pessoa2)) {
         $('onboardingMessage').innerText = 'Preencha os campos obrigatorios.';
         return;
     }
@@ -654,7 +1675,8 @@ async function handleOnboardingSubmit(event) {
         p_name: appName,
         p_household_type: onboardingHouseholdType,
         p_primary_name: pessoa1,
-        p_secondary_name: onboardingHouseholdType === 'couple' ? pessoa2 : null
+        p_secondary_name: onboardingHouseholdType === 'couple' ? pessoa2 : null,
+        p_monthly_income: monthlyIncome
     });
     if (error) {
         $('onboardingMessage').innerText = error.message;
@@ -672,6 +1694,10 @@ async function handleOnboardingSubmit(event) {
 }
 
 function openConfigModal() {
+    closeAppOverlays('modalConfig');
+    setMobileNavActive('settings');
+    if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     if (!currentHousehold) {
         showToast('A casa ainda nao foi carregada. Tente sincronizar e abrir novamente.');
         return;
@@ -680,10 +1706,12 @@ function openConfigModal() {
     $('editAppName').value = appConfig.appName;
     $('editPessoa1Nome').value = appConfig.members[0]?.name || '';
     $('editPessoa2Nome').value = appConfig.members[1]?.name || '';
+    syncMemberColorInputs();
     $('metaAtiva').checked = meta.ativa;
     $('editMetaNome').value = meta.nome;
     $('editMetaAlvo').value = meta.alvo;
     $('editMetaAtual').value = meta.atual;
+    if ($('languageSelect')) $('languageSelect').value = currentLanguage;
     householdTypeDraft = appConfig.householdType;
     setHouseholdType(householdTypeDraft);
     renderListaCartoesConfig();
@@ -767,7 +1795,8 @@ function updateSeletorCartaoForm() {
     });
 
     hiddenInput.value = cartaoSelecionado;
-    textDisplay.innerText = cartaoSelecionado || 'Selecionar cartao';
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    textDisplay.innerText = cartaoSelecionado || text.selectCard;
 }
 
 function selecionarCartaoFavorito(pagador) {
@@ -812,12 +1841,15 @@ function toggleCartaoDropdown(show) {
     const shouldShow = show === undefined ? $('cartaoDropdown').classList.contains('hidden') : show;
     $('cartaoDropdown').classList.toggle('hidden', !shouldShow);
     $('cartaoArrow').classList.toggle('rotate-180', shouldShow);
+    $('customSelectCartao')?.classList.toggle('select-open', shouldShow);
+    $('seletorCartao')?.classList.toggle('select-open', shouldShow);
 }
 
 function toggleFiltroDropdown(show) {
     const shouldShow = show === undefined ? $('filtroDropdown').classList.contains('hidden') : show;
     $('filtroDropdown').classList.toggle('hidden', !shouldShow);
     $('filtroArrow').classList.toggle('rotate-180', shouldShow);
+    $('customSelectFiltro')?.classList.toggle('select-open', shouldShow);
 }
 
 function setMetodo(metodo) {
@@ -845,7 +1877,7 @@ function renderCategories() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = `category-chip p-2 rounded-2xl border flex flex-col items-center transition-all ${cat.id === categoriaSelecionada ? 'active-chip' : ''}`;
-        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${cat.svg}</svg><span class="text-[7px] font-bold uppercase mt-1">${cat.id}</span>`;
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${cat.svg}</svg><span class="text-[7px] font-bold uppercase mt-1">${getCategoryLabel(cat.id)}</span>`;
         btn.onclick = () => {
             categoriaSelecionada = cat.id;
             document.querySelectorAll('.category-chip').forEach((el) => el.classList.remove('active-chip'));
@@ -864,8 +1896,9 @@ async function handleExpenseSubmit(event) {
 
     const btnSubmit = $('btnSubmit');
     const textoOriginal = btnSubmit.innerText;
+    const text = translations[currentLanguage] || translations['pt-BR'];
     btnSubmit.disabled = true;
-    btnSubmit.innerText = 'Salvando...';
+    btnSubmit.innerText = text.saving;
 
     const occurredOn = $('dataGasto').value;
     const member = currentMembers.find((item) => item.display_name === pagadorAtual);
@@ -943,7 +1976,8 @@ async function forceSync() {
 }
 
 async function saveConfig() {
-    const saveButton = Array.from(document.querySelectorAll('#modalConfig button')).find((button) => button.textContent.trim().toUpperCase().includes('SALVAR'));
+    const saveButton = $('settingsSaveBtn');
+    const text = translations[currentLanguage] || translations['pt-BR'];
 
     if (!supabaseClient) {
         showToast('Cliente do Supabase nao inicializado.');
@@ -964,6 +1998,8 @@ async function saveConfig() {
     try {
         const primaryName = $('editPessoa1Nome').value.trim() || 'Pessoa 1';
         const secondaryName = $('editPessoa2Nome').value.trim() || 'Pessoa 2';
+        const primaryColor = normalizeHexColor($('editPessoa1Cor').value);
+        const secondaryColor = normalizeHexColor($('editPessoa2Cor').value);
         const householdType = householdTypeDraft;
 
         const householdUpdate = await supabaseClient
@@ -982,10 +2018,12 @@ async function saveConfig() {
         const secondaryMember = currentMembers[1];
 
         if (primaryMember) {
-            const updatePrimary = await supabaseClient
-                .from('household_members')
-                .update({ display_name: primaryName, is_active: true, sort_order: 0 })
-                .eq('id', primaryMember.id);
+            const updatePrimary = await persistMemberConfig(primaryMember, {
+                display_name: primaryName,
+                custom_color: primaryColor || null,
+                is_active: true,
+                sort_order: 0
+            });
             if (updatePrimary.error) {
                 showToast(updatePrimary.error.message);
                 return;
@@ -994,20 +2032,23 @@ async function saveConfig() {
 
         if (householdType === 'couple') {
             if (secondaryMember) {
-                const updateSecondary = await supabaseClient
-                    .from('household_members')
-                    .update({ display_name: secondaryName, is_active: true, sort_order: 1 })
-                    .eq('id', secondaryMember.id);
+                const updateSecondary = await persistMemberConfig(secondaryMember, {
+                    display_name: secondaryName,
+                    custom_color: secondaryColor || null,
+                    is_active: true,
+                    sort_order: 1
+                });
                 if (updateSecondary.error) {
                     showToast(updateSecondary.error.message);
                     return;
                 }
             } else {
-                const insertSecondary = await supabaseClient.from('household_members').insert({
+                const insertSecondary = await insertMemberConfig({
                     household_id: currentHousehold.id,
                     display_name: secondaryName,
                     role: 'member',
                     color_key: 'secondary',
+                    custom_color: secondaryColor || null,
                     sort_order: 1,
                     is_active: true
                 });
@@ -1017,10 +2058,11 @@ async function saveConfig() {
                 }
             }
         } else if (secondaryMember) {
-            const disableSecondary = await supabaseClient
-                .from('household_members')
-                .update({ display_name: secondaryName, is_active: false })
-                .eq('id', secondaryMember.id);
+            const disableSecondary = await persistMemberConfig(secondaryMember, {
+                display_name: secondaryName,
+                custom_color: secondaryColor || null,
+                is_active: false
+            });
             if (disableSecondary.error) {
                 showToast(disableSecondary.error.message);
                 return;
@@ -1077,7 +2119,7 @@ async function saveConfig() {
         if (saveButton) {
             saveButton.disabled = false;
             saveButton.classList.remove('opacity-70', 'cursor-not-allowed');
-            saveButton.innerText = 'Salvar Tudo';
+            saveButton.innerText = text.saveAll;
         }
     }
 }
@@ -1093,18 +2135,18 @@ function toggleEditDropdown(tipo, show) {
         if (name.toLowerCase() !== tipo) {
             $(`edit${name}Dropdown`)?.classList.add('hidden');
             $(`edit${name}Arrow`)?.classList.remove('rotate-180');
+            $(`btnEdit${name}`)?.parentElement?.classList.remove('select-open');
         }
     });
 
     if (shouldShow && button) {
-        const rect = button.getBoundingClientRect();
-        dropdown.style.left = `${rect.left}px`;
-        dropdown.style.top = `${rect.bottom + 8}px`;
-        dropdown.style.setProperty('--dropdown-width', `${rect.width}px`);
+        dropdown.style.removeProperty('left');
+        dropdown.style.removeProperty('top');
     }
 
     dropdown.classList.toggle('hidden', !shouldShow);
     arrow.classList.toggle('rotate-180', shouldShow);
+    button?.parentElement?.classList.toggle('select-open', shouldShow);
 }
 
 function selectEditPagador(valor) {
@@ -1215,14 +2257,21 @@ function render() {
     const filtrados = filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
 
     filtrados.forEach((gasto) => {
-        if (totals[gasto.pagador] !== undefined) totals[gasto.pagador] += gasto.valor;
-        const isPrimary = getMemberTheme(gasto.pagador) === 'bel';
+        const originalPagador = gasto.pagador;
+        if (totals[originalPagador] !== undefined) totals[originalPagador] += gasto.valor;
+        const isPrimary = getMemberTheme(originalPagador) === 'primary';
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        gasto = {
+            ...gasto,
+            pagador: getDisplayMemberName(originalPagador),
+            dataDisplay: formatExpenseDate(gasto.dataRaw)
+        };
 
         lista.innerHTML += `
-            <div class="expense-card p-3 lg:p-4 ${isPrimary ? 'border-[var(--bel)]' : 'border-[var(--luccas)]'}">
+            <div class="expense-card p-3 lg:p-4 ${isPrimary ? 'border-[var(--member-primary)]' : 'border-[var(--member-secondary-color)]'}">
                 <div class="hidden lg:flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--bel)]' : 'bg-[var(--luccas)]'}"></span>
+                        <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--member-primary)]' : 'bg-[var(--member-secondary-color)]'}"></span>
                         <div>
                             <p class="font-bold text-xs expense-title">${escapeHtml(gasto.descricao)}</p>
                             <p class="text-[8px] font-bold uppercase tracking-wider expense-meta">${escapeHtml(gasto.pagador)} • ${escapeHtml(gasto.metodo)} • ${escapeHtml(gasto.dataDisplay)}</p>
@@ -1239,7 +2288,7 @@ function render() {
                 <div class="lg:hidden">
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--bel)]' : 'bg-[var(--luccas)]'}"></span>
+                            <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--member-primary)]' : 'bg-[var(--member-secondary-color)]'}"></span>
                             <span class="text-xs font-bold uppercase expense-secondary">${escapeHtml(gasto.pagador)}</span>
                         </div>
                         <div class="flex items-center gap-1">
@@ -1271,6 +2320,8 @@ function render() {
     $('totalMember0').innerText = `R$ ${(totals[activeMembers[0]?.name] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     if (activeMembers[1]) $('totalMember1').innerText = `R$ ${(totals[activeMembers[1].name] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     updateChart(activeMembers.map((member) => totals[member.name] || 0));
+    updateMonthlySummaryNotice();
+    if ($('profilePage') && !$('profilePage').classList.contains('hidden')) updateProfilePage();
 }
 
 function updateChart(values) {
@@ -1281,7 +2332,7 @@ function updateChart(values) {
         data: {
             datasets: [{
                 data: values.length === 1 ? [values[0] || 1] : values.map((value) => value || 1),
-                backgroundColor: values.length === 1 ? ['#FFD952'] : ['#FFD952', '#A855F7'],
+                backgroundColor: values.length === 1 ? ['#0f766e'] : ['#0f766e', '#1d4ed8'],
                 borderWidth: 0
             }]
         },
@@ -1292,18 +2343,139 @@ function updateChart(values) {
     });
 }
 
-function exportarRelatorio() {
+function getExportedExpenses() {
     const filtro = $('filtroMes').value;
-    const filtrados = filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
-    let txt = `RELATORIO FINANCEIRO ${appConfig.appName.toUpperCase()}\n===============================\n`;
-    filtrados.forEach((gasto) => {
-        txt += `${gasto.dataDisplay} | ${gasto.pagador} | ${gasto.metodo} | ${gasto.descricao}: R$ ${gasto.valor.toFixed(2)}\n`;
+    return filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
+}
+
+function getExportFileBaseName() {
+    const filtro = $('filtroMes')?.value || 'all';
+    const date = new Date().toISOString().slice(0, 10);
+    const appName = String(appConfig.appName || 'pluri')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .toLowerCase() || 'pluri';
+    return `relatorio-${appName}-${filtro}-${date}`;
+}
+
+function getExportRows() {
+    return getExportedExpenses().map((gasto) => ({
+        data: gasto.dataRaw || gasto.dataDisplay,
+        pagador: getDisplayMemberName(gasto.pagador),
+        categoria: getCategoryLabel(gasto.categoria),
+        metodo: String(gasto.metodo || '').trim(),
+        descricao: gasto.descricao || '',
+        valor: gasto.valor
+    }));
+}
+
+function formatMoneyForExport(value) {
+    return Number(value || 0).toLocaleString(getCurrentLocale(), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
     });
-    const blob = new Blob([txt], { type: 'text/plain' });
+}
+
+function downloadExport(content, extension, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `relatorio_${filtro}.txt`;
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `${getExportFileBaseName()}.${extension}`;
+    document.body.appendChild(link);
     link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+function csvCell(value) {
+    return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function getExportHeaders() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    return [
+        text.exportHeaderDate,
+        text.exportHeaderPayer,
+        text.exportHeaderCategory,
+        text.exportHeaderMethod,
+        text.exportHeaderDescription,
+        text.exportHeaderAmount
+    ];
+}
+
+function buildTxtExport(rows) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    let txt = `${text.exportReportHeading} ${appConfig.appName.toUpperCase()}\n===============================\n`;
+    rows.forEach((gasto) => {
+        txt += `${gasto.data} | ${gasto.pagador} | ${gasto.categoria} | ${gasto.metodo} | ${gasto.descricao}: R$ ${formatMoneyForExport(gasto.valor)}\n`;
+    });
+    return txt;
+}
+
+function buildCsvExport(rows) {
+    const header = getExportHeaders();
+    const lines = rows.map((gasto) => [
+        gasto.data,
+        gasto.pagador,
+        gasto.categoria,
+        gasto.metodo,
+        gasto.descricao,
+        formatMoneyForExport(gasto.valor)
+    ].map(csvCell).join(';'));
+    return [header.map(csvCell).join(';'), ...lines].join('\n');
+}
+
+function buildXlsExport(rows) {
+    const header = getExportHeaders();
+    const tableRows = rows.map((gasto) => `
+        <tr>
+            <td>${escapeHtml(gasto.data)}</td>
+            <td>${escapeHtml(gasto.pagador)}</td>
+            <td>${escapeHtml(gasto.categoria)}</td>
+            <td>${escapeHtml(gasto.metodo)}</td>
+            <td>${escapeHtml(gasto.descricao)}</td>
+            <td>${escapeHtml(formatMoneyForExport(gasto.valor))}</td>
+        </tr>
+    `).join('');
+    return `<!doctype html><html><head><meta charset="utf-8"></head><body><table><thead><tr>${header.map((item) => `<th>${item}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+}
+
+function exportarRelatorio() {
+    closeAppOverlays('modalExport');
+    setMobileNavActive('export');
+    openModal('modalExport');
+}
+
+function exportReportAs(format) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const rows = getExportRows();
+    if (!rows.length) {
+        showToast(text.exportEmpty);
+        return;
+    }
+
+    closeModal('modalExport');
+
+    if (format === 'csv') {
+        downloadExport(buildCsvExport(rows), 'csv', 'text/csv;charset=utf-8');
+        return;
+    }
+
+    if (format === 'xls') {
+        downloadExport(buildXlsExport(rows), 'xls', 'application/vnd.ms-excel;charset=utf-8');
+        return;
+    }
+
+    const txt = buildTxtExport(rows);
+    if (format === 'whatsapp') {
+        window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
+    downloadExport(txt, 'txt', 'text/plain;charset=utf-8');
 }
 
 function bindUiEvents() {
@@ -1337,6 +2509,17 @@ function bindUiEvents() {
     document.addEventListener('click', (event) => {
         if (customSelectCartao && !customSelectCartao.contains(event.target)) toggleCartaoDropdown(false);
         if (customSelectFiltro && !customSelectFiltro.contains(event.target)) toggleFiltroDropdown(false);
+        const appMenu = $('appMenu');
+        if (appMenu && !appMenu.contains(event.target)) toggleAppMenu(false);
+        const languageSelect = $('languageSelectWrap');
+        if (languageSelect && !languageSelect.contains(event.target)) toggleLanguageDropdown(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            toggleAppMenu(false);
+            toggleLanguageDropdown(false);
+        }
     });
 
     document.querySelectorAll('.filtro-option').forEach((option) => {
@@ -1354,12 +2537,14 @@ function bindUiEvents() {
     if (formGasto) formGasto.addEventListener('submit', handleExpenseSubmit);
     if (formEditarGasto) formEditarGasto.addEventListener('submit', handleEditExpenseSubmit);
     if (confirmDeleteBtn) confirmDeleteBtn.onclick = handleDeleteConfirm;
+    if ($('profileForm')) $('profileForm').addEventListener('submit', handleProfileSubmit);
 }
 
 async function bootstrap() {
     try {
         bindUiEvents();
         applyTheme(loadThemePreference());
+        setLanguage(currentLanguage);
         renderCategories();
         updateSyncUi();
 
@@ -1408,3 +2593,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+
