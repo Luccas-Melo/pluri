@@ -212,6 +212,19 @@ const translations = {
         cardsPageSubtitle: 'Veja gastos por cartão, fatura do mês e próximas parcelas em um só lugar.',
         cardsRegisteredLabel: 'Cartões ativos',
         cardsTotalSpentLabel: 'Gasto em cartões',
+        cardAddTitle: 'Adicionar cartão',
+        cardNameLabel: 'Nome do cartão',
+        cardNamePlaceholder: 'Ex: Nubank PJ',
+        cardLimitPlaceholder: 'Limite opcional R$',
+        cardClosingPlaceholder: 'Fechamento',
+        cardDuePlaceholder: 'Vencimento',
+        cardAddButton: 'Adicionar cartão',
+        cardManageLabel: 'Editar dados',
+        cardSaveButton: 'Salvar cartão',
+        cardRemoveButton: 'Remover',
+        cardSaved: 'Cartão salvo.',
+        cardRemoved: 'Cartão removido.',
+        cardBillingFieldsMissing: 'Rode a migration de campos de cartão no Supabase para salvar limite, fechamento e vencimento.',
         cardInvoiceLabel: 'Fatura do mês',
         cardLimitLabel: 'Limite',
         cardClosingLabel: 'Fechamento',
@@ -487,6 +500,19 @@ const translations = {
         cardsPageSubtitle: 'See spending by card, this month invoice and upcoming installments in one place.',
         cardsRegisteredLabel: 'Active cards',
         cardsTotalSpentLabel: 'Card spending',
+        cardAddTitle: 'Add card',
+        cardNameLabel: 'Card name',
+        cardNamePlaceholder: 'Ex: Nubank PJ',
+        cardLimitPlaceholder: 'Optional limit $',
+        cardClosingPlaceholder: 'Closing',
+        cardDuePlaceholder: 'Due date',
+        cardAddButton: 'Add card',
+        cardManageLabel: 'Edit data',
+        cardSaveButton: 'Save card',
+        cardRemoveButton: 'Remove',
+        cardSaved: 'Card saved.',
+        cardRemoved: 'Card removed.',
+        cardBillingFieldsMissing: 'Run the card fields migration in Supabase to save limit, closing and due dates.',
         cardInvoiceLabel: 'Month invoice',
         cardLimitLabel: 'Limit',
         cardClosingLabel: 'Closing',
@@ -762,6 +788,19 @@ const translations = {
         cardsPageSubtitle: 'Ve gastos por tarjeta, factura del mes y próximas cuotas en un solo lugar.',
         cardsRegisteredLabel: 'Tarjetas activas',
         cardsTotalSpentLabel: 'Gasto en tarjetas',
+        cardAddTitle: 'Agregar tarjeta',
+        cardNameLabel: 'Nombre de la tarjeta',
+        cardNamePlaceholder: 'Ej: Nubank PJ',
+        cardLimitPlaceholder: 'Límite opcional $',
+        cardClosingPlaceholder: 'Cierre',
+        cardDuePlaceholder: 'Vencimiento',
+        cardAddButton: 'Agregar tarjeta',
+        cardManageLabel: 'Editar datos',
+        cardSaveButton: 'Guardar tarjeta',
+        cardRemoveButton: 'Eliminar',
+        cardSaved: 'Tarjeta guardada.',
+        cardRemoved: 'Tarjeta eliminada.',
+        cardBillingFieldsMissing: 'Ejecuta la migración de campos de tarjeta en Supabase para guardar límite, cierre y vencimiento.',
         cardInvoiceLabel: 'Factura del mes',
         cardLimitLabel: 'Límite',
         cardClosingLabel: 'Cierre',
@@ -1093,11 +1132,17 @@ function setLanguage(language) {
     if ($('cardsPageSubtitle')) $('cardsPageSubtitle').innerText = text.cardsPageSubtitle;
     if ($('cardsRegisteredLabel')) $('cardsRegisteredLabel').innerText = text.cardsRegisteredLabel;
     if ($('cardsTotalSpentLabel')) $('cardsTotalSpentLabel').innerText = text.cardsTotalSpentLabel;
+    if ($('cardAddTitle')) $('cardAddTitle').innerText = text.cardAddTitle;
+    if ($('cardNameLabel')) $('cardNameLabel').innerText = text.cardNameLabel;
+    if ($('newCardName')) $('newCardName').placeholder = text.cardNamePlaceholder;
+    if ($('newCardLimit')) $('newCardLimit').placeholder = text.cardLimitPlaceholder;
+    if ($('newCardClosingDay')) $('newCardClosingDay').placeholder = text.cardClosingPlaceholder;
+    if ($('newCardDueDay')) $('newCardDueDay').placeholder = text.cardDuePlaceholder;
+    if ($('cardAddButton')) $('cardAddButton').innerText = text.cardAddButton;
     if ($('cardsNextInstallmentsTitle')) $('cardsNextInstallmentsTitle').innerText = text.cardNextInstallmentsLabel;
     if ($('notificationsKicker')) $('notificationsKicker').innerText = text.notificationsKicker;
     if ($('notificationsTitle')) $('notificationsTitle').innerText = text.notificationsTitle;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
-    if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
     if ($('btnModeCouple')) $('btnModeCouple').innerText = text.onboardingCouple;
     if ($('btnModeSolo')) $('btnModeSolo').innerText = text.onboardingSolo;
@@ -2026,6 +2071,26 @@ function getCardMetaValue(card, keys) {
     return key ? card[key] : null;
 }
 
+function getCardBillingPayload(cardId = '') {
+    const getValue = (id) => $(id)?.value?.trim() || '';
+    const suffix = cardId ? `-${cardId}` : '';
+    const prefix = cardId ? 'edit' : 'new';
+    const name = getValue(`${prefix}CardName${suffix}`);
+    const limit = parseFloat(getValue(`${prefix}CardLimit${suffix}`) || '0') || null;
+    const closingDay = parseInt(getValue(`${prefix}CardClosingDay${suffix}`) || '0', 10) || null;
+    const dueDay = parseInt(getValue(`${prefix}CardDueDay${suffix}`) || '0', 10) || null;
+    return {
+        name,
+        credit_limit: limit,
+        closing_day: closingDay ? Math.min(Math.max(closingDay, 1), 31) : null,
+        due_day: dueDay ? Math.min(Math.max(dueDay, 1), 31) : null
+    };
+}
+
+function isMissingCardBillingColumns(error) {
+    return ['credit_limit', 'closing_day', 'due_day'].some((field) => String(error?.message || '').includes(field));
+}
+
 function getExpensesForCard(card) {
     return gastos.filter((item) => item.cardId === card.id);
 }
@@ -2059,6 +2124,7 @@ function renderCardsPage() {
                 .reduce((sum, item) => sum + Number(item.valor || 0), 0);
             const limit = Number(getCardMetaValue(card, ['credit_limit', 'limit_amount', 'limit']) || 0);
             const closing = getCardMetaValue(card, ['closing_day', 'statement_closing_day', 'due_day']);
+            const dueDay = getCardMetaValue(card, ['due_day']);
             const limitPercent = limit > 0 ? Math.min((invoice / limit) * 100, 100) : 0;
             const recentExpenses = expenses.slice(0, 4);
             return `
@@ -2083,6 +2149,16 @@ function renderCardsPage() {
                             <span>${escapeHtml(text.cardClosingLabel)}</span>
                             <strong>${closing ? String(closing).padStart(2, '0') : text.cardClosingNotSet}</strong>
                         </div>
+                    </div>
+                    <div class="card-edit-panel">
+                        <input type="text" id="editCardName-${card.id}" class="input-vr" value="${escapeHtml(card.name)}" placeholder="${escapeHtml(text.cardNamePlaceholder)}">
+                        <input type="number" id="editCardLimit-${card.id}" class="input-vr" min="0" step="0.01" inputmode="decimal" value="${limit || ''}" placeholder="${escapeHtml(text.cardLimitPlaceholder)}">
+                        <input type="number" id="editCardClosingDay-${card.id}" class="input-vr" min="1" max="31" inputmode="numeric" value="${closing || ''}" placeholder="${escapeHtml(text.cardClosingPlaceholder)}">
+                        <input type="number" id="editCardDueDay-${card.id}" class="input-vr" min="1" max="31" inputmode="numeric" value="${dueDay || ''}" placeholder="${escapeHtml(text.cardDuePlaceholder)}">
+                    </div>
+                    <div class="card-edit-actions">
+                        <button type="button" onclick='saveCardDetails(${quoteJs(card.id)})' class="primary-button py-3 rounded-2xl font-black text-[10px] uppercase">${escapeHtml(text.cardSaveButton)}</button>
+                        <button type="button" onclick='removeCardById(${quoteJs(card.id)})' class="ghost-button py-3 rounded-2xl font-black text-[10px] uppercase">${escapeHtml(text.cardRemoveButton)}</button>
                     </div>
                     <div class="card-limit-track"><span style="width:${limitPercent}%"></span></div>
                     <div class="card-expense-list">
@@ -2117,6 +2193,106 @@ function renderCardsPage() {
             }).join('')
             : `<div class="card-expense-empty">${escapeHtml(text.cardNoInstallments)}</div>`;
     }
+}
+
+async function handleCardManagerSubmit(event) {
+    event.preventDefault();
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const payload = getCardBillingPayload();
+    if (!payload.name || cartoes.some((name) => name.toLowerCase() === payload.name.toLowerCase())) return;
+    const button = $('cardAddButton');
+    if (button) button.disabled = true;
+
+    if (!supabaseClient || !currentHousehold) {
+        cartoes.push(payload.name);
+        currentCards.push({ id: createGroupId(), ...payload });
+        renderCardsPage();
+        updateSeletorCartaoForm();
+        if ($('cardManagerForm')) $('cardManagerForm').reset();
+        if (button) button.disabled = false;
+        return;
+    }
+
+    try {
+        let result = await supabaseClient.from('cards').insert({
+            household_id: currentHousehold.id,
+            name: payload.name,
+            credit_limit: payload.credit_limit,
+            closing_day: payload.closing_day,
+            due_day: payload.due_day,
+            created_by: currentSession.user.id
+        });
+        if (result.error && isMissingCardBillingColumns(result.error)) {
+            showToast(text.cardBillingFieldsMissing, 'warning');
+            result = await supabaseClient.from('cards').insert({
+                household_id: currentHousehold.id,
+                name: payload.name,
+                created_by: currentSession.user.id
+            });
+        }
+        if (result.error) {
+            showToast(result.error.message);
+            return;
+        }
+        if ($('cardManagerForm')) $('cardManagerForm').reset();
+        await loadRemoteState();
+        renderCardsPage();
+        showToast(text.cardSaved, 'safe');
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function saveCardDetails(cardId) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const payload = getCardBillingPayload(cardId);
+    if (!payload.name) return;
+    const updatePayload = {
+        name: payload.name,
+        credit_limit: payload.credit_limit,
+        closing_day: payload.closing_day,
+        due_day: payload.due_day
+    };
+
+    if (!supabaseClient) {
+        currentCards = currentCards.map((card) => card.id === cardId ? { ...card, ...updatePayload } : card);
+        cartoes = currentCards.map((card) => card.name);
+        renderCardsPage();
+        updateSeletorCartaoForm();
+        return;
+    }
+
+    let result = await supabaseClient.from('cards').update(updatePayload).eq('id', cardId);
+    if (result.error && isMissingCardBillingColumns(result.error)) {
+        showToast(text.cardBillingFieldsMissing, 'warning');
+        result = await supabaseClient.from('cards').update({ name: payload.name }).eq('id', cardId);
+    }
+    if (result.error) {
+        showToast(result.error.message);
+        return;
+    }
+    await loadRemoteState();
+    renderCardsPage();
+    showToast(text.cardSaved, 'safe');
+}
+
+async function removeCardById(cardId) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if (!supabaseClient) {
+        currentCards = currentCards.filter((card) => card.id !== cardId);
+        cartoes = currentCards.map((card) => card.name);
+        renderCardsPage();
+        updateSeletorCartaoForm();
+        return;
+    }
+    const { error } = await supabaseClient.from('cards').delete().eq('id', cardId);
+    if (error) {
+        showToast(error.message);
+        return;
+    }
+    await loadRemoteState();
+    renderCardsPage();
+    showToast(text.cardRemoved, 'safe');
 }
 
 function dismissMonthlySummaryNotice() {
@@ -3102,75 +3278,8 @@ function openConfigModal() {
     householdTypeDraft = appConfig.householdType;
     setHouseholdType(householdTypeDraft);
     renderBudgetSettings();
-    renderListaCartoesConfig();
     toggleMetaInputs();
     openModal('modalConfig');
-}
-
-function renderListaCartoesConfig() {
-    $('listaCartoesConfig').innerHTML = cartoes.map((name) => `
-        <div class="config-chip px-3 py-2 rounded-full flex items-center gap-2 text-[10px] font-bold uppercase">
-            ${escapeHtml(name)} <button onclick='removeCartao(${quoteJs(name)})' class="text-red-500 ml-1">x</button>
-        </div>
-    `).join('');
-    updateSeletorCartaoForm();
-}
-
-async function addCartao() {
-    const nome = $('novoCartaoNome').value.trim();
-    if (!nome || cartoes.includes(nome)) return;
-    const addButton = $('novoCartaoNome')?.nextElementSibling;
-
-    if (!supabaseClient || !currentHousehold) {
-        cartoes.push(nome);
-        $('novoCartaoNome').value = '';
-        renderListaCartoesConfig();
-        return;
-    }
-
-    if (addButton) {
-        addButton.disabled = true;
-        addButton.classList.add('opacity-70', 'cursor-not-allowed');
-    }
-
-    try {
-        const { error } = await supabaseClient.from('cards').insert({
-            household_id: currentHousehold.id,
-            name: nome,
-            created_by: currentSession.user.id
-        });
-        if (error) {
-            showToast(error.message);
-            return;
-        }
-
-        $('novoCartaoNome').value = '';
-        await loadRemoteState();
-        renderListaCartoesConfig();
-    } finally {
-        if (addButton) {
-            addButton.disabled = false;
-            addButton.classList.remove('opacity-70', 'cursor-not-allowed');
-        }
-    }
-}
-
-async function removeCartao(nome) {
-    if (!supabaseClient || !currentHousehold) {
-        cartoes = cartoes.filter((item) => item !== nome);
-        renderListaCartoesConfig();
-        return;
-    }
-
-    const target = currentCards.find((card) => card.name === nome);
-    if (!target) return;
-
-    const { error } = await supabaseClient.from('cards').delete().eq('id', target.id);
-    if (error) {
-        showToast(error.message);
-        return;
-    }
-    await loadRemoteState();
 }
 
 function updateSeletorCartaoForm() {
@@ -4021,6 +4130,7 @@ function bindUiEvents() {
     if (onboardingForm) onboardingForm.addEventListener('submit', handleOnboardingSubmit);
     if (formGasto) formGasto.addEventListener('submit', handleExpenseSubmit);
     if (formEditarGasto) formEditarGasto.addEventListener('submit', handleEditExpenseSubmit);
+    if ($('cardManagerForm')) $('cardManagerForm').addEventListener('submit', handleCardManagerSubmit);
     if (confirmDeleteBtn) confirmDeleteBtn.onclick = handleDeleteConfirm;
     if ($('profileForm')) $('profileForm').addEventListener('submit', handleProfileSubmit);
 }

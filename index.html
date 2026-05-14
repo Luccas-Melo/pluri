@@ -2465,6 +2465,48 @@
             text-align: center;
         }
 
+        .card-manager-panel {
+            padding: 20px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: var(--bg-panel);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card-manager-grid {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.2fr) repeat(3, minmax(110px, 0.72fr)) auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .card-edit-panel {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 0.72fr));
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.16);
+            backdrop-filter: blur(16px);
+        }
+
+        .card-edit-actions {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .card-edit-panel .input-vr {
+            min-width: 0;
+        }
+
         .smart-notifications {
             padding: 18px;
             border-radius: 26px;
@@ -3104,7 +3146,9 @@
                 height: 220px;
             }
 
-            .card-finance-metrics {
+            .card-finance-metrics,
+            .card-manager-grid,
+            .card-edit-panel {
                 grid-template-columns: 1fr;
             }
 
@@ -3535,17 +3579,6 @@
                 <div class="soft-panel p-4 space-y-4">
                     <p id="categoryBudgetsHint" class="text-[10px] muted-copy">Defina limites mensais. Deixe 0 para não acompanhar a categoria.</p>
                     <div id="categoryBudgetsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-                </div>
-            </div>
-
-            <div class="mb-8">
-                <h3 id="settingsCardsLabel" class="text-[10px] font-black uppercase mb-3 tracking-widest">Meus Cartoes</h3>
-                <div class="soft-panel p-4 space-y-4">
-                    <div class="flex gap-2">
-                        <input type="text" id="novoCartaoNome" placeholder="Ex: Nubank PJ" class="input-vr flex-1">
-                        <button onclick="addCartao()" class="primary-button px-4 rounded-xl font-black text-xs">+</button>
-                    </div>
-                    <div id="listaCartoesConfig" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
@@ -4002,6 +4035,20 @@
                         <strong id="cardsTotalSpentValue">R$ 0,00</strong>
                     </div>
                 </div>
+            </div>
+
+            <div class="card-manager-panel">
+                <p id="cardAddTitle" class="kicker mb-4">Adicionar cartão</p>
+                <form id="cardManagerForm" class="card-manager-grid">
+                    <div>
+                        <label id="cardNameLabel" class="panel-label mb-2 block">Nome do cartão</label>
+                        <input type="text" id="newCardName" class="input-vr w-full" placeholder="Ex: Nubank PJ" required>
+                    </div>
+                    <input type="number" id="newCardLimit" min="0" step="0.01" inputmode="decimal" class="input-vr w-full" placeholder="Limite opcional R$">
+                    <input type="number" id="newCardClosingDay" min="1" max="31" inputmode="numeric" class="input-vr w-full" placeholder="Fechamento">
+                    <input type="number" id="newCardDueDay" min="1" max="31" inputmode="numeric" class="input-vr w-full" placeholder="Vencimento">
+                    <button type="submit" id="cardAddButton" class="primary-button px-5 py-3 rounded-2xl font-black text-xs uppercase whitespace-nowrap">Adicionar cartão</button>
+                </form>
             </div>
 
             <div id="cardsGrid" class="cards-grid"></div>
