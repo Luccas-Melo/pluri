@@ -298,6 +298,7 @@ const translations = {
         setupHint: 'Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.',
         defineNewPassword: 'Defina sua nova senha.',
         signingIn: 'Entrando...',
+        loadingDashboard: 'Carregando painel...',
         creating: 'Criando...',
         sending: 'Enviando...',
         passwordMismatch: 'As senhas não conferem.',
@@ -496,6 +497,7 @@ const translations = {
         setupHint: 'After saving the file and reloading the page, the app automatically uses the new project.',
         defineNewPassword: 'Set your new password.',
         signingIn: 'Signing in...',
+        loadingDashboard: 'Loading dashboard...',
         creating: 'Creating...',
         sending: 'Sending...',
         passwordMismatch: 'Passwords do not match.',
@@ -694,6 +696,7 @@ const translations = {
         setupHint: 'Cuando guardes el archivo y recargues la página, la app usará el nuevo proyecto automáticamente.',
         defineNewPassword: 'Define tu nueva contraseña.',
         signingIn: 'Entrando...',
+        loadingDashboard: 'Cargando panel...',
         creating: 'Creando...',
         sending: 'Enviando...',
         passwordMismatch: 'Las contraseñas no coinciden.',
@@ -1694,6 +1697,7 @@ async function handleAuthSubmit(event) {
 
     setAuthButtonLoading(submitButton, true, loadingLabel);
     $('authMessage').innerText = '';
+    let completedAuthNavigation = false;
 
     try {
         if (authMode === 'signup') {
@@ -1728,16 +1732,18 @@ async function handleAuthSubmit(event) {
         }
 
         if (data?.session) {
-            window.setTimeout(() => {
-                handleAuthState(data.session).catch((stateError) => {
-                    console.error(stateError);
-                    $('authMessage').innerText = stateError.message || text.accountOpenError;
-                });
-            }, 0);
+            setAuthButtonLoading(submitButton, true, text.loadingDashboard);
+            await handleAuthState(data.session);
+            completedAuthNavigation = true;
         }
+    } catch (stateError) {
+        console.error(stateError);
+        $('authMessage').innerText = stateError.message || text.accountOpenError;
     } finally {
-        setAuthButtonLoading(submitButton, false);
-        submitButton.innerText = originalText;
+        if (!completedAuthNavigation) {
+            setAuthButtonLoading(submitButton, false);
+            submitButton.innerText = originalText;
+        }
     }
 }
 
@@ -2095,6 +2101,7 @@ function renderListaCartoesConfig() {
 async function addCartao() {
     const nome = $('novoCartaoNome').value.trim();
     if (!nome || cartoes.includes(nome)) return;
+    const addButton = $('novoCartaoNome')?.nextElementSibling;
 
     if (!supabaseClient || !currentHousehold) {
         cartoes.push(nome);
@@ -2103,18 +2110,31 @@ async function addCartao() {
         return;
     }
 
-    const { error } = await supabaseClient.from('cards').insert({
-        household_id: currentHousehold.id,
-        name: nome,
-        created_by: currentSession.user.id
-    });
-    if (error) {
-        showToast(error.message);
-        return;
+    if (addButton) {
+        addButton.disabled = true;
+        addButton.classList.add('opacity-70', 'cursor-not-allowed');
     }
 
-    $('novoCartaoNome').value = '';
-    await loadRemoteState();
+    try {
+        const { error } = await supabaseClient.from('cards').insert({
+            household_id: currentHousehold.id,
+            name: nome,
+            created_by: currentSession.user.id
+        });
+        if (error) {
+            showToast(error.message);
+            return;
+        }
+
+        $('novoCartaoNome').value = '';
+        await loadRemoteState();
+        renderListaCartoesConfig();
+    } finally {
+        if (addButton) {
+            addButton.disabled = false;
+            addButton.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+    }
 }
 
 async function removeCartao(nome) {
