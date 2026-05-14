@@ -2665,9 +2665,9 @@
     <div id="setupNotice" class="hidden fixed inset-0 z-[9998] bg-black/80 backdrop-blur-md flex items-center justify-center px-4">
         <div class="custom-card p-8 max-w-lg w-full text-center">
             <img src="logo-pluri.png" alt="Pluri" class="w-24 h-24 object-contain mx-auto mb-5">
-            <h2 class="text-2xl font-black mb-3">Configurar Supabase</h2>
-            <p class="text-sm mb-4">Preencha `supabase-config.js` com a URL e a anon key do projeto `Pluri` para liberar login e onboarding.</p>
-            <p class="text-xs">Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.</p>
+            <h2 id="setupTitle" class="text-2xl font-black mb-3">Configurar Supabase</h2>
+            <p id="setupText" class="text-sm mb-4">Preencha `supabase-config.js` com a URL e a anon key do projeto `Pluri` para liberar login e onboarding.</p>
+            <p id="setupHint" class="text-xs">Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.</p>
         </div>
     </div>
 
@@ -2685,9 +2685,9 @@
                         </div>
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <p class="kicker mb-3">Controle financeiro</p>
+                                <p id="authHeroKicker" class="kicker mb-3">Controle financeiro</p>
                                 <h1 id="authHeroTitle" class="section-title mb-4">Bem-vindo.</h1>
-                                <p class="text-sm leading-6 max-w-md" style="color: rgba(255,255,255,0.78);">Acompanhe gastos, cartoes e metas em uma area financeira organizada para casa, casal ou uso individual.</p>
+                                <p id="authHeroSubtitle" class="text-sm leading-6 max-w-md" style="color: rgba(255,255,255,0.78);">Acompanhe gastos, cartões e metas em uma área financeira organizada para casa, casal ou uso individual.</p>
                             </div>
                             <div class="orb shrink-0"></div>
                         </div>
@@ -2696,22 +2696,22 @@
                         <div class="brand-bullet">
                             <div class="brand-icon">01</div>
                             <div>
-                                <p class="font-black text-sm">Casas</p>
-                                <p class="text-xs mt-1" style="color: var(--text-soft);">Solo ou casal.</p>
+                                <p id="heroBulletHomesTitle" class="font-black text-sm">Casas</p>
+                                <p id="heroBulletHomesText" class="text-xs mt-1" style="color: var(--text-soft);">Solo ou casal.</p>
                             </div>
                         </div>
                         <div class="brand-bullet">
                             <div class="brand-icon">02</div>
                             <div>
-                                <p class="font-black text-sm">Cartoes</p>
-                                <p class="text-xs mt-1" style="color: var(--text-soft);">Preferencias por pessoa.</p>
+                                <p id="heroBulletCardsTitle" class="font-black text-sm">Cartões</p>
+                                <p id="heroBulletCardsText" class="text-xs mt-1" style="color: var(--text-soft);">Preferências por pessoa.</p>
                             </div>
                         </div>
                         <div class="brand-bullet">
                             <div class="brand-icon">03</div>
                             <div>
-                                <p class="font-black text-sm">Metas</p>
-                                <p class="text-xs mt-1" style="color: var(--text-soft);">Evolucao clara.</p>
+                                <p id="heroBulletGoalsTitle" class="font-black text-sm">Metas</p>
+                                <p id="heroBulletGoalsText" class="text-xs mt-1" style="color: var(--text-soft);">Evolução clara.</p>
                             </div>
                         </div>
                     </div>
@@ -2765,15 +2765,15 @@
             <div class="brand-shell">
                 <div class="brand-panel">
                     <div>
-                        <span class="brand-badge">Onboarding</span>
-                        <h2 class="section-title mt-5 mb-4">Monte sua casa financeira do seu jeito.</h2>
+                        <span id="onboardingBadge" class="brand-badge">Onboarding</span>
+                        <h2 id="onboardingHeroTitle" class="section-title mt-5 mb-4">Monte sua casa financeira do seu jeito.</h2>
                         <p class="text-sm leading-6" style="color: var(--text-soft);">Defina o nome do espaço, escolha se o app é solo ou casal e personalize a estrutura inicial em menos de um minuto.</p>
                     </div>
                     <div class="brand-bullets">
                         <div class="brand-bullet">
                             <div class="brand-icon">A</div>
                             <div>
-                                <p class="font-black text-sm">Tema leve</p>
+                                <p id="onboardingLightTitle" class="font-black text-sm">Tema leve</p>
                                 <p class="text-xs mt-1" style="color: var(--text-soft);">Visual claro elegante logo no primeiro acesso, com modo escuro disponível quando você quiser.</p>
                             </div>
                         </div>
@@ -2794,7 +2794,7 @@
 
                     <form id="onboardingForm" class="space-y-5">
                         <div>
-                            <label class="panel-label mb-2 block">Nome do app</label>
+                            <label id="onboardingAppNameLabel" class="panel-label mb-2 block">Nome do app</label>
                             <input type="text" id="onboardingAppName" class="input-vr w-full" placeholder="Ex: Minha casa" required>
                         </div>
 
@@ -2804,7 +2804,7 @@
                         </div>
 
                         <div>
-                            <label class="panel-label mb-2 block">Estrutura</label>
+                            <label id="onboardingStructureLabel" class="panel-label mb-2 block">Estrutura</label>
                             <div class="grid grid-cols-2 gap-3">
                                 <button type="button" id="onboardingModeCouple" onclick="setOnboardingHouseholdType('couple')" class="py-3 rounded-2xl font-black text-[10px] uppercase" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);">Casal</button>
                                 <button type="button" id="onboardingModeSolo" onclick="setOnboardingHouseholdType('solo')" class="py-3 rounded-2xl font-black text-[10px] uppercase" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);">Solo</button>
@@ -2813,11 +2813,11 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                                <label class="panel-label mb-2 block">Pessoa 1</label>
+                                <label id="onboardingPessoa1Label" class="panel-label mb-2 block">Pessoa 1</label>
                                 <input type="text" id="onboardingPessoa1" class="input-vr w-full" placeholder="Seu nome" required>
                             </div>
                             <div id="onboardingPessoa2Wrap">
-                                <label class="panel-label mb-2 block">Pessoa 2</label>
+                                <label id="onboardingPessoa2Label" class="panel-label mb-2 block">Pessoa 2</label>
                                 <input type="text" id="onboardingPessoa2" class="input-vr w-full" placeholder="Nome da outra pessoa">
                             </div>
                         </div>
@@ -2929,7 +2929,7 @@
             </div>
 
             <div id="dangerAccountSection" class="mb-6">
-                <h3 class="text-[10px] font-black uppercase mb-3 tracking-widest">Conta</h3>
+                <h3 id="dangerAccountLabel" class="text-[10px] font-black uppercase mb-3 tracking-widest">Conta</h3>
                 <div class="soft-panel p-4">
                     <button id="deleteAccountSettingsBtn" type="button" onclick="requestDeleteAccount()" class="w-full py-3 rounded-xl font-black text-xs uppercase danger-button">Apagar conta</button>
                 </div>
@@ -2944,7 +2944,7 @@
 
     <div id="modalDelete" class="modal-overlay">
         <div class="custom-card p-8 max-w-xs text-center">
-            <p class="font-bold mb-6">Excluir registro?</p>
+            <p id="deleteRecordTitle" class="font-bold mb-6">Excluir registro?</p>
             <div class="flex gap-2">
                 <button onclick="closeModal('modalDelete')" class="flex-1 py-3 text-xs font-bold ghost-button">Não</button>
                 <button id="confirmDeleteBtn" class="flex-1 py-3 rounded-xl font-black text-xs danger-button">Sim</button>
@@ -3487,7 +3487,7 @@ z-index:9999;
 box-shadow:0 10px 30px rgba(0,0,0,0.5);
 ">
   Nova versão disponível 🚀
-  <button onclick="updateApp()" style="
+  <button id="updateBannerButton" onclick="updateApp()" style="
     margin-left:10px;
     background:#0e7490;
     border:none;

@@ -9,7 +9,7 @@ const categories = [
 const APP_URL = 'https://pluri.netlify.app';
 
 const monthLabels = {
-    'pt-BR': ['Todos os Meses', 'Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    'pt-BR': ['Todos os meses', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
     'en-US': ['All Months', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     'es-ES': ['Todos los meses', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 };
@@ -18,6 +18,12 @@ const categoryLabels = {
     'pt-BR': { Comida: 'Comida', Lazer: 'Lazer', Mercado: 'Mercado', Viagem: 'Viagem', Outros: 'Outros' },
     'en-US': { Comida: 'Food', Lazer: 'Fun', Mercado: 'Groceries', Viagem: 'Travel', Outros: 'Other' },
     'es-ES': { Comida: 'Comida', Lazer: 'Ocio', Mercado: 'Mercado', Viagem: 'Viaje', Outros: 'Otros' }
+};
+
+const languageNames = {
+    'pt-BR': { 'pt-BR': 'Português', 'en-US': 'Inglês', 'es-ES': 'Espanhol' },
+    'en-US': { 'pt-BR': 'Portuguese', 'en-US': 'English', 'es-ES': 'Spanish' },
+    'es-ES': { 'pt-BR': 'Portugués', 'en-US': 'Inglés', 'es-ES': 'Español' }
 };
 
 const defaultMemberColors = {
@@ -116,19 +122,45 @@ const translations = {
             login: {
                 kicker: 'Acesse sua conta',
                 title: 'Entrar no Pluri',
-                subtitle: 'Sua area financeira segura e sincronizada.'
+                subtitle: 'Sua área financeira segura e sincronizada.'
             },
             signup: {
                 kicker: 'Comece seu controle',
                 title: 'Criar conta no Pluri',
-                subtitle: 'Monte seu espaco financeiro em poucos segundos.'
+                subtitle: 'Monte seu espaço financeiro em poucos segundos.'
             },
             reset: {
                 kicker: 'Recupere o acesso',
                 title: 'Esqueci minha senha',
-                subtitle: 'Informe seu email para receber o link de recuperacao.'
+                subtitle: 'Informe seu e-mail para receber o link de recuperação.'
             }
         },
+        heroKicker: 'Controle financeiro',
+        heroSubtitle: 'Acompanhe gastos, cartões e metas em uma área financeira organizada para casa, casal ou uso individual.',
+        heroBulletHomesTitle: 'Casas',
+        heroBulletHomesText: 'Solo ou casal.',
+        heroBulletCardsTitle: 'Cartões',
+        heroBulletCardsText: 'Preferências por pessoa.',
+        heroBulletGoalsTitle: 'Metas',
+        heroBulletGoalsText: 'Evolução clara.',
+        onboardingBadge: 'Onboarding',
+        onboardingHeroTitle: 'Monte sua casa financeira do seu jeito.',
+        onboardingHeroSubtitle: 'Defina o nome do espaço, escolha se o app é solo ou casal e personalize a estrutura inicial em menos de um minuto.',
+        onboardingLightTitle: 'Tema leve',
+        onboardingLightText: 'Visual claro elegante logo no primeiro acesso, com modo escuro disponível quando você quiser.',
+        onboardingFlexibleTitle: 'Estrutura flexível',
+        onboardingFlexibleText: 'Solo ou casal, sem elementos sobrando e sem ficar preso a um único formato.',
+        onboardingKicker: 'Primeira configuração',
+        onboardingTitle: 'Criar meu espaço',
+        onboardingSubtitle: 'Essas escolhas definem a base do seu Pluri e podem ser alteradas depois em configurações.',
+        onboardingAppNameLabel: 'Nome do app',
+        onboardingStructureLabel: 'Estrutura',
+        onboardingCouple: 'Casal',
+        onboardingSolo: 'Solo',
+        onboardingCreate: 'Criar minha casa',
+        onboardingRequired: 'Preencha os campos obrigatórios.',
+        onboardingCreating: 'Criando estrutura inicial...',
+        onboardingCreateError: 'Não foi possível criar a casa.',
         login: 'Entrar',
         signup: 'Criar conta',
         reset: 'Recuperar',
@@ -140,29 +172,29 @@ const translations = {
         logoutCancel: 'Continuar logado',
         logoutConfirmAction: 'Sim, sair',
         deleteAccountTitle: 'Apagar conta?',
-        deleteAccountText: 'Essa acao remove sua conta e os dados vinculados a ela. Nao da para desfazer.',
+        deleteAccountText: 'Essa ação remove sua conta e os dados vinculados a ela. Não dá para desfazer.',
         deleteAccountButton: 'Apagar conta',
         deleteAccountCancel: 'Cancelar',
         deleteAccountConfirm: 'Sim, apagar',
-        deleteAccountMissingRpc: 'A funcao delete_my_account ainda nao existe no Supabase. Rode o SQL de apagar conta.',
+        deleteAccountMissingRpc: 'A função delete_my_account ainda não existe no Supabase. Rode o SQL de apagar conta.',
         fixed: 'Fixo',
         installment: 'Parcelado',
         installmentsLabel: 'Parcelas',
         installmentsPlaceholder: 'Ex: 6',
-        installmentHint: 'O valor informado sera repetido mensalmente por parcela.',
+        installmentHint: 'O valor informado será repetido mensalmente por parcela.',
         installmentInvalid: 'Informe pelo menos 2 parcelas.',
         updatePassword: 'Atualizar senha',
-        settingsKicker: 'Preferencias',
-        settingsTitle: 'Configuracoes',
+        settingsKicker: 'Preferências',
+        settingsTitle: 'Configurações',
         languageLabel: 'Idioma',
         appProfileLabel: 'Perfil do App',
         savingsGoalLabel: 'Meta de Economia',
         activateGoal: 'Ativar Meta',
-        myCardsLabel: 'Meus Cartoes',
-        syncLabel: 'Sincronizacao',
+        myCardsLabel: 'Meus cartões',
+        syncLabel: 'Sincronização',
         syncButton: 'Sincronizar com Planilha',
         close: 'Fechar',
-        saveAll: 'Salvar Tudo',
+        saveAll: 'Salvar tudo',
         namePlaceholder: 'Seu nome',
         emailPlaceholder: 'voce@email.com',
         passwordPlaceholder: 'Sua senha',
@@ -179,17 +211,17 @@ const translations = {
         goalTargetPlaceholder: 'Alvo R$',
         goalCurrentPlaceholder: 'Atual R$',
         totalGeneral: 'Gasto Geral',
-        historyKicker: 'Historico',
-        historyTitle: 'Seus lancamentos',
-        historySubtitle: 'Navegue pelos registros com uma leitura mais limpa, rapida e confortavel.',
+        historyKicker: 'Histórico',
+        historyTitle: 'Seus lançamentos',
+        historySubtitle: 'Navegue pelos registros com uma leitura mais limpa, rápida e confortável.',
         newExpenseKicker: 'Novo gasto',
-        newExpenseTitle: 'Adicionar lancamento',
-        newExpenseSubtitle: 'Entrada rapida, categorias visuais e selecao de pagador sem atrito.',
-        registerExpense: 'Registrar Gasto',
-        descriptionPlaceholder: 'Descricao...',
-        cardMethod: 'Cartao',
-        selectCard: 'Selecionar cartao',
-        noExpenses: 'Seus lancamentos vao aparecer aqui.',
+        newExpenseTitle: 'Adicionar lançamento',
+        newExpenseSubtitle: 'Entrada rápida, categorias visuais e seleção de pagador sem atrito.',
+        registerExpense: 'Registrar gasto',
+        descriptionPlaceholder: 'Descrição...',
+        cardMethod: 'Cartão',
+        selectCard: 'Selecionar cartão',
+        noExpenses: 'Seus lançamentos vão aparecer aqui.',
         metaOff: 'Meta Off',
         saving: 'Salvando...',
         personOne: 'Pessoa 1',
@@ -197,57 +229,90 @@ const translations = {
         edit: 'Editar',
         delete: 'Excluir',
         appHeaderKicker: 'Painel Pluri',
-        appHeaderSubtitle: 'Seus gastos em um espaco mais claro, leve e agradavel de acompanhar.',
-        home: 'Inicio',
+        appHeaderSubtitle: 'Seus gastos em um espaço mais claro, leve e agradável de acompanhar.',
+        home: 'Início',
         profile: 'Perfil',
         profileKicker: 'Conta',
         profileTitle: 'Meu perfil',
-        profileSubtitle: 'Gerencie seus dados, renda e preferencias principais do Pluri.',
+        profileSubtitle: 'Gerencie seus dados, renda e preferências principais do Pluri.',
         profilePersonalData: 'Dados pessoais',
         profileSummary: 'Resumo da conta',
         profileEmail: 'Email',
         profileHousehold: 'Casa',
         profileIncome: 'Renda mensal',
-        profileEntries: 'Lancamentos',
-        profileCards: 'Cartoes',
+        profileEntries: 'Lançamentos',
+        profileCards: 'Cartões',
         profileMembers: 'Pessoas',
         profileBack: 'Voltar ao painel',
         profileNameLabel: 'Nome',
         profileIncomeLabel: 'Renda mensal',
         profileSave: 'Salvar perfil',
         profileUpdated: 'Perfil atualizado.',
-        summaryReadyTitle: 'Seu resumo financeiro esta pronto',
-        summaryReadyText: 'Veja como seus gastos fecharam este mes e onde voce pode ajustar antes do proximo ciclo.',
+        summaryReadyTitle: 'Seu resumo financeiro está pronto',
+        summaryReadyText: 'Veja como seus gastos fecharam este mês e onde você pode ajustar antes do próximo ciclo.',
         summaryOpen: 'Ver resumo',
         summaryTest: 'Testar resumo',
         summaryDismiss: 'Depois',
         summaryTitle: 'Resumo financeiro',
-        summarySubtitle: 'Uma leitura rapida do seu mes atual.',
-        summaryTotal: 'Total do mes',
-        summaryAverage: 'Media por lancamento',
+        summarySubtitle: 'Uma leitura rápida do seu mês atual.',
+        summaryTotal: 'Total do mês',
+        summaryAverage: 'Média por lançamento',
         summaryTopCategory: 'Maior categoria',
         summaryNoCategory: 'Sem categoria',
-        summaryTransactions: 'Lancamentos',
-        settings: 'Configuracoes',
+        summaryTransactions: 'Lançamentos',
+        settings: 'Configurações',
         export: 'Exportar',
         logout: 'Sair',
         colorLabel: 'Cor',
-        defaultColor: 'Padrao',
-        useDefaultColor: 'Usar padrao',
-        exportTitle: 'Exportar relatorio',
-        exportSubtitle: 'Escolha o formato ideal para baixar ou compartilhar seus lancamentos filtrados.',
+        defaultColor: 'Padrão',
+        useDefaultColor: 'Usar padrão',
+        exportTitle: 'Exportar relatório',
+        exportSubtitle: 'Escolha o formato ideal para baixar ou compartilhar seus lançamentos filtrados.',
         exportCsv: 'Planilha CSV',
         exportTxt: 'Texto TXT',
         exportXls: 'Excel XLS',
         exportWhatsapp: 'WhatsApp',
-        exportEmpty: 'Nao ha lancamentos para exportar.',
-        exportReportHeading: 'RELATORIO FINANCEIRO',
+        exportEmpty: 'Não há lançamentos para exportar.',
+        exportReportHeading: 'RELATÓRIO FINANCEIRO',
         exportHeaderDate: 'Data',
         exportHeaderPayer: 'Pagador',
         exportHeaderCategory: 'Categoria',
-        exportHeaderMethod: 'Metodo',
-        exportHeaderDescription: 'Descricao',
-        exportHeaderAmount: 'Valor'
+        exportHeaderMethod: 'Método',
+        exportHeaderDescription: 'Descrição',
+        exportHeaderAmount: 'Valor',
+        accountLabel: 'Conta',
+        soloModeHint: 'No modo solo, a segunda pessoa fica oculta da interface.',
+        deleteRecordTitle: 'Excluir registro?',
+        no: 'Não',
+        yes: 'Sim',
+        editExpenseTitle: 'Editar gasto',
+        payerLabel: 'Pagador',
+        categoryLabel: 'Categoria',
+        methodLabel: 'Método',
+        amountLabel: 'Valor (R$)',
+        dateLabel: 'Data',
+        updatedAvailable: 'Nova versão disponível',
+        update: 'Atualizar',
+        setupTitle: 'Configurar Supabase',
+        setupText: 'Preencha `supabase-config.js` com a URL e a anon key do projeto `Pluri` para liberar login e onboarding.',
+        setupHint: 'Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.',
+        defineNewPassword: 'Defina sua nova senha.',
+        signingIn: 'Entrando...',
+        creating: 'Criando...',
+        sending: 'Enviando...',
+        passwordMismatch: 'As senhas não conferem.',
+        accountCreated: 'Conta criada. Verifique seu e-mail para confirmar o acesso.',
+        resetLinkSent: 'Enviamos o link de redefinição para seu e-mail.',
+        accountOpenError: 'Erro ao abrir sua conta.',
+        passwordUpdated: 'Senha atualizada com sucesso. Entrando no app...',
+        expenseSaved: 'Gasto registrado!',
+        expenseEdited: 'Gasto editado!',
+        configSaved: 'Configurações salvas!',
+        supabaseRequired: 'Configure o Supabase para salvar gastos.',
+        sessionUpdateError: 'Erro ao atualizar a sessão.',
+        sessionOpenError: 'Erro ao abrir a sessão.',
+        appStartError: 'Erro ao iniciar o app',
+        unknownError: 'desconhecido'
     },
     'en-US': {
         heroTitle: 'Welcome.',
@@ -268,6 +333,32 @@ const translations = {
                 subtitle: 'Enter your email to receive the recovery link.'
             }
         },
+        heroKicker: 'Financial control',
+        heroSubtitle: 'Track expenses, cards and goals in an organized financial space for home, couples or individual use.',
+        heroBulletHomesTitle: 'Homes',
+        heroBulletHomesText: 'Solo or couple.',
+        heroBulletCardsTitle: 'Cards',
+        heroBulletCardsText: 'Preferences per person.',
+        heroBulletGoalsTitle: 'Goals',
+        heroBulletGoalsText: 'Clear progress.',
+        onboardingBadge: 'Onboarding',
+        onboardingHeroTitle: 'Set up your financial home your way.',
+        onboardingHeroSubtitle: 'Name your space, choose solo or couple mode and personalize the initial setup in under a minute.',
+        onboardingLightTitle: 'Light theme',
+        onboardingLightText: 'An elegant light look on first access, with dark mode available whenever you want.',
+        onboardingFlexibleTitle: 'Flexible structure',
+        onboardingFlexibleText: 'Solo or couple, without leftover elements and without being locked into one format.',
+        onboardingKicker: 'First setup',
+        onboardingTitle: 'Create my space',
+        onboardingSubtitle: 'These choices define your Pluri foundation and can be changed later in settings.',
+        onboardingAppNameLabel: 'App name',
+        onboardingStructureLabel: 'Structure',
+        onboardingCouple: 'Couple',
+        onboardingSolo: 'Solo',
+        onboardingCreate: 'Create my home',
+        onboardingRequired: 'Fill in the required fields.',
+        onboardingCreating: 'Creating initial structure...',
+        onboardingCreateError: 'Could not create the home.',
         login: 'Sign in',
         signup: 'Create account',
         reset: 'Recover',
@@ -294,14 +385,14 @@ const translations = {
         settingsKicker: 'Preferences',
         settingsTitle: 'Settings',
         languageLabel: 'Language',
-        appProfileLabel: 'App Profile',
-        savingsGoalLabel: 'Savings Goal',
-        activateGoal: 'Activate Goal',
-        myCardsLabel: 'My Cards',
+        appProfileLabel: 'App profile',
+        savingsGoalLabel: 'Savings goal',
+        activateGoal: 'Activate goal',
+        myCardsLabel: 'My cards',
         syncLabel: 'Sync',
         syncButton: 'Sync with Cloud',
         close: 'Close',
-        saveAll: 'Save All',
+        saveAll: 'Save all',
         namePlaceholder: 'Your name',
         emailPlaceholder: 'you@email.com',
         passwordPlaceholder: 'Your password',
@@ -324,12 +415,12 @@ const translations = {
         newExpenseKicker: 'New expense',
         newExpenseTitle: 'Add entry',
         newExpenseSubtitle: 'Quick entry, visual categories and smooth payer selection.',
-        registerExpense: 'Register Expense',
+        registerExpense: 'Register expense',
         descriptionPlaceholder: 'Description...',
         cardMethod: 'Card',
         selectCard: 'Select card',
         noExpenses: 'Your entries will appear here.',
-        metaOff: 'Goal Off',
+        metaOff: 'Goal off',
         saving: 'Saving...',
         personOne: 'Person 1',
         personTwo: 'Person 2',
@@ -386,7 +477,40 @@ const translations = {
         exportHeaderCategory: 'Category',
         exportHeaderMethod: 'Method',
         exportHeaderDescription: 'Description',
-        exportHeaderAmount: 'Amount'
+        exportHeaderAmount: 'Amount',
+        accountLabel: 'Account',
+        soloModeHint: 'In solo mode, the second person is hidden from the interface.',
+        deleteRecordTitle: 'Delete entry?',
+        no: 'No',
+        yes: 'Yes',
+        editExpenseTitle: 'Edit expense',
+        payerLabel: 'Payer',
+        categoryLabel: 'Category',
+        methodLabel: 'Method',
+        amountLabel: 'Amount ($)',
+        dateLabel: 'Date',
+        updatedAvailable: 'New version available',
+        update: 'Update',
+        setupTitle: 'Configure Supabase',
+        setupText: 'Fill `supabase-config.js` with the URL and anon key from the `Pluri` project to enable login and onboarding.',
+        setupHint: 'After saving the file and reloading the page, the app automatically uses the new project.',
+        defineNewPassword: 'Set your new password.',
+        signingIn: 'Signing in...',
+        creating: 'Creating...',
+        sending: 'Sending...',
+        passwordMismatch: 'Passwords do not match.',
+        accountCreated: 'Account created. Check your email to confirm access.',
+        resetLinkSent: 'We sent the reset link to your email.',
+        accountOpenError: 'Error opening your account.',
+        passwordUpdated: 'Password updated successfully. Opening the app...',
+        expenseSaved: 'Expense registered!',
+        expenseEdited: 'Expense updated!',
+        configSaved: 'Settings saved!',
+        supabaseRequired: 'Configure Supabase to save expenses.',
+        sessionUpdateError: 'Error updating the session.',
+        sessionOpenError: 'Error opening the session.',
+        appStartError: 'Error starting the app',
+        unknownError: 'unknown'
     },
     'es-ES': {
         heroTitle: 'Bienvenido.',
@@ -394,7 +518,7 @@ const translations = {
             login: {
                 kicker: 'Accede a tu cuenta',
                 title: 'Entrar en Pluri',
-                subtitle: 'Tu area financiera segura y sincronizada.'
+                subtitle: 'Tu área financiera segura y sincronizada.'
             },
             signup: {
                 kicker: 'Empieza tu control',
@@ -403,50 +527,76 @@ const translations = {
             },
             reset: {
                 kicker: 'Recupera el acceso',
-                title: 'Olvide mi contrasena',
-                subtitle: 'Informa tu email para recibir el enlace de recuperacion.'
+                title: 'Olvidé mi contraseña',
+                subtitle: 'Informa tu email para recibir el enlace de recuperación.'
             }
         },
+        heroKicker: 'Control financiero',
+        heroSubtitle: 'Acompaña gastos, tarjetas y metas en un área financiera organizada para casa, pareja o uso individual.',
+        heroBulletHomesTitle: 'Casas',
+        heroBulletHomesText: 'Solo o pareja.',
+        heroBulletCardsTitle: 'Tarjetas',
+        heroBulletCardsText: 'Preferencias por persona.',
+        heroBulletGoalsTitle: 'Metas',
+        heroBulletGoalsText: 'Evolución clara.',
+        onboardingBadge: 'Onboarding',
+        onboardingHeroTitle: 'Configura tu casa financiera a tu manera.',
+        onboardingHeroSubtitle: 'Define el nombre del espacio, elige si la app es solo o pareja y personaliza la estructura inicial en menos de un minuto.',
+        onboardingLightTitle: 'Tema claro',
+        onboardingLightText: 'Visual claro elegante desde el primer acceso, con modo oscuro disponible cuando quieras.',
+        onboardingFlexibleTitle: 'Estructura flexible',
+        onboardingFlexibleText: 'Solo o pareja, sin elementos sobrantes y sin quedar atrapado en un único formato.',
+        onboardingKicker: 'Primera configuración',
+        onboardingTitle: 'Crear mi espacio',
+        onboardingSubtitle: 'Estas elecciones definen la base de tu Pluri y pueden cambiarse después en configuración.',
+        onboardingAppNameLabel: 'Nombre de la app',
+        onboardingStructureLabel: 'Estructura',
+        onboardingCouple: 'Pareja',
+        onboardingSolo: 'Solo',
+        onboardingCreate: 'Crear mi casa',
+        onboardingRequired: 'Completa los campos obligatorios.',
+        onboardingCreating: 'Creando estructura inicial...',
+        onboardingCreateError: 'No fue posible crear la casa.',
         login: 'Entrar',
         signup: 'Crear cuenta',
         reset: 'Recuperar',
         sendLink: 'Enviar enlace',
         createAccount: 'Crear cuenta',
         google: 'Continuar con Google',
-        logoutConfirm: 'Estas seguro de que quieres salir?',
-        logoutTitle: 'Salir de la cuenta?',
+        logoutConfirm: '¿Estás seguro de que quieres salir?',
+        logoutTitle: '¿Salir de la cuenta?',
         logoutCancel: 'Seguir conectado',
-        logoutConfirmAction: 'Si, salir',
-        deleteAccountTitle: 'Eliminar cuenta?',
+        logoutConfirmAction: 'Sí, salir',
+        deleteAccountTitle: '¿Eliminar cuenta?',
         deleteAccountText: 'Esto elimina tu cuenta y los datos vinculados. No se puede deshacer.',
         deleteAccountButton: 'Eliminar cuenta',
         deleteAccountCancel: 'Cancelar',
-        deleteAccountConfirm: 'Si, eliminar',
-        deleteAccountMissingRpc: 'La funcion delete_my_account aun no existe en Supabase. Ejecuta el SQL para eliminar cuenta.',
+        deleteAccountConfirm: 'Sí, eliminar',
+        deleteAccountMissingRpc: 'La función delete_my_account aún no existe en Supabase. Ejecuta el SQL para eliminar cuenta.',
         fixed: 'Fijo',
         installment: 'En cuotas',
         installmentsLabel: 'Cuotas',
         installmentsPlaceholder: 'Ej: 6',
-        installmentHint: 'El valor informado se repetira mensualmente por cuota.',
+        installmentHint: 'El valor informado se repetirá mensualmente por cuota.',
         installmentInvalid: 'Informa al menos 2 cuotas.',
-        updatePassword: 'Actualizar contrasena',
+        updatePassword: 'Actualizar contraseña',
         settingsKicker: 'Preferencias',
-        settingsTitle: 'Configuracion',
+        settingsTitle: 'Configuración',
         languageLabel: 'Idioma',
         appProfileLabel: 'Perfil de la app',
         savingsGoalLabel: 'Meta de ahorro',
         activateGoal: 'Activar meta',
         myCardsLabel: 'Mis tarjetas',
-        syncLabel: 'Sincronizacion',
+        syncLabel: 'Sincronización',
         syncButton: 'Sincronizar con la nube',
         close: 'Cerrar',
         saveAll: 'Guardar todo',
         namePlaceholder: 'Tu nombre',
         emailPlaceholder: 'tu@email.com',
-        passwordPlaceholder: 'Tu contrasena',
-        confirmPasswordPlaceholder: 'Confirmar contrasena',
-        newPasswordPlaceholder: 'Nueva contrasena',
-        confirmNewPasswordPlaceholder: 'Confirmar nueva contrasena',
+        passwordPlaceholder: 'Tu contraseña',
+        confirmPasswordPlaceholder: 'Confirmar contraseña',
+        newPasswordPlaceholder: 'Nueva contraseña',
+        confirmNewPasswordPlaceholder: 'Confirmar nueva contraseña',
         incomePlaceholder: 'Ingreso mensual',
         onboardingIncomeLabel: 'Ingreso mensual',
         onboardingIncomePlaceholder: 'Ej: 5000',
@@ -459,15 +609,15 @@ const translations = {
         totalGeneral: 'Gasto total',
         historyKicker: 'Historial',
         historyTitle: 'Tus movimientos',
-        historySubtitle: 'Navega tus registros con una lectura mas limpia, rapida y comoda.',
+        historySubtitle: 'Navega tus registros con una lectura más limpia, rápida y cómoda.',
         newExpenseKicker: 'Nuevo gasto',
         newExpenseTitle: 'Agregar movimiento',
-        newExpenseSubtitle: 'Entrada rapida, categorias visuales y seleccion de pagador sin friccion.',
+        newExpenseSubtitle: 'Entrada rápida, categorías visuales y selección de pagador sin fricción.',
         registerExpense: 'Registrar gasto',
-        descriptionPlaceholder: 'Descripcion...',
+        descriptionPlaceholder: 'Descripción...',
         cardMethod: 'Tarjeta',
         selectCard: 'Seleccionar tarjeta',
-        noExpenses: 'Tus movimientos apareceran aqui.',
+        noExpenses: 'Tus movimientos aparecerán aquí.',
         metaOff: 'Meta Off',
         saving: 'Guardando...',
         personOne: 'Persona 1',
@@ -475,7 +625,7 @@ const translations = {
         edit: 'Editar',
         delete: 'Eliminar',
         appHeaderKicker: 'Panel Pluri',
-        appHeaderSubtitle: 'Acompana tus gastos en un espacio mas claro, ligero y agradable.',
+        appHeaderSubtitle: 'Acompaña tus gastos en un espacio más claro, ligero y agradable.',
         home: 'Inicio',
         profile: 'Perfil',
         profileKicker: 'Cuenta',
@@ -494,19 +644,19 @@ const translations = {
         profileIncomeLabel: 'Ingreso mensual',
         profileSave: 'Guardar perfil',
         profileUpdated: 'Perfil actualizado.',
-        summaryReadyTitle: 'Tu resumen financiero esta listo',
-        summaryReadyText: 'Mira como cerraron tus gastos este mes y donde puedes ajustar antes del proximo ciclo.',
+        summaryReadyTitle: 'Tu resumen financiero está listo',
+        summaryReadyText: 'Mira cómo cerraron tus gastos este mes y dónde puedes ajustar antes del próximo ciclo.',
         summaryOpen: 'Ver resumen',
         summaryTest: 'Probar resumen',
         summaryDismiss: 'Luego',
         summaryTitle: 'Resumen financiero',
-        summarySubtitle: 'Una lectura rapida de tu mes actual.',
+        summarySubtitle: 'Una lectura rápida de tu mes actual.',
         summaryTotal: 'Total del mes',
         summaryAverage: 'Promedio por movimiento',
-        summaryTopCategory: 'Mayor categoria',
-        summaryNoCategory: 'Sin categoria',
+        summaryTopCategory: 'Mayor categoría',
+        summaryNoCategory: 'Sin categoría',
         summaryTransactions: 'Movimientos',
-        settings: 'Configuracion',
+        settings: 'Configuración',
         export: 'Exportar',
         logout: 'Salir',
         colorLabel: 'Color',
@@ -522,10 +672,43 @@ const translations = {
         exportReportHeading: 'INFORME FINANCIERO',
         exportHeaderDate: 'Fecha',
         exportHeaderPayer: 'Pagador',
-        exportHeaderCategory: 'Categoria',
-        exportHeaderMethod: 'Metodo',
-        exportHeaderDescription: 'Descripcion',
-        exportHeaderAmount: 'Valor'
+        exportHeaderCategory: 'Categoría',
+        exportHeaderMethod: 'Método',
+        exportHeaderDescription: 'Descripción',
+        exportHeaderAmount: 'Valor',
+        accountLabel: 'Cuenta',
+        soloModeHint: 'En modo solo, la segunda persona queda oculta de la interfaz.',
+        deleteRecordTitle: '¿Eliminar registro?',
+        no: 'No',
+        yes: 'Sí',
+        editExpenseTitle: 'Editar gasto',
+        payerLabel: 'Pagador',
+        categoryLabel: 'Categoría',
+        methodLabel: 'Método',
+        amountLabel: 'Valor ($)',
+        dateLabel: 'Fecha',
+        updatedAvailable: 'Nueva versión disponible',
+        update: 'Actualizar',
+        setupTitle: 'Configurar Supabase',
+        setupText: 'Completa `supabase-config.js` con la URL y la anon key del proyecto `Pluri` para habilitar login y onboarding.',
+        setupHint: 'Cuando guardes el archivo y recargues la página, la app usará el nuevo proyecto automáticamente.',
+        defineNewPassword: 'Define tu nueva contraseña.',
+        signingIn: 'Entrando...',
+        creating: 'Creando...',
+        sending: 'Enviando...',
+        passwordMismatch: 'Las contraseñas no coinciden.',
+        accountCreated: 'Cuenta creada. Revisa tu email para confirmar el acceso.',
+        resetLinkSent: 'Enviamos el enlace de recuperación a tu email.',
+        accountOpenError: 'Error al abrir tu cuenta.',
+        passwordUpdated: 'Contraseña actualizada con éxito. Abriendo la app...',
+        expenseSaved: '¡Gasto registrado!',
+        expenseEdited: '¡Gasto editado!',
+        configSaved: '¡Configuración guardada!',
+        supabaseRequired: 'Configura Supabase para guardar gastos.',
+        sessionUpdateError: 'Error al actualizar la sesión.',
+        sessionOpenError: 'Error al abrir la sesión.',
+        appStartError: 'Error al iniciar la app',
+        unknownError: 'desconocido'
     }
 };
 
@@ -572,13 +755,30 @@ function setLanguage(language) {
     const authCopy = getAuthModeCopy(text);
 
     if ($('languageSelect')) $('languageSelect').value = currentLanguage;
+    const names = languageNames[currentLanguage] || languageNames['pt-BR'];
     document.querySelectorAll('.language-option').forEach((option) => {
+        option.innerText = names[option.dataset.value] || option.innerText.trim();
+        option.dataset.label = names[option.dataset.value] || option.dataset.label || option.innerText.trim();
         const active = option.dataset.value === currentLanguage;
         option.classList.toggle('active', active);
         if (active && $('languageSelectText')) $('languageSelectText').innerText = option.dataset.label || option.innerText.trim();
     });
+    document.querySelectorAll('#languageSelect option').forEach((option) => {
+        option.innerText = names[option.value] || option.innerText;
+    });
     updateThemeLabels();
+    if ($('setupTitle')) $('setupTitle').innerText = text.setupTitle;
+    if ($('setupText')) $('setupText').innerText = text.setupText;
+    if ($('setupHint')) $('setupHint').innerText = text.setupHint;
+    if ($('authHeroKicker')) $('authHeroKicker').innerText = text.heroKicker;
     if ($('authHeroTitle')) $('authHeroTitle').innerText = text.heroTitle;
+    if ($('authHeroSubtitle')) $('authHeroSubtitle').innerText = text.heroSubtitle;
+    if ($('heroBulletHomesTitle')) $('heroBulletHomesTitle').innerText = text.heroBulletHomesTitle;
+    if ($('heroBulletHomesText')) $('heroBulletHomesText').innerText = text.heroBulletHomesText;
+    if ($('heroBulletCardsTitle')) $('heroBulletCardsTitle').innerText = text.heroBulletCardsTitle;
+    if ($('heroBulletCardsText')) $('heroBulletCardsText').innerText = text.heroBulletCardsText;
+    if ($('heroBulletGoalsTitle')) $('heroBulletGoalsTitle').innerText = text.heroBulletGoalsTitle;
+    if ($('heroBulletGoalsText')) $('heroBulletGoalsText').innerText = text.heroBulletGoalsText;
     if ($('authKicker')) $('authKicker').innerText = authCopy.kicker || '';
     if ($('authTitle')) $('authTitle').innerText = authCopy.title || '';
     if ($('authSubtitle')) $('authSubtitle').innerText = authCopy.subtitle || '';
@@ -589,6 +789,40 @@ function setLanguage(language) {
     if ($('authLangEn')) $('authLangEn').classList.toggle('active', currentLanguage === 'en-US');
     if ($('googleAuthLabel')) $('googleAuthLabel').innerText = text.google;
     if ($('recoverySubmitBtn')) $('recoverySubmitBtn').innerText = text.updatePassword;
+    if ($('onboardingBadge')) $('onboardingBadge').innerText = text.onboardingBadge;
+    if ($('onboardingHeroTitle')) $('onboardingHeroTitle').innerText = text.onboardingHeroTitle;
+    if ($('onboardingHeroSubtitle')) $('onboardingHeroSubtitle').innerText = text.onboardingHeroSubtitle;
+    if ($('onboardingLightTitle')) $('onboardingLightTitle').innerText = text.onboardingLightTitle;
+    if ($('onboardingLightText')) $('onboardingLightText').innerText = text.onboardingLightText;
+    if ($('onboardingFlexibleTitle')) $('onboardingFlexibleTitle').innerText = text.onboardingFlexibleTitle;
+    if ($('onboardingFlexibleText')) $('onboardingFlexibleText').innerText = text.onboardingFlexibleText;
+    if ($('onboardingKicker')) $('onboardingKicker').innerText = text.onboardingKicker;
+    if ($('onboardingTitle')) $('onboardingTitle').innerText = text.onboardingTitle;
+    if ($('onboardingSubtitle')) $('onboardingSubtitle').innerText = text.onboardingSubtitle;
+    const onboardingBrand = $('onboardingOverlay')?.querySelector('.brand-panel');
+    const onboardingCard = $('onboardingOverlay')?.querySelector('.onboarding-card');
+    if (onboardingBrand) {
+        const brandParagraphs = onboardingBrand.querySelectorAll('p');
+        if (brandParagraphs[0]) brandParagraphs[0].innerText = text.onboardingHeroSubtitle;
+        if (brandParagraphs[2]) brandParagraphs[2].innerText = text.onboardingLightText;
+        if (brandParagraphs[3]) brandParagraphs[3].innerText = text.onboardingFlexibleTitle;
+        if (brandParagraphs[4]) brandParagraphs[4].innerText = text.onboardingFlexibleText;
+    }
+    if (onboardingCard) {
+        const cardKicker = onboardingCard.querySelector('.kicker');
+        const cardTitle = onboardingCard.querySelector('h3');
+        const cardSubtitle = onboardingCard.querySelector('h3 + p');
+        if (cardKicker) cardKicker.innerText = text.onboardingKicker;
+        if (cardTitle) cardTitle.innerText = text.onboardingTitle;
+        if (cardSubtitle) cardSubtitle.innerText = text.onboardingSubtitle;
+    }
+    if ($('onboardingAppNameLabel')) $('onboardingAppNameLabel').innerText = text.onboardingAppNameLabel;
+    if ($('onboardingStructureLabel')) $('onboardingStructureLabel').innerText = text.onboardingStructureLabel;
+    if ($('onboardingModeCouple')) $('onboardingModeCouple').innerText = text.onboardingCouple;
+    if ($('onboardingModeSolo')) $('onboardingModeSolo').innerText = text.onboardingSolo;
+    if ($('onboardingPessoa1Label')) $('onboardingPessoa1Label').innerText = text.memberOnePlaceholder;
+    if ($('onboardingPessoa2Label')) $('onboardingPessoa2Label').innerText = text.memberTwoPlaceholder;
+    if ($('onboardingSubmitBtn')) $('onboardingSubmitBtn').innerText = text.onboardingCreate;
     if ($('fixedLabel')) $('fixedLabel').innerText = text.fixed;
     if ($('installmentLabel')) $('installmentLabel').innerText = text.installment;
     if ($('installmentsFieldLabel')) $('installmentsFieldLabel').innerText = text.installmentsLabel;
@@ -601,6 +835,9 @@ function setLanguage(language) {
     if ($('settingsGoalLabel')) $('settingsGoalLabel').innerText = text.savingsGoalLabel;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
+    if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
+    if ($('btnModeCouple')) $('btnModeCouple').innerText = text.onboardingCouple;
+    if ($('btnModeSolo')) $('btnModeSolo').innerText = text.onboardingSolo;
     if ($('settingsCloseBtn')) $('settingsCloseBtn').innerText = text.close;
     if ($('settingsSaveBtn')) $('settingsSaveBtn').innerText = text.saveAll;
     if ($('deleteAccountSettingsBtn')) $('deleteAccountSettingsBtn').innerText = text.deleteAccountButton;
@@ -609,6 +846,9 @@ function setLanguage(language) {
     if ($('authPassword')) $('authPassword').placeholder = text.passwordPlaceholder;
     if ($('authPasswordConfirm')) $('authPasswordConfirm').placeholder = text.confirmPasswordPlaceholder;
     if ($('authIncome')) $('authIncome').placeholder = text.incomePlaceholder;
+    if ($('onboardingAppName')) $('onboardingAppName').placeholder = text.appNamePlaceholder;
+    if ($('onboardingPessoa1')) $('onboardingPessoa1').placeholder = text.namePlaceholder;
+    if ($('onboardingPessoa2')) $('onboardingPessoa2').placeholder = text.memberTwoPlaceholder;
     if ($('profileFullName')) $('profileFullName').placeholder = text.namePlaceholder;
     if ($('profileMonthlyIncome')) $('profileMonthlyIncome').placeholder = text.onboardingIncomePlaceholder;
     if ($('recoveryPassword')) $('recoveryPassword').placeholder = text.newPasswordPlaceholder;
@@ -650,6 +890,7 @@ function setLanguage(language) {
     if ($('mobileMenuExport')) $('mobileMenuExport').innerText = text.export;
     if ($('mobileMenuLogout')) $('mobileMenuLogout').innerText = text.logout;
     if ($('menuProfile')) $('menuProfile').innerText = text.profile;
+    if ($('soloModeHint')) $('soloModeHint').innerText = text.soloModeHint;
     if ($('profilePageKicker')) $('profilePageKicker').innerText = text.profileKicker;
     if ($('profilePageTitle')) $('profilePageTitle').innerText = text.profileTitle;
     if ($('profilePageSubtitle')) $('profilePageSubtitle').innerText = text.profileSubtitle;
@@ -687,6 +928,40 @@ function setLanguage(language) {
     if ($('deleteAccountModalText')) $('deleteAccountModalText').innerText = text.deleteAccountText;
     if ($('deleteAccountModalCancel')) $('deleteAccountModalCancel').innerText = text.deleteAccountCancel;
     if ($('deleteAccountModalConfirm')) $('deleteAccountModalConfirm').innerText = text.deleteAccountConfirm;
+    if ($('deleteRecordTitle')) $('deleteRecordTitle').innerText = text.deleteRecordTitle;
+    if ($('deleteRecordCancel')) $('deleteRecordCancel').innerText = text.no;
+    const deleteCancelButton = $('modalDelete')?.querySelector('.ghost-button');
+    if (deleteCancelButton) deleteCancelButton.innerText = text.no;
+    if ($('confirmDeleteBtn')) $('confirmDeleteBtn').innerText = text.yes;
+    if ($('editExpenseTitle')) $('editExpenseTitle').innerText = text.editExpenseTitle;
+    if ($('editDescriptionLabel')) $('editDescriptionLabel').innerText = text.exportHeaderDescription;
+    if ($('editAmountLabel')) $('editAmountLabel').innerText = text.amountLabel;
+    if ($('editDateLabel')) $('editDateLabel').innerText = text.dateLabel;
+    if ($('editPayerLabel')) $('editPayerLabel').innerText = text.payerLabel;
+    if ($('editCategoryLabel')) $('editCategoryLabel').innerText = text.categoryLabel;
+    if ($('editMethodLabel')) $('editMethodLabel').innerText = text.methodLabel;
+    if ($('editCardLabel')) $('editCardLabel').innerText = text.cardMethod;
+    if ($('editCancelBtn')) $('editCancelBtn').innerText = text.deleteAccountCancel;
+    if ($('btnSalvarEdicao')) $('btnSalvarEdicao').innerText = text.close === 'Close' ? 'Save' : text.close === 'Cerrar' ? 'Guardar' : 'Salvar';
+    const editModal = $('modalEdit');
+    if (editModal) {
+        const title = editModal.querySelector('h2');
+        const labels = editModal.querySelectorAll('label');
+        const cancelButton = editModal.querySelector('.ghost-button');
+        if (title) title.innerText = text.editExpenseTitle;
+        [
+            text.exportHeaderDescription,
+            text.amountLabel,
+            text.dateLabel,
+            text.payerLabel,
+            text.categoryLabel,
+            text.methodLabel,
+            text.cardMethod
+        ].forEach((label, index) => {
+            if (labels[index]) labels[index].innerText = label;
+        });
+        if (cancelButton) cancelButton.innerText = text.deleteAccountCancel;
+    }
     if ($('person1ColorLabel')) $('person1ColorLabel').innerText = text.colorLabel;
     if ($('person2ColorLabel')) $('person2ColorLabel').innerText = text.colorLabel;
     if ($('person1ColorDefaultBtn')) $('person1ColorDefaultBtn').innerText = text.useDefaultColor;
@@ -698,9 +973,13 @@ function setLanguage(language) {
     if ($('exportTxtLabel')) $('exportTxtLabel').innerText = text.exportTxt;
     if ($('exportXlsLabel')) $('exportXlsLabel').innerText = text.exportXls;
     if ($('exportWhatsappLabel')) $('exportWhatsappLabel').innerText = text.exportWhatsapp;
+    document.querySelectorAll('[data-i18n-close]').forEach((item) => item.setAttribute('aria-label', text.close));
+    updateEditDropdownLabels();
     if ($('headerExportLabel')) $('headerExportLabel').innerText = text.export;
     if ($('headerSettingsLabel')) $('headerSettingsLabel').innerText = text.settings;
     if ($('logoutButton')) $('logoutButton').innerText = text.logout;
+    if ($('updateBannerText')) $('updateBannerText').innerText = text.updatedAvailable;
+    if ($('updateBannerButton')) $('updateBannerButton').innerText = text.update;
     if ($('authSubmitBtn')) {
         $('authSubmitBtn').innerText = authMode === 'signup' ? text.createAccount : authMode === 'reset' ? text.sendLink : text.login;
     }
@@ -750,7 +1029,8 @@ function normalizeMetodo(value) {
 }
 
 function isCartaoMetodo(value) {
-    return normalizeMetodo(value).includes('cart');
+    const normalized = normalizeMetodo(value);
+    return normalized.includes('cart') || normalized.includes('card') || normalized.includes('tarjeta');
 }
 
 function formatExpenseDate(dateStr) {
@@ -1138,9 +1418,10 @@ function getPaymentMethodForDb() {
 }
 
 function getUiMetodoFromDb(row) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
     if (row.payment_method === 'credit_card') {
         const card = currentCards.find((item) => item.id === row.card_id);
-        return ` ${card?.name || 'Cartao'}`;
+        return ` ${card?.name || text.cardMethod}`;
     }
     if (row.payment_method === 'pix') return ' PIX';
     return ` ${String(row.payment_method || 'Outro').toUpperCase()}`;
@@ -1221,6 +1502,27 @@ function renderEditPagadorOptions() {
     }
 }
 
+function updateEditDropdownLabels() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const categoryDropdown = $('editCategoriaDropdown');
+    if (categoryDropdown) {
+        categoryDropdown.innerHTML = categories.map((cat) => `
+            <div class="edit-categoria-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300 ${cat.id === $('editCategoria')?.value ? 'selecionado' : ''}" data-value="${escapeHtml(cat.id)}" onclick='selectEditCategoria(${quoteJs(cat.id)})'>${escapeHtml(getCategoryLabel(cat.id))}</div>
+        `).join('');
+    }
+    if ($('editCategoriaText')) $('editCategoriaText').innerText = getCategoryLabel($('editCategoria')?.value || categoriaSelecionada);
+    const cardLabel = text.cardMethod;
+    const methodDropdown = $('editMetodoDropdown');
+    if (methodDropdown) {
+        methodDropdown.innerHTML = `
+            <div class="edit-metodo-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300 ${normalizeMetodo($('editMetodo')?.value) === 'pix' ? 'selecionado' : ''}" data-value="PIX" onclick="selectEditMetodo('PIX')">PIX</div>
+            <div class="edit-metodo-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300 ${isCartaoMetodo($('editMetodo')?.value) ? 'selecionado' : ''}" data-value="${escapeHtml(cardLabel)}" onclick='selectEditMetodo(${quoteJs(cardLabel)})'>${escapeHtml(cardLabel)}</div>
+        `;
+    }
+    if ($('editMetodoText') && isCartaoMetodo($('editMetodo')?.value)) $('editMetodoText').innerText = cardLabel;
+    if ($('editCartaoText') && !$('editCartao')?.value) $('editCartaoText').innerText = text.selectCard;
+}
+
 function setPayer(pagador) {
     pagadorAtual = pagador;
     const theme = getThemeStyles(getMemberTheme(pagador));
@@ -1284,8 +1586,8 @@ function updateSyncUi() {
         ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> <span id="syncButtonText">${text.syncButton}</span>`
         : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> <span id="syncButtonText">${text.syncButton}</span>`;
     $('syncDescription').innerText = usingSupabase
-        ? 'Recarrega gastos, cartões e meta direto do Supabase.'
-        : 'Baixa todos os gastos salvos na planilha';
+        ? (currentLanguage === 'en-US' ? 'Reloads expenses, cards and goal directly from Supabase.' : currentLanguage === 'es-ES' ? 'Recarga gastos, tarjetas y meta directamente desde Supabase.' : 'Recarrega gastos, cartões e meta direto do Supabase.')
+        : (currentLanguage === 'en-US' ? 'Downloads all expenses saved in the spreadsheet.' : currentLanguage === 'es-ES' ? 'Descarga todos los gastos guardados en la planilla.' : 'Baixa todos os gastos salvos na planilha.');
 }
 
 function animateAuthPanel(nextVisibleId) {
@@ -1345,10 +1647,11 @@ function switchAuthMode(mode) {
 }
 
 function showRecoveryForm() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
     currentRecoveryMode = true;
     $('authOverlay').classList.remove('hidden');
     animateAuthPanel('recoveryForm');
-    $('authMessage').innerText = 'Defina sua nova senha.';
+    $('authMessage').innerText = text.defineNewPassword;
 }
 
 function setAuthButtonLoading(button, isLoading, label = '') {
@@ -1382,11 +1685,12 @@ async function handleAuthSubmit(event) {
     const monthlyIncome = parseFloat($('authIncome')?.value || '0') || null;
     const submitButton = $('authSubmitBtn');
     const originalText = submitButton.innerText;
+    const text = translations[currentLanguage] || translations['pt-BR'];
     const loadingLabel = authMode === 'login'
-        ? 'Entrando...'
+        ? text.signingIn
         : authMode === 'signup'
-            ? 'Criando...'
-            : 'Enviando...';
+            ? text.creating
+            : text.sending;
 
     setAuthButtonLoading(submitButton, true, loadingLabel);
     $('authMessage').innerText = '';
@@ -1394,7 +1698,7 @@ async function handleAuthSubmit(event) {
     try {
         if (authMode === 'signup') {
             if (password !== $('authPasswordConfirm').value) {
-                $('authMessage').innerText = 'As senhas nao conferem.';
+                $('authMessage').innerText = text.passwordMismatch;
                 return;
             }
 
@@ -1407,13 +1711,13 @@ async function handleAuthSubmit(event) {
                 }
             });
 
-            $('authMessage').innerText = error ? error.message : 'Conta criada. Verifique seu email para confirmar o acesso.';
+            $('authMessage').innerText = error ? error.message : text.accountCreated;
             return;
         }
 
         if (authMode === 'reset') {
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
-            $('authMessage').innerText = error ? error.message : 'Enviamos o link de redefinicao para seu email.';
+            $('authMessage').innerText = error ? error.message : text.resetLinkSent;
             return;
         }
 
@@ -1427,7 +1731,7 @@ async function handleAuthSubmit(event) {
             window.setTimeout(() => {
                 handleAuthState(data.session).catch((stateError) => {
                     console.error(stateError);
-                    $('authMessage').innerText = stateError.message || 'Erro ao abrir sua conta.';
+                    $('authMessage').innerText = stateError.message || text.accountOpenError;
                 });
             }, 0);
         }
@@ -1443,8 +1747,9 @@ async function handleRecoverySubmit(event) {
 
     const password = $('recoveryPassword').value;
     const confirm = $('recoveryPasswordConfirm').value;
+    const text = translations[currentLanguage] || translations['pt-BR'];
     if (!password || password !== confirm) {
-        $('authMessage').innerText = 'As senhas nao conferem.';
+        $('authMessage').innerText = text.passwordMismatch;
         return;
     }
 
@@ -1455,7 +1760,7 @@ async function handleRecoverySubmit(event) {
     }
 
     currentRecoveryMode = false;
-    $('authMessage').innerText = 'Senha atualizada com sucesso. Entrando no app...';
+    $('authMessage').innerText = text.passwordUpdated;
     window.history.replaceState({}, document.title, window.location.pathname);
     await handleAuthState(currentSession);
 }
@@ -1722,11 +2027,13 @@ async function handleOnboardingSubmit(event) {
     const monthlyIncome = parseFloat($('onboardingIncome').value || '0') || null;
 
     if (!appName || !pessoa1 || !monthlyIncome || (onboardingHouseholdType === 'couple' && !pessoa2)) {
-        $('onboardingMessage').innerText = 'Preencha os campos obrigatorios.';
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        $('onboardingMessage').innerText = text.onboardingRequired;
         return;
     }
 
-    $('onboardingMessage').innerText = 'Criando estrutura inicial...';
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    $('onboardingMessage').innerText = text.onboardingCreating;
 
     const { data, error } = await supabaseClient.rpc('create_household_with_members', {
         p_name: appName,
@@ -1741,7 +2048,7 @@ async function handleOnboardingSubmit(event) {
     }
 
     if (!data) {
-        $('onboardingMessage').innerText = 'Nao foi possivel criar a casa.';
+        $('onboardingMessage').innerText = text.onboardingCreateError;
         return;
     }
 
@@ -1756,7 +2063,7 @@ function openConfigModal() {
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     if (!currentHousehold) {
-        showToast('A casa ainda nao foi carregada. Tente sincronizar e abrir novamente.');
+        showToast(currentLanguage === 'en-US' ? 'The home has not loaded yet. Try again in a moment.' : currentLanguage === 'es-ES' ? 'La casa aún no se ha cargado. Inténtalo de nuevo en un momento.' : 'A casa ainda não foi carregada. Tente novamente em instantes.');
         return;
     }
 
@@ -1912,7 +2219,9 @@ function toggleFiltroDropdown(show) {
 function setMetodo(metodo) {
     metodoPagamento = metodo;
     document.querySelectorAll('.chip-metodo').forEach((button) => button.classList.remove('active-chip'));
-    const targetButton = Array.from(document.querySelectorAll('.chip-metodo')).find((button) => normalizeMetodo(button.textContent).includes(normalizeMetodo(metodo)));
+    const targetButton = isCartaoMetodo(metodo)
+        ? $('met-Cartao')
+        : Array.from(document.querySelectorAll('.chip-metodo')).find((button) => normalizeMetodo(button.textContent).includes(normalizeMetodo(metodo)));
     if (targetButton) targetButton.classList.add('active-chip');
     $('seletorCartao').classList.toggle('hidden', !isCartaoMetodo(metodo));
 }
@@ -1955,7 +2264,8 @@ function renderCategories() {
 async function handleExpenseSubmit(event) {
     event.preventDefault();
     if (!supabaseClient || !currentHousehold) {
-        showToast('Configure o Supabase para salvar gastos.');
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        showToast(text.supabaseRequired);
         return;
     }
 
@@ -2004,7 +2314,11 @@ async function handleExpenseSubmit(event) {
 
     if (insertResult.error && String(insertResult.error.message || '').includes('installment_')) {
         const fallbackExpenses = expensesToInsert.map(({ installment_group_id, installment_number, installment_total, ...expense }) => expense);
-        showToast('Campos de parcelamento ainda nao existem no Supabase. Salvando sem marcadores de parcela.');
+        showToast(currentLanguage === 'en-US'
+            ? 'Installment fields do not exist in Supabase yet. Saving without installment markers.'
+            : currentLanguage === 'es-ES'
+                ? 'Los campos de cuotas aún no existen en Supabase. Guardando sin marcadores de cuota.'
+                : 'Os campos de parcelamento ainda não existem no Supabase. Salvando sem marcadores de parcela.');
         insertResult = await supabaseClient
             .from('expenses')
             .insert(fallbackExpenses)
@@ -2031,13 +2345,14 @@ async function handleExpenseSubmit(event) {
     toggleInstallments();
     setMetodo('PIX');
     updateSeletorCartaoForm();
-    showToast('Gasto registrado!');
+    showToast(text.expenseSaved);
 }
 
 function confirmDelete(id) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
     deleteIdTemp = id;
     $('confirmDeleteBtn').disabled = false;
-    $('confirmDeleteBtn').innerText = 'SIM';
+    $('confirmDeleteBtn').innerText = text.yes;
     openModal('modalDelete');
 }
 
@@ -2046,13 +2361,14 @@ async function handleDeleteConfirm() {
 
     const btn = $('confirmDeleteBtn');
     btn.disabled = true;
-    btn.innerText = 'Excluindo...';
+    btn.innerText = currentLanguage === 'en-US' ? 'Deleting...' : currentLanguage === 'es-ES' ? 'Eliminando...' : 'Excluindo...';
 
     const { error } = await supabaseClient.from('expenses').delete().eq('id', deleteIdTemp);
     if (error) {
         showToast(error.message);
         btn.disabled = false;
-        btn.innerText = 'SIM';
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        btn.innerText = text.yes;
         return;
     }
 
@@ -2063,10 +2379,10 @@ async function handleDeleteConfirm() {
 
 async function forceSync() {
     if (!supabaseClient || !currentSession) return;
-    setLoading(true, 'Sincronizando...');
+    setLoading(true, currentLanguage === 'en-US' ? 'Syncing...' : currentLanguage === 'es-ES' ? 'Sincronizando...' : 'Sincronizando...');
     await loadRemoteState();
     setLoading(false);
-    showToast('Dados atualizados.');
+    showToast(currentLanguage === 'en-US' ? 'Data updated.' : currentLanguage === 'es-ES' ? 'Datos actualizados.' : 'Dados atualizados.');
 }
 
 async function saveConfig() {
@@ -2074,19 +2390,19 @@ async function saveConfig() {
     const text = translations[currentLanguage] || translations['pt-BR'];
 
     if (!supabaseClient) {
-        showToast('Cliente do Supabase nao inicializado.');
+        showToast(currentLanguage === 'en-US' ? 'Supabase client was not initialized.' : currentLanguage === 'es-ES' ? 'El cliente de Supabase no se inicializó.' : 'Cliente do Supabase não inicializado.');
         return;
     }
 
     if (!currentHousehold) {
-        showToast('Nenhuma casa foi carregada para salvar as configuracoes.');
+        showToast(currentLanguage === 'en-US' ? 'No home was loaded to save settings.' : currentLanguage === 'es-ES' ? 'No se cargó ninguna casa para guardar la configuración.' : 'Nenhuma casa foi carregada para salvar as configurações.');
         return;
     }
 
     if (saveButton) {
         saveButton.disabled = true;
         saveButton.classList.add('opacity-70', 'cursor-not-allowed');
-        saveButton.innerText = 'Salvando...';
+        saveButton.innerText = text.saving;
     }
 
     try {
@@ -2205,10 +2521,10 @@ async function saveConfig() {
 
         closeModal('modalConfig');
         await loadRemoteState();
-        showToast('Configuracoes salvas!');
+        showToast(text.configSaved);
     } catch (error) {
-        console.error('Erro inesperado ao salvar configuracoes:', error);
-        showToast('Erro inesperado ao salvar configuracoes.');
+        console.error('Erro inesperado ao salvar configurações:', error);
+        showToast(currentLanguage === 'en-US' ? 'Unexpected error while saving settings.' : currentLanguage === 'es-ES' ? 'Error inesperado al guardar la configuración.' : 'Erro inesperado ao salvar configurações.');
     } finally {
         if (saveButton) {
             saveButton.disabled = false;
@@ -2252,14 +2568,15 @@ function selectEditPagador(valor) {
 
 function selectEditCategoria(valor) {
     $('editCategoria').value = valor;
-    $('editCategoriaText').innerText = valor;
+    $('editCategoriaText').innerText = getCategoryLabel(valor);
     toggleEditDropdown('categoria', false);
     document.querySelectorAll('.edit-categoria-option').forEach((opt) => opt.classList.toggle('selecionado', opt.dataset.value === valor));
 }
 
 function selectEditMetodo(valor) {
     $('editMetodo').value = valor;
-    $('editMetodoText').innerText = valor;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    $('editMetodoText').innerText = isCartaoMetodo(valor) ? text.cardMethod : valor;
     toggleEditDropdown('metodo', false);
     document.querySelectorAll('.edit-metodo-option').forEach((opt) => {
         opt.classList.toggle('selecionado', normalizeMetodo(opt.dataset.value) === normalizeMetodo(valor));
@@ -2296,7 +2613,8 @@ function openEditModal(id) {
 
     if (isCartaoMetodo(gasto.metodo)) {
         const option = Array.from(document.querySelectorAll('.edit-metodo-option')).find((item) => isCartaoMetodo(item.dataset.value));
-        selectEditMetodo(option?.dataset.value || 'Cartao');
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        selectEditMetodo(option?.dataset.value || text.cardMethod);
         setTimeout(() => selectEditCartao(gasto.metodo.trim()), 10);
     } else {
         selectEditMetodo('PIX');
@@ -2338,7 +2656,8 @@ async function handleEditExpenseSubmit(event) {
     gastos.sort((a, b) => new Date(b.dataRaw) - new Date(a.dataRaw));
     closeModal('modalEdit');
     render();
-    showToast('Gasto editado!');
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    showToast(text.expenseEdited);
 }
 
 function render() {
@@ -2665,7 +2984,8 @@ async function bootstrap() {
                     await handleAuthState(session);
                 } catch (error) {
                     console.error(error);
-                    showToast('Erro ao atualizar a sessao.');
+                    const text = translations[currentLanguage] || translations['pt-BR'];
+                    showToast(text.sessionUpdateError);
                     setLoading(false);
                 }
             }, 0);
@@ -2674,7 +2994,8 @@ async function bootstrap() {
         const { data, error } = await supabaseClient.auth.getSession();
         if (error) {
             console.error(error);
-            showToast('Erro ao abrir a sessao.');
+            const text = translations[currentLanguage] || translations['pt-BR'];
+            showToast(text.sessionOpenError);
             setLoading(false);
             return;
         }
@@ -2684,7 +3005,8 @@ async function bootstrap() {
         console.error(error);
         hideAllOverlays();
         showAppShell(false);
-        showToast(`Erro ao iniciar o app: ${error.message || 'desconhecido'}`);
+        const text = translations[currentLanguage] || translations['pt-BR'];
+        showToast(`${text.appStartError}: ${error.message || text.unknownError}`);
         setLoading(false);
     }
 }
