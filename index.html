@@ -235,6 +235,21 @@
             backdrop-filter: blur(26px) !important;
         }
 
+        #modalDelete,
+        #modalDeleteCard,
+        #modalDeleteAccount,
+        #modalLogout {
+            z-index: 10020 !important;
+        }
+
+        #modalDelete > .custom-card,
+        #modalDeleteCard > .custom-card,
+        #modalDeleteAccount > .custom-card,
+        #modalLogout > .custom-card {
+            position: relative;
+            z-index: 1;
+        }
+
         .toast {
             background: var(--bg-panel) !important;
             color: var(--text) !important;
