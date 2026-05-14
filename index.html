@@ -981,6 +981,32 @@
             letter-spacing: 0.06em;
         }
 
+        .installment-group-card,
+        .installment-edit-panel {
+            border: 1px solid var(--border);
+            background: color-mix(in srgb, var(--surface) 82%, transparent);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .installment-group-card {
+            padding: 14px;
+        }
+
+        .installment-group-card .expense-card {
+            box-shadow: none !important;
+        }
+
+        .installment-edit-panel {
+            display: grid;
+            gap: 12px;
+            padding: 14px;
+        }
+
+        .installment-edit-panel.hidden {
+            display: none;
+        }
+
         .category-chip span,
         .chip-metodo {
             color: inherit !important;
@@ -3784,6 +3810,17 @@
             <h2 class="text-xl font-black mb-4 flex items-center gap-2">✏️ Editar Gasto</h2>
             <form id="formEditarGasto" class="space-y-4">
                 <input type="hidden" id="editId">
+                <div id="editInstallmentPanel" class="hidden installment-edit-panel">
+                    <div>
+                        <p id="editInstallmentTitle" class="text-xs font-black uppercase tracking-[0.14em]">Parcela</p>
+                        <p id="editInstallmentSubtitle" class="text-[11px] mt-1" style="color: var(--text-soft);">Grupo de parcelas</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-[10px] font-black uppercase cursor-pointer">
+                        <input type="checkbox" id="editApplyFutureInstallments" class="nice-checkbox">
+                        <span id="editFutureInstallmentsLabel">Aplicar nesta e nas próximas parcelas</span>
+                    </label>
+                    <button type="button" id="cancelFutureInstallmentsBtn" onclick="cancelFutureInstallmentsFromEdit()" class="w-full py-3 rounded-xl font-black text-xs uppercase danger-button">Cancelar parcelas futuras</button>
+                </div>
                 <div>
                     <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Descrição</label>
                     <input type="text" id="editDescricao" class="w-full input-vr input-focus p-3">
@@ -4184,6 +4221,7 @@
                             </button>
                             <div id="filtroDropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#13111C] border border-white/10 rounded-xl overflow-hidden z-50 max-h-48 overflow-y-auto">
                                 <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="all">Todos os Meses</div>
+                                <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="installments">Parcelas</div>
                                 <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="01">Janeiro</div>
                                 <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="02">Fevereiro</div>
                                 <div class="filtro-option px-4 py-3 hover:bg-white/10 cursor-pointer text-sm font-medium transition-colors text-slate-300" data-value="03">Março</div>

@@ -90,6 +90,8 @@ let monthlyCategoryChart = null;
 let monthlyDailyChart = null;
 let monthlyDashboardPeriod = '';
 let deleteIdTemp = null;
+let deleteContextTemp = 'single';
+let deleteInstallmentTemp = null;
 let editingCardId = null;
 let deleteCardIdTemp = null;
 
@@ -197,6 +199,15 @@ const translations = {
         installmentsPlaceholder: 'Ex: 6',
         installmentHint: 'O valor informado será repetido mensalmente por parcela.',
         installmentInvalid: 'Informe pelo menos 2 parcelas.',
+        installmentsFilter: 'Parcelas',
+        installmentOf: 'Parcela {current} de {total}',
+        installmentGroupLabel: 'Grupo de parcelas',
+        installmentGroupProgress: '{paid} de {total} parcelas registradas',
+        editFutureInstallments: 'Aplicar nesta e nas próximas parcelas',
+        cancelFutureInstallments: 'Cancelar parcelas futuras',
+        cancelFutureInstallmentsTitle: 'Cancelar parcelas futuras?',
+        futureInstallmentsCanceled: 'Parcelas futuras canceladas.',
+        noInstallmentsFound: 'Nenhum parcelamento encontrado.',
         updatePassword: 'Atualizar senha',
         settingsKicker: 'Preferências',
         settingsTitle: 'Configurações',
@@ -489,6 +500,15 @@ const translations = {
         installmentsPlaceholder: 'Ex: 6',
         installmentHint: 'The entered amount will repeat monthly per installment.',
         installmentInvalid: 'Enter at least 2 installments.',
+        installmentsFilter: 'Installments',
+        installmentOf: 'Installment {current} of {total}',
+        installmentGroupLabel: 'Installment group',
+        installmentGroupProgress: '{paid} of {total} installments registered',
+        editFutureInstallments: 'Apply to this and upcoming installments',
+        cancelFutureInstallments: 'Cancel future installments',
+        cancelFutureInstallmentsTitle: 'Cancel future installments?',
+        futureInstallmentsCanceled: 'Future installments canceled.',
+        noInstallmentsFound: 'No installment plan found.',
         updatePassword: 'Update password',
         settingsKicker: 'Preferences',
         settingsTitle: 'Settings',
@@ -781,6 +801,15 @@ const translations = {
         installmentsPlaceholder: 'Ej: 6',
         installmentHint: 'El valor informado se repetirá mensualmente por cuota.',
         installmentInvalid: 'Informa al menos 2 cuotas.',
+        installmentsFilter: 'Cuotas',
+        installmentOf: 'Cuota {current} de {total}',
+        installmentGroupLabel: 'Grupo de cuotas',
+        installmentGroupProgress: '{paid} de {total} cuotas registradas',
+        editFutureInstallments: 'Aplicar a esta y a las próximas cuotas',
+        cancelFutureInstallments: 'Cancelar cuotas futuras',
+        cancelFutureInstallmentsTitle: '¿Cancelar cuotas futuras?',
+        futureInstallmentsCanceled: 'Cuotas futuras canceladas.',
+        noInstallmentsFound: 'No se encontraron cuotas.',
         updatePassword: 'Actualizar contraseña',
         settingsKicker: 'Preferencias',
         settingsTitle: 'Configuración',
@@ -1026,12 +1055,21 @@ function getCategoryLabel(id) {
 
 function updateMonthFilterLabels() {
     const months = getCurrentMonths();
+    const text = translations[currentLanguage] || translations['pt-BR'];
     document.querySelectorAll('.filtro-option').forEach((option) => {
         const value = option.dataset.value;
+        if (value === 'installments') {
+            option.innerText = text.installmentsFilter;
+            return;
+        }
         const index = value === 'all' ? 0 : Number(value);
         option.innerText = months[index] || option.innerText;
     });
     const selected = $('filtroMes')?.value || 'all';
+    if (selected === 'installments') {
+        if ($('filtroSelecionadoText')) $('filtroSelecionadoText').innerText = text.installmentsFilter;
+        return;
+    }
     const selectedIndex = selected === 'all' ? 0 : Number(selected);
     if ($('filtroSelecionadoText')) $('filtroSelecionadoText').innerText = months[selectedIndex] || months[0];
 }
@@ -1120,6 +1158,8 @@ function setLanguage(language) {
     if ($('installmentsFieldLabel')) $('installmentsFieldLabel').innerText = text.installmentsLabel;
     if ($('installmentsCount')) $('installmentsCount').placeholder = text.installmentsPlaceholder;
     if ($('installmentHint')) $('installmentHint').innerText = text.installmentHint;
+    if ($('editFutureInstallmentsLabel')) $('editFutureInstallmentsLabel').innerText = text.editFutureInstallments;
+    if ($('cancelFutureInstallmentsBtn')) $('cancelFutureInstallmentsBtn').innerText = text.cancelFutureInstallments;
     if ($('settingsKicker')) $('settingsKicker').innerText = text.settingsKicker;
     if ($('settingsTitle')) $('settingsTitle').innerText = text.settingsTitle;
     if ($('settingsLanguageLabel')) $('settingsLanguageLabel').innerText = text.languageLabel;
@@ -2213,7 +2253,7 @@ function renderCardsPage() {
                         ${renderCardLogo(brand, 'mini-card-logo')}
                         <div>
                             <strong>${escapeHtml(item.descricao)}</strong>
-                            <small>${escapeHtml(card?.name || text.cardMethod)} · ${item.installmentNumber}/${item.installmentTotal} · ${escapeHtml(formatExpenseDate(item.dataRaw))}</small>
+                            <small>${escapeHtml(card?.name || text.cardMethod)} · ${escapeHtml(getInstallmentLabel(item))} · ${escapeHtml(formatExpenseDate(item.dataRaw))}</small>
                         </div>
                         <b>${currency(item.valor)}</b>
                     </div>
@@ -2637,6 +2677,35 @@ function makeUiExpense(row) {
         installmentNumber: Number(row.installment_number || 1),
         installmentTotal: Number(row.installment_total || 1)
     };
+}
+
+function getInstallmentLabel(expense) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    return text.installmentOf
+        .replace('{current}', expense.installmentNumber)
+        .replace('{total}', expense.installmentTotal);
+}
+
+function isInstallmentExpense(expense) {
+    return Number(expense?.installmentTotal || 1) > 1 && Boolean(expense?.installmentGroupId);
+}
+
+function getFilteredExpenses() {
+    const filtro = $('filtroMes')?.value || 'all';
+    if (filtro === 'installments') return gastos.filter(isInstallmentExpense);
+    return filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
+}
+
+function getInstallmentGroups(expenses) {
+    const groups = new Map();
+    expenses.filter(isInstallmentExpense).forEach((expense) => {
+        const key = expense.installmentGroupId;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(expense);
+    });
+    return Array.from(groups.values())
+        .map((items) => items.sort((a, b) => a.installmentNumber - b.installmentNumber))
+        .sort((a, b) => new Date(a[0]?.dataRaw || 0) - new Date(b[0]?.dataRaw || 0));
 }
 
 function updateIdentityUI() {
@@ -3602,12 +3671,19 @@ async function handleExpenseSubmit(event) {
 function confirmDelete(id) {
     const text = translations[currentLanguage] || translations['pt-BR'];
     deleteIdTemp = id;
+    deleteContextTemp = 'single';
+    deleteInstallmentTemp = null;
+    if ($('deleteRecordTitle')) $('deleteRecordTitle').innerText = text.deleteRecordTitle;
     $('confirmDeleteBtn').disabled = false;
     $('confirmDeleteBtn').innerText = text.yes;
     openModal('modalDelete');
 }
 
 async function handleDeleteConfirm() {
+    if (deleteContextTemp === 'future-installments') {
+        await deleteFutureInstallmentsConfirmed();
+        return;
+    }
     if (!supabaseClient || !deleteIdTemp) return;
 
     const btn = $('confirmDeleteBtn');
@@ -3624,6 +3700,7 @@ async function handleDeleteConfirm() {
     }
 
     gastos = gastos.filter((item) => item.id !== deleteIdTemp);
+    deleteIdTemp = null;
     closeModal('modalDelete');
     render();
 }
@@ -3874,17 +3951,30 @@ function toggleEditCartao() {
 function openEditModal(id) {
     const gasto = gastos.find((item) => item.id === id);
     if (!gasto) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
 
     $('editId').value = gasto.id;
     $('editDescricao').value = gasto.descricao;
     $('editValor').value = gasto.valor;
     $('editData').value = gasto.dataRaw;
+    const installmentPanel = $('editInstallmentPanel');
+    const isInstallment = isInstallmentExpense(gasto);
+    installmentPanel?.classList.toggle('hidden', !isInstallment);
+    if ($('editApplyFutureInstallments')) $('editApplyFutureInstallments').checked = false;
+    if (isInstallment) {
+        if ($('editInstallmentTitle')) $('editInstallmentTitle').innerText = getInstallmentLabel(gasto);
+        if ($('editInstallmentSubtitle')) $('editInstallmentSubtitle').innerText = `${text.installmentGroupLabel} ${String(gasto.installmentGroupId).slice(-6).toUpperCase()}`;
+        if ($('editFutureInstallmentsLabel')) $('editFutureInstallmentsLabel').innerText = text.editFutureInstallments;
+        if ($('cancelFutureInstallmentsBtn')) {
+            $('cancelFutureInstallmentsBtn').innerText = text.cancelFutureInstallments;
+            $('cancelFutureInstallmentsBtn').classList.toggle('hidden', gasto.installmentNumber >= gasto.installmentTotal);
+        }
+    }
     selectEditPagador(gasto.pagador);
     selectEditCategoria(gasto.categoria);
 
     if (isCartaoMetodo(gasto.metodo)) {
         const option = Array.from(document.querySelectorAll('.edit-metodo-option')).find((item) => isCartaoMetodo(item.dataset.value));
-        const text = translations[currentLanguage] || translations['pt-BR'];
         selectEditMetodo(option?.dataset.value || text.cardMethod);
         setTimeout(() => selectEditCartao(gasto.metodo.trim()), 10);
     } else {
@@ -3899,31 +3989,39 @@ async function handleEditExpenseSubmit(event) {
     if (!supabaseClient) return;
 
     const id = $('editId').value;
+    const currentExpense = gastos.find((item) => item.id === id);
     const member = currentMembers.find((item) => item.display_name === $('editPagador').value);
     const card = currentCards.find((item) => item.name === $('editCartao').value);
     const metodo = $('editMetodo').value;
+    const payload = {
+        member_id: member?.id,
+        card_id: isCartaoMetodo(metodo) ? card?.id || null : null,
+        amount: parseFloat($('editValor').value),
+        category: $('editCategoria').value,
+        description: $('editDescricao').value.trim(),
+        payment_method: isCartaoMetodo(metodo) ? 'credit_card' : 'pix'
+    };
+    const applyFuture = Boolean($('editApplyFutureInstallments')?.checked && isInstallmentExpense(currentExpense));
+    const currentOnlyPayload = { ...payload, occurred_on: $('editData').value };
 
-    const { data, error } = await supabaseClient
-        .from('expenses')
-        .update({
-            member_id: member?.id,
-            card_id: isCartaoMetodo(metodo) ? card?.id || null : null,
-            amount: parseFloat($('editValor').value),
-            category: $('editCategoria').value,
-            description: $('editDescricao').value.trim(),
-            payment_method: isCartaoMetodo(metodo) ? 'credit_card' : 'pix',
-            occurred_on: $('editData').value
-        })
-        .eq('id', id)
-        .select()
-        .single();
+    let query = supabaseClient.from('expenses').update(applyFuture ? payload : currentOnlyPayload);
+    if (applyFuture) {
+        query = query
+            .eq('installment_group_id', currentExpense.installmentGroupId)
+            .gte('installment_number', currentExpense.installmentNumber);
+    } else {
+        query = query.eq('id', id);
+    }
+    const { data, error } = await query.select();
 
     if (error) {
         showToast(error.message);
         return;
     }
 
-    gastos = gastos.map((item) => item.id === id ? makeUiExpense(data) : item);
+    const updatedExpenses = Array.isArray(data) ? data.map(makeUiExpense) : [makeUiExpense(data)];
+    const updatedById = new Map(updatedExpenses.map((item) => [item.id, item]));
+    gastos = gastos.map((item) => updatedById.get(item.id) || item);
     gastos.sort((a, b) => new Date(b.dataRaw) - new Date(a.dataRaw));
     closeModal('modalEdit');
     render();
@@ -3931,27 +4029,161 @@ async function handleEditExpenseSubmit(event) {
     showToast(text.expenseEdited);
 }
 
+async function cancelFutureInstallmentsFromEdit() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const id = $('editId')?.value;
+    const expense = gastos.find((item) => item.id === id);
+    if (!supabaseClient || !isInstallmentExpense(expense)) return;
+    const futureInstallments = gastos.filter((item) => (
+        item.installmentGroupId === expense.installmentGroupId &&
+        item.installmentNumber > expense.installmentNumber
+    ));
+    if (!futureInstallments.length) return;
+
+    deleteContextTemp = 'future-installments';
+    deleteInstallmentTemp = {
+        groupId: expense.installmentGroupId,
+        afterNumber: expense.installmentNumber,
+        ids: futureInstallments.map((item) => item.id)
+    };
+    if ($('deleteRecordTitle')) $('deleteRecordTitle').innerText = text.cancelFutureInstallmentsTitle;
+    $('confirmDeleteBtn').disabled = false;
+    $('confirmDeleteBtn').innerText = text.yes;
+    openModal('modalDelete');
+}
+
+async function deleteFutureInstallmentsConfirmed() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if (!supabaseClient || !deleteInstallmentTemp) return;
+    const btn = $('confirmDeleteBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-70');
+        btn.innerText = currentLanguage === 'en-US' ? 'Deleting...' : currentLanguage === 'es-ES' ? 'Eliminando...' : 'Excluindo...';
+    }
+    const { error } = await supabaseClient
+        .from('expenses')
+        .delete()
+        .eq('installment_group_id', deleteInstallmentTemp.groupId)
+        .gt('installment_number', deleteInstallmentTemp.afterNumber);
+
+    if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+        btn.innerText = text.yes;
+    }
+    if (error) {
+        showToast(error.message);
+        return;
+    }
+
+    const idsToRemove = new Set(deleteInstallmentTemp.ids);
+    gastos = gastos.filter((item) => !idsToRemove.has(item.id));
+    deleteContextTemp = 'single';
+    deleteInstallmentTemp = null;
+    closeModal('modalDelete');
+    closeModal('modalEdit');
+    render();
+    showToast(text.futureInstallmentsCanceled, 'safe');
+}
+
+function renderExpenseCard(gastoOriginal) {
+    const originalPagador = gastoOriginal.pagador;
+    const isPrimary = getMemberTheme(originalPagador) === 'primary';
+    const gasto = {
+        ...gastoOriginal,
+        pagador: getDisplayMemberName(originalPagador),
+        dataDisplay: formatExpenseDate(gastoOriginal.dataRaw)
+    };
+    const installmentBadge = gasto.installmentTotal > 1
+        ? `<span class="installment-badge">${escapeHtml(getInstallmentLabel(gasto))}</span>`
+        : '';
+
+    return `
+        <div class="expense-card p-3 lg:p-4 ${isPrimary ? 'border-[var(--member-primary)]' : 'border-[var(--member-secondary-color)]'}">
+            <div class="hidden lg:flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--member-primary)]' : 'bg-[var(--member-secondary-color)]'}"></span>
+                    <div>
+                        <p class="font-bold text-xs expense-title">${escapeHtml(gasto.descricao)}</p>
+                        <p class="text-[8px] font-bold uppercase tracking-wider expense-meta">${escapeHtml(gasto.pagador)} &bull; ${escapeHtml(gasto.metodo)} &bull; ${escapeHtml(gasto.dataDisplay)} ${installmentBadge}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <p class="font-black text-xs ${isPrimary ? 'expense-amount-primary' : 'expense-amount-secondary'}">R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <div class="flex items-center gap-2">
+                        <button onclick='openEditModal(${quoteJs(gasto.id)})' class="ghost-icon-button hover:text-[var(--primary-strong)] transition-colors" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button onclick='confirmDelete(${quoteJs(gasto.id)})' class="ghost-icon-button hover:text-red-500" title="Excluir">x</button>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:hidden">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--member-primary)]' : 'bg-[var(--member-secondary-color)]'}"></span>
+                        <span class="text-xs font-bold uppercase expense-secondary">${escapeHtml(gasto.pagador)}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick='openEditModal(${quoteJs(gasto.id)})' class="ghost-icon-button hover:text-[var(--primary-strong)] active:scale-95 transition-all" title="Editar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button onclick='confirmDelete(${quoteJs(gasto.id)})' class="ghost-icon-button hover:text-red-400 active:scale-95 transition-all text-lg" title="Excluir">x</button>
+                    </div>
+                </div>
+                <p class="font-bold text-base expense-title mb-3">${escapeHtml(gasto.descricao)}</p>
+                <div class="flex justify-between items-center">
+                    <p class="text-xs font-medium expense-meta">${escapeHtml(gasto.metodo)} &bull; ${escapeHtml(gasto.dataDisplay)} ${installmentBadge}</p>
+                    <p class="font-black text-base ${isPrimary ? 'expense-amount-primary' : 'expense-amount-secondary'}">R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 function render() {
     const lista = $('listaGastos');
     const filtro = $('filtroMes').value;
     const activeMembers = getActiveMembers();
     const totals = Object.fromEntries(activeMembers.map((member) => [member.name, 0]));
+    const text = translations[currentLanguage] || translations['pt-BR'];
 
     lista.innerHTML = '';
-    const filtrados = filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
+    const filtrados = getFilteredExpenses();
+    filtrados.forEach((item) => {
+        if (totals[item.pagador] !== undefined) totals[item.pagador] += item.valor;
+    });
+
+    if (filtro === 'installments') {
+        const groups = getInstallmentGroups(filtrados);
+        lista.innerHTML = groups.length ? groups.map((items) => {
+            const first = items[0];
+            const progress = text.installmentGroupProgress
+                .replace('{paid}', items.length)
+                .replace('{total}', first.installmentTotal);
+            return `
+                <div class="installment-group-card space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="kicker mb-1">${escapeHtml(text.installmentGroupLabel)} ${String(first.installmentGroupId).slice(-6).toUpperCase()}</p>
+                            <h3 class="text-lg font-black">${escapeHtml(first.descricao)}</h3>
+                            <p class="text-xs mt-1" style="color: var(--text-soft);">${escapeHtml(progress)}</p>
+                        </div>
+                        <span class="installment-badge">${escapeHtml(getInstallmentLabel(first))}</span>
+                    </div>
+                    <div class="space-y-3">${items.map(renderExpenseCard).join('')}</div>
+                </div>
+            `;
+        }).join('') : `<div class="custom-card p-5 text-sm font-bold" style="color: var(--text-soft);">${escapeHtml(text.noInstallmentsFound)}</div>`;
+    } else {
 
     filtrados.forEach((gasto) => {
         const originalPagador = gasto.pagador;
-        if (totals[originalPagador] !== undefined) totals[originalPagador] += gasto.valor;
         const isPrimary = getMemberTheme(originalPagador) === 'primary';
-        const text = translations[currentLanguage] || translations['pt-BR'];
         gasto = {
             ...gasto,
             pagador: getDisplayMemberName(originalPagador),
             dataDisplay: formatExpenseDate(gasto.dataRaw)
         };
         const installmentBadge = gasto.installmentTotal > 1
-            ? `<span class="installment-badge">${gasto.installmentNumber}/${gasto.installmentTotal}</span>`
+            ? `<span class="installment-badge">${escapeHtml(getInstallmentLabel(gasto))}</span>`
             : '';
 
         lista.innerHTML += `
@@ -3992,6 +4224,7 @@ function render() {
             </div>
         `;
     });
+    }
 
     if (meta.ativa) {
         $('metaContainer').classList.remove('hidden');
@@ -4034,8 +4267,7 @@ function updateChart(values) {
 }
 
 function getExportedExpenses() {
-    const filtro = $('filtroMes').value;
-    return filtro === 'all' ? gastos : gastos.filter((item) => item.mes === filtro);
+    return getFilteredExpenses();
 }
 
 function getExportFileBaseName() {
