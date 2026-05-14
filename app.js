@@ -228,6 +228,9 @@ const translations = {
         monthlyInsightNoBudgetText: 'Adicionar limites por categoria deixa o painel mais útil e ajuda a evitar surpresas.',
         monthlyInsightStableTitle: 'Tudo sob controle',
         monthlyInsightStableText: 'Nenhum alerta importante apareceu neste mês. Continue acompanhando para manter o ritmo.',
+        budgetAlertExceeded: 'ultrapassou o orçamento do mês',
+        budgetAlertWarning: 'já consumiu',
+        budgetAlertOfLimit: 'do limite',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sem limite definido',
         budgetSafe: 'Dentro do limite',
@@ -468,6 +471,9 @@ const translations = {
         monthlyInsightNoBudgetText: 'Adding category limits makes the dashboard more useful and helps avoid surprises.',
         monthlyInsightStableTitle: 'Everything under control',
         monthlyInsightStableText: 'No major alerts showed up this month. Keep tracking to maintain the pace.',
+        budgetAlertExceeded: 'went over this month budget',
+        budgetAlertWarning: 'has already used',
+        budgetAlertOfLimit: 'of the limit',
         budgetUsed: 'used',
         budgetNoLimit: 'No limit set',
         budgetSafe: 'Within limit',
@@ -708,6 +714,9 @@ const translations = {
         monthlyInsightNoBudgetText: 'Agregar límites por categoría hace el panel más útil y ayuda a evitar sorpresas.',
         monthlyInsightStableTitle: 'Todo bajo control',
         monthlyInsightStableText: 'No apareció ninguna alerta importante este mes. Sigue acompañando para mantener el ritmo.',
+        budgetAlertExceeded: 'superó el presupuesto del mes',
+        budgetAlertWarning: 'ya consumió',
+        budgetAlertOfLimit: 'del límite',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sin límite definido',
         budgetSafe: 'Dentro del límite',
@@ -1208,12 +1217,12 @@ function createGroupId() {
     return crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function showToast(msg) {
+function showToast(msg, tone = '') {
     const t = document.createElement('div');
-    t.className = 'toast';
+    t.className = `toast ${tone}`.trim();
     t.innerText = msg;
     $('toast-container').appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    setTimeout(() => t.remove(), tone ? 5200 : 3000);
 }
 
 function openModal(id) {
@@ -1429,6 +1438,28 @@ function renderBudgetSettings() {
             <input type="number" id="budget-${cat.id}" min="0" step="0.01" inputmode="decimal" class="input-vr" value="${Number(categoryBudgets[cat.id] || 0) || ''}" placeholder="0,00">
         </label>
     `).join('');
+}
+
+function getBudgetAlertForCategory(categoryId) {
+    const limit = Number(categoryBudgets[categoryId] || 0);
+    if (!limit || limit <= 0) return null;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const spent = Number(getCurrentMonthTotalByCategory()[categoryId] || 0);
+    const percent = Math.round((spent / limit) * 100);
+    const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
+    if (spent > limit) {
+        return {
+            tone: 'danger',
+            message: `${getCategoryLabel(categoryId)} ${text.budgetAlertExceeded}: ${currency(spent)} / ${currency(limit)}.`
+        };
+    }
+    if (percent >= 80) {
+        return {
+            tone: 'warning',
+            message: `${getCategoryLabel(categoryId)} ${text.budgetAlertWarning} ${percent}% ${text.budgetAlertOfLimit}: ${currency(spent)} / ${currency(limit)}.`
+        };
+    }
+    return null;
 }
 
 function renderMonthlyDashboard() {
@@ -2788,6 +2819,7 @@ async function handleExpenseSubmit(event) {
     const card = currentCards.find((item) => item.name === $('tipoCartao').value);
     const isInstallment = Boolean($('isParcelado')?.checked);
     const installmentTotal = isInstallment ? parseInt($('installmentsCount')?.value || '0', 10) : 1;
+    const submittedCategory = categoriaSelecionada;
     if (isInstallment && (!installmentTotal || installmentTotal < 2)) {
         showToast(text.installmentInvalid);
         btnSubmit.disabled = false;
@@ -2845,15 +2877,20 @@ async function handleExpenseSubmit(event) {
 
     if (isCartaoMetodo(metodoPagamento) && card?.name) await salvarCartaoFavorito(pagadorAtual, card.name);
 
-    gastos.unshift(...(data || []).map(makeUiExpense));
+    const insertedExpenses = (data || []).map(makeUiExpense);
+    gastos.unshift(...insertedExpenses);
     gastos.sort((a, b) => new Date(b.dataRaw) - new Date(a.dataRaw));
     render();
+    const budgetAlert = insertedExpenses.some((item) => item.mes === getCurrentMonthKey())
+        ? getBudgetAlertForCategory(submittedCategory)
+        : null;
     event.target.reset();
     $('dataGasto').valueAsDate = new Date();
     toggleInstallments();
     setMetodo('PIX');
     updateSeletorCartaoForm();
-    showToast(text.expenseSaved);
+    showToast(text.expenseSaved, 'safe');
+    if (budgetAlert) showToast(budgetAlert.message, budgetAlert.tone);
 }
 
 function confirmDelete(id) {
