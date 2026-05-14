@@ -2401,6 +2401,7 @@ function hideAllOverlays() {
 function showAppShell(show) {
     $('appShell').classList.toggle('hidden', !show);
     if (!show) {
+        clearMemberColorScope();
         if ($('profilePage')) $('profilePage').classList.add('hidden');
         if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
         if ($('cardsPage')) $('cardsPage').classList.add('hidden');
@@ -2553,14 +2554,42 @@ function applyMemberColors() {
     const secondary = getMemberColorByTheme('secondary');
     const primaryText = getReadableTextColor(primary);
     const secondaryText = getReadableTextColor(secondary);
-    document.documentElement.style.setProperty('--member-primary', primary);
-    document.documentElement.style.setProperty('--primary', primary);
-    document.documentElement.style.setProperty('--primary-strong', primary);
-    document.documentElement.style.setProperty('--member-primary-text-contrast', primaryText);
-    document.documentElement.style.setProperty('--member-secondary-color', secondary);
-    document.documentElement.style.setProperty('--member-secondary', secondary);
-    document.documentElement.style.setProperty('--secondary', secondary);
-    document.documentElement.style.setProperty('--member-secondary-text-contrast', secondaryText);
+    clearMemberColorLeaks();
+    const colorScope = $('dashboardPage') || document.documentElement;
+    colorScope.style.setProperty('--member-primary', primary);
+    colorScope.style.setProperty('--member-primary-text-contrast', primaryText);
+    colorScope.style.setProperty('--member-secondary-color', secondary);
+    colorScope.style.setProperty('--member-secondary', secondary);
+    colorScope.style.setProperty('--member-secondary-text-contrast', secondaryText);
+}
+
+function clearMemberColorLeaks() {
+    [
+        '--primary',
+        '--primary-strong',
+        '--secondary',
+        '--member-primary',
+        '--member-primary-text-contrast',
+        '--member-secondary-color',
+        '--member-secondary',
+        '--member-secondary-text-contrast'
+    ].forEach((property) => document.documentElement.style.removeProperty(property));
+}
+
+function clearMemberColorScope() {
+    clearMemberColorLeaks();
+    const dashboard = $('dashboardPage');
+    if (dashboard) {
+        [
+            '--member-primary',
+            '--member-primary-text-contrast',
+            '--member-secondary-color',
+            '--member-secondary',
+            '--member-secondary-text-contrast'
+        ].forEach((property) => dashboard.style.removeProperty(property));
+        dashboard.classList.remove('primary-theme', 'secondary-theme');
+    }
+    $('mainBody').classList.remove('primary-theme', 'secondary-theme');
 }
 
 function getThemeStyles(theme) {
@@ -2688,7 +2717,12 @@ function updateEditDropdownLabels() {
 function setPayer(pagador) {
     pagadorAtual = pagador;
     const theme = getThemeStyles(getMemberTheme(pagador));
-    $('mainBody').className = `pb-10 px-4 ${currentThemeMode}-theme ${theme.bodyClass}`;
+    $('mainBody').className = `pb-10 px-4 ${currentThemeMode}-theme`;
+    const dashboard = $('dashboardPage');
+    if (dashboard) {
+        dashboard.classList.remove('primary-theme', 'secondary-theme');
+        dashboard.classList.add(theme.bodyClass);
+    }
     $('formContainer').style.borderColor = theme.colorVar;
     $('btnSubmit').style.background = theme.colorVar;
     $('btnSubmit').style.color = theme.textColor;
