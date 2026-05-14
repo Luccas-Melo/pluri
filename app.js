@@ -418,6 +418,10 @@ const translations = {
         passwordUpdated: 'Senha atualizada com sucesso. Entrando no app...',
         expenseSaved: 'Gasto registrado!',
         expenseEdited: 'Gasto editado!',
+        emptyExpensesTitle: 'Nada por aqui ainda',
+        emptyExpensesText: 'Registre um lançamento para começar a enxergar seu histórico com clareza.',
+        emptyInstallmentsTitle: 'Nenhuma parcela encontrada',
+        emptyInstallmentsText: 'Quando você criar um gasto parcelado, o grupo de parcelas aparece aqui.',
         configSaved: 'Configurações salvas!',
         supabaseRequired: 'Configure o Supabase para salvar gastos.',
         sessionUpdateError: 'Erro ao atualizar a sessão.',
@@ -719,6 +723,10 @@ const translations = {
         passwordUpdated: 'Password updated successfully. Opening the app...',
         expenseSaved: 'Expense registered!',
         expenseEdited: 'Expense updated!',
+        emptyExpensesTitle: 'Nothing here yet',
+        emptyExpensesText: 'Add an entry to start seeing your history clearly.',
+        emptyInstallmentsTitle: 'No installments found',
+        emptyInstallmentsText: 'When you create an installment expense, the installment group appears here.',
         configSaved: 'Settings saved!',
         supabaseRequired: 'Configure Supabase to save expenses.',
         sessionUpdateError: 'Error updating the session.',
@@ -1020,6 +1028,10 @@ const translations = {
         passwordUpdated: 'Contraseña actualizada con éxito. Abriendo la app...',
         expenseSaved: '¡Gasto registrado!',
         expenseEdited: '¡Gasto editado!',
+        emptyExpensesTitle: 'Nada por aquí todavía',
+        emptyExpensesText: 'Registra un movimiento para empezar a ver tu historial con claridad.',
+        emptyInstallmentsTitle: 'No se encontraron cuotas',
+        emptyInstallmentsText: 'Cuando crees un gasto en cuotas, el grupo aparecerá aquí.',
         configSaved: '¡Configuración guardada!',
         supabaseRequired: 'Configura Supabase para guardar gastos.',
         sessionUpdateError: 'Error al actualizar la sesión.',
@@ -1441,14 +1453,38 @@ function createGroupId() {
 function showToast(msg, tone = '') {
     const t = document.createElement('div');
     t.className = `toast ${tone}`.trim();
+    t.setAttribute('role', tone === 'danger' ? 'alert' : 'status');
+    t.setAttribute('aria-live', tone === 'danger' ? 'assertive' : 'polite');
     t.innerText = msg;
-    $('toast-container').appendChild(t);
+    const container = $('toast-container');
+    while (container.children.length >= 4) container.firstElementChild?.remove();
+    container.appendChild(t);
     setTimeout(() => t.remove(), tone ? 5200 : 3000);
+}
+
+function getOpenModals() {
+    return Array.from(document.querySelectorAll('.modal-overlay'))
+        .filter((modal) => modal.style.display === 'flex');
+}
+
+function syncModalState() {
+    const hasOpenModal = getOpenModals().length > 0;
+    document.body.classList.toggle('modal-open', hasOpenModal);
+}
+
+function focusFirstModalElement(modal) {
+    const focusable = modal.querySelector('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (focusable) window.setTimeout(() => focusable.focus({ preventScroll: true }), 80);
 }
 
 function openModal(id) {
     const modal = $(id);
+    if (!modal) return;
     modal.style.display = 'flex';
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('role', 'dialog');
+    syncModalState();
+    focusFirstModalElement(modal);
     if (modal.classList.contains('settings-page')) {
         requestAnimationFrame(() => modal.classList.add('is-open'));
     }
@@ -1458,14 +1494,20 @@ function closeModal(id) {
     const modal = $(id);
     if (!modal) return;
     if (modal.classList.contains('settings-page')) {
+        modal.removeAttribute('aria-modal');
+        modal.removeAttribute('role');
         modal.classList.remove('is-open');
         window.setTimeout(() => {
             if (!modal.classList.contains('is-open')) modal.style.display = 'none';
+            syncModalState();
         }, 180);
         setMobileNavActive(getCurrentNavTarget());
         return;
     }
     modal.style.display = 'none';
+    modal.removeAttribute('aria-modal');
+    modal.removeAttribute('role');
+    syncModalState();
     if (['modalExport', 'modalLogout'].includes(id)) setMobileNavActive(getCurrentNavTarget());
 }
 
@@ -4138,6 +4180,22 @@ function renderExpenseCard(gastoOriginal) {
     `;
 }
 
+function renderEmptyState(type = 'expenses') {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const isInstallment = type === 'installments';
+    return `
+        <div class="empty-state-card">
+            <div class="empty-state-icon">
+                ${isInstallment
+                    ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h8M8 12h8M8 17h5"/><rect x="4" y="3" width="16" height="18" rx="3"/></svg>'
+                    : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg>'}
+            </div>
+            <h3>${escapeHtml(isInstallment ? text.emptyInstallmentsTitle : text.emptyExpensesTitle)}</h3>
+            <p>${escapeHtml(isInstallment ? text.emptyInstallmentsText : text.emptyExpensesText)}</p>
+        </div>
+    `;
+}
+
 function render() {
     const lista = $('listaGastos');
     const filtro = $('filtroMes').value;
@@ -4171,7 +4229,7 @@ function render() {
                     <div class="space-y-3">${items.map(renderExpenseCard).join('')}</div>
                 </div>
             `;
-        }).join('') : `<div class="custom-card p-5 text-sm font-bold" style="color: var(--text-soft);">${escapeHtml(text.noInstallmentsFound)}</div>`;
+        }).join('') : renderEmptyState('installments');
     } else {
 
     filtrados.forEach((gasto) => {
@@ -4224,6 +4282,7 @@ function render() {
             </div>
         `;
     });
+        if (!filtrados.length) lista.innerHTML = renderEmptyState('expenses');
     }
 
     if (meta.ativa) {

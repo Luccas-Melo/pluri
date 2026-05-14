@@ -235,6 +235,10 @@
             backdrop-filter: blur(26px) !important;
         }
 
+        body.modal-open {
+            overflow: hidden;
+        }
+
         #modalDelete,
         #modalDeleteCard,
         #modalDeleteAccount,
@@ -257,6 +261,12 @@
             border-left: 4px solid var(--primary) !important;
             border-radius: 18px !important;
             box-shadow: var(--shadow) !important;
+            animation: toastIn 240ms ease both;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .toast.safe {
@@ -794,6 +804,61 @@
             text-align: center;
             font-size: 13px;
             box-shadow: var(--shadow-soft);
+        }
+
+        .empty-state-card {
+            display: grid;
+            place-items: center;
+            gap: 10px;
+            padding: 34px 24px;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 38%),
+                var(--bg-panel);
+            border: 1px dashed var(--border-strong);
+            color: var(--text);
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            animation: softRise 260ms ease both;
+        }
+
+        .empty-state-icon {
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            border-radius: 20px;
+            color: var(--primary-strong);
+            background: color-mix(in srgb, var(--primary) 12%, transparent);
+        }
+
+        .empty-state-card h3 {
+            font-size: 18px;
+            font-weight: 950;
+            letter-spacing: -0.04em;
+        }
+
+        .empty-state-card p {
+            max-width: 320px;
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @keyframes softRise {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         #valor,
