@@ -2214,6 +2214,221 @@
             box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14);
         }
 
+        .cards-page {
+            animation: pageEnter 0.42s cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .cards-page-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+            gap: 22px;
+            padding: 28px;
+        }
+
+        .cards-summary-grid,
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card-finance-card {
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background:
+                radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--card-accent) 28%, transparent), transparent 34%),
+                linear-gradient(145deg, color-mix(in srgb, var(--card-brand) 88%, #111827), color-mix(in srgb, var(--card-accent) 54%, #0f172a));
+            color: var(--card-text);
+            box-shadow: var(--shadow-soft);
+            min-height: 340px;
+        }
+
+        .card-finance-card::after {
+            content: "";
+            position: absolute;
+            right: -42px;
+            bottom: -56px;
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+        }
+
+        .card-visual {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .card-brand-logo,
+        .mini-card-logo {
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.86);
+            color: color-mix(in srgb, var(--card-brand) 84%, #111827);
+            font-weight: 950;
+            letter-spacing: -0.04em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.52), 0 16px 30px rgba(15, 23, 42, 0.18);
+        }
+
+        .card-brand-logo {
+            width: 66px;
+            height: 66px;
+            font-size: 18px;
+        }
+
+        .card-visual p {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0.76;
+        }
+
+        .card-visual h3 {
+            font-size: 28px;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .card-finance-metrics {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 26px;
+        }
+
+        .card-finance-metrics div {
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.16);
+            backdrop-filter: blur(16px);
+        }
+
+        .card-finance-metrics span,
+        .card-expense-list .panel-label {
+            display: block;
+            font-size: 9px;
+            font-weight: 950;
+            text-transform: uppercase;
+            opacity: 0.72;
+        }
+
+        .card-finance-metrics strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .card-limit-track {
+            position: relative;
+            z-index: 1;
+            height: 8px;
+            margin-top: 16px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+        }
+
+        .card-limit-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: rgba(255,255,255,0.86);
+        }
+
+        .card-expense-list {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .card-expense-row,
+        .installment-row,
+        .card-expense-empty,
+        .cards-empty-state {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--bg-elevated);
+            color: var(--text);
+        }
+
+        .card-expense-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+        }
+
+        .card-expense-row span,
+        .installment-row small {
+            color: var(--text-soft);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .card-expense-row strong,
+        .installment-row b {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .cards-installments-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .installment-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .mini-card-logo {
+            --card-brand: #0e7490;
+            --card-accent: #14b8a6;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            font-size: 12px;
+        }
+
+        .installment-row strong {
+            display: block;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .card-expense-empty,
+        .cards-empty-state {
+            padding: 16px;
+            color: var(--text-soft);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .cards-empty-state {
+            grid-column: 1 / -1;
+            min-height: 140px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+        }
+
         .profile-stat-card {
             min-height: 118px;
             padding: 20px;
@@ -2692,7 +2907,7 @@
                 bottom: max(14px, env(safe-area-inset-bottom));
                 transform: translateX(-50%);
                 z-index: 10000;
-                width: min(92vw, 392px);
+                width: min(96vw, 440px);
                 min-height: 62px;
                 display: flex;
                 align-items: center;
@@ -2711,13 +2926,13 @@
             }
 
             .mobile-bottom-item {
-                min-width: 42px;
+                min-width: 38px;
                 height: 48px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 gap: 7px;
-                padding: 0 11px;
+                padding: 0 9px;
                 border: 0;
                 border-radius: 999px;
                 color: rgba(15, 23, 42, 0.56);
@@ -2744,7 +2959,7 @@
             }
 
             .mobile-bottom-item.is-active {
-                min-width: 82px;
+                min-width: 72px;
                 color: var(--primary-strong);
                 background: rgba(255, 255, 255, 0.88);
                 box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
@@ -2752,7 +2967,7 @@
 
             .mobile-bottom-label {
                 display: none;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 900;
                 letter-spacing: -0.02em;
             }
@@ -2785,7 +3000,10 @@
 
             .monthly-dashboard-hero,
             .monthly-chart-grid,
-            .monthly-stat-grid {
+            .monthly-stat-grid,
+            .cards-page-hero,
+            .cards-summary-grid,
+            .cards-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -2799,6 +3017,10 @@
 
             .monthly-chart-shell {
                 height: 220px;
+            }
+
+            .card-finance-metrics {
+                grid-template-columns: 1fr;
             }
 
             .monthly-insights-grid {
@@ -3467,6 +3689,10 @@
                             <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M13 16V8"/><path d="M18 16v-3"/></svg></span>
                             <span id="menuDashboard" class="menu-label">Dashboard</span>
                         </button>
+                        <button type="button" class="menu-item" onclick="openCardsPage()" aria-label="Cartoes">
+                            <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></span>
+                            <span id="menuCards" class="menu-label">Cartoes</span>
+                        </button>
                         <button type="button" class="menu-item" onclick="openProfileModal()" aria-label="Perfil">
                             <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg></span>
                             <span id="menuProfile" class="menu-label">Perfil</span>
@@ -3647,6 +3873,33 @@
             </div>
         </section>
 
+        <section id="cardsPage" class="cards-page hidden space-y-6">
+            <div class="cards-page-hero custom-card">
+                <div>
+                    <p id="cardsPageKicker" class="kicker mb-3">Cartões</p>
+                    <h2 id="cardsPageTitle" class="text-4xl md:text-5xl font-black tracking-tight">Meus cartões</h2>
+                    <p id="cardsPageSubtitle" class="muted-copy text-base mt-3 max-w-2xl">Veja gastos por cartão, fatura do mês e próximas parcelas em um só lugar.</p>
+                </div>
+                <div class="cards-summary-grid">
+                    <div class="monthly-stat-card">
+                        <p id="cardsRegisteredLabel" class="panel-label">Cartões ativos</p>
+                        <strong id="cardsRegisteredValue">0</strong>
+                    </div>
+                    <div class="monthly-stat-card">
+                        <p id="cardsTotalSpentLabel" class="panel-label">Gasto em cartões</p>
+                        <strong id="cardsTotalSpentValue">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cardsGrid" class="cards-grid"></div>
+
+            <div class="monthly-chart-card">
+                <p id="cardsNextInstallmentsTitle" class="kicker mb-4">Próximas parcelas</p>
+                <div id="cardsInstallmentsList" class="cards-installments-list"></div>
+            </div>
+        </section>
+
         <div id="dashboardPage">
         <!--
         <div class="flex justify-end mb-4">
@@ -3815,6 +4068,10 @@
         <button type="button" class="mobile-bottom-item" data-nav="dashboard" onclick="openMonthlyDashboardPage()" aria-label="Dashboard">
             <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M13 16V8"/><path d="M18 16v-3"/></svg>
             <span id="mobileMenuDashboard" class="mobile-bottom-label">Dashboard</span>
+        </button>
+        <button type="button" class="mobile-bottom-item" data-nav="cards" onclick="openCardsPage()" aria-label="Cartoes">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+            <span id="mobileMenuCards" class="mobile-bottom-label">Cartoes</span>
         </button>
         <button type="button" class="mobile-bottom-item" data-nav="profile" onclick="openProfileModal()" aria-label="Perfil">
             <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>

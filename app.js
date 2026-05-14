@@ -198,6 +198,22 @@ const translations = {
         monthlyDashboardTitle: 'Painel do mês',
         monthlyDashboardSubtitle: 'Acompanhe seus limites por categoria e veja onde o dinheiro está indo.',
         monthlyDashboardNav: 'Painel',
+        cardsNav: 'Cartões',
+        cardsPageKicker: 'Cartões',
+        cardsPageTitle: 'Meus cartões',
+        cardsPageSubtitle: 'Veja gastos por cartão, fatura do mês e próximas parcelas em um só lugar.',
+        cardsRegisteredLabel: 'Cartões ativos',
+        cardsTotalSpentLabel: 'Gasto em cartões',
+        cardInvoiceLabel: 'Fatura do mês',
+        cardLimitLabel: 'Limite',
+        cardClosingLabel: 'Fechamento',
+        cardNextInstallmentsLabel: 'Próximas parcelas',
+        cardExpensesLabel: 'Gastos do cartão',
+        cardNoCards: 'Cadastre um cartão nas configurações para acompanhar faturas e parcelas.',
+        cardNoExpenses: 'Nenhum gasto nesse cartão ainda.',
+        cardNoInstallments: 'Sem próximas parcelas.',
+        cardLimitNotSet: 'Sem limite',
+        cardClosingNotSet: 'Não definido',
         monthlyDashboardKicker: 'Resumo inteligente',
         monthlyTotalLabel: 'Gasto no mês',
         monthlyPreviousLabel: 'Mês anterior',
@@ -442,6 +458,22 @@ const translations = {
         monthlyDashboardTitle: 'Monthly dashboard',
         monthlyDashboardSubtitle: 'Track category limits and see where your money is going.',
         monthlyDashboardNav: 'Dashboard',
+        cardsNav: 'Cards',
+        cardsPageKicker: 'Cards',
+        cardsPageTitle: 'My cards',
+        cardsPageSubtitle: 'See spending by card, this month invoice and upcoming installments in one place.',
+        cardsRegisteredLabel: 'Active cards',
+        cardsTotalSpentLabel: 'Card spending',
+        cardInvoiceLabel: 'Month invoice',
+        cardLimitLabel: 'Limit',
+        cardClosingLabel: 'Closing',
+        cardNextInstallmentsLabel: 'Upcoming installments',
+        cardExpensesLabel: 'Card expenses',
+        cardNoCards: 'Add a card in settings to track invoices and installments.',
+        cardNoExpenses: 'No expenses on this card yet.',
+        cardNoInstallments: 'No upcoming installments.',
+        cardLimitNotSet: 'No limit',
+        cardClosingNotSet: 'Not set',
         monthlyDashboardKicker: 'Smart summary',
         monthlyTotalLabel: 'Month spending',
         monthlyPreviousLabel: 'Previous month',
@@ -686,6 +718,22 @@ const translations = {
         monthlyDashboardTitle: 'Panel del mes',
         monthlyDashboardSubtitle: 'Acompaña tus límites por categoría y ve a dónde va el dinero.',
         monthlyDashboardNav: 'Panel',
+        cardsNav: 'Tarjetas',
+        cardsPageKicker: 'Tarjetas',
+        cardsPageTitle: 'Mis tarjetas',
+        cardsPageSubtitle: 'Ve gastos por tarjeta, factura del mes y próximas cuotas en un solo lugar.',
+        cardsRegisteredLabel: 'Tarjetas activas',
+        cardsTotalSpentLabel: 'Gasto en tarjetas',
+        cardInvoiceLabel: 'Factura del mes',
+        cardLimitLabel: 'Límite',
+        cardClosingLabel: 'Cierre',
+        cardNextInstallmentsLabel: 'Próximas cuotas',
+        cardExpensesLabel: 'Gastos de la tarjeta',
+        cardNoCards: 'Agrega una tarjeta en configuración para acompañar facturas y cuotas.',
+        cardNoExpenses: 'Todavía no hay gastos en esta tarjeta.',
+        cardNoInstallments: 'Sin próximas cuotas.',
+        cardLimitNotSet: 'Sin límite',
+        cardClosingNotSet: 'No definido',
         monthlyDashboardKicker: 'Resumen inteligente',
         monthlyTotalLabel: 'Gasto del mes',
         monthlyPreviousLabel: 'Mes anterior',
@@ -991,6 +1039,12 @@ function setLanguage(language) {
     if ($('monthlyAdjustLimitsBtn')) $('monthlyAdjustLimitsBtn').innerText = text.monthlyAdjustLimits;
     if ($('monthlyInsightsLabel')) $('monthlyInsightsLabel').innerText = text.monthlyInsightsLabel;
     if ($('monthlyInsightsTitle')) $('monthlyInsightsTitle').innerText = text.monthlyInsightsTitle;
+    if ($('cardsPageKicker')) $('cardsPageKicker').innerText = text.cardsPageKicker;
+    if ($('cardsPageTitle')) $('cardsPageTitle').innerText = text.cardsPageTitle;
+    if ($('cardsPageSubtitle')) $('cardsPageSubtitle').innerText = text.cardsPageSubtitle;
+    if ($('cardsRegisteredLabel')) $('cardsRegisteredLabel').innerText = text.cardsRegisteredLabel;
+    if ($('cardsTotalSpentLabel')) $('cardsTotalSpentLabel').innerText = text.cardsTotalSpentLabel;
+    if ($('cardsNextInstallmentsTitle')) $('cardsNextInstallmentsTitle').innerText = text.cardNextInstallmentsLabel;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
@@ -1046,6 +1100,7 @@ function setLanguage(language) {
     if ($('appHeaderSubtitle')) $('appHeaderSubtitle').innerText = text.appHeaderSubtitle;
     if ($('mobileMenuHome')) $('mobileMenuHome').innerText = text.home;
     if ($('mobileMenuDashboard')) $('mobileMenuDashboard').innerText = text.monthlyDashboardNav;
+    if ($('mobileMenuCards')) $('mobileMenuCards').innerText = text.cardsNav;
     if ($('mobileMenuProfile')) $('mobileMenuProfile').innerText = text.profile;
     if ($('mobileMenuSettings')) $('mobileMenuSettings').innerText = text.settings;
     if ($('mobileMenuExport')) $('mobileMenuExport').innerText = text.export;
@@ -1053,6 +1108,7 @@ function setLanguage(language) {
     if ($('menuHome')) $('menuHome').innerText = text.home;
     if ($('menuProfile')) $('menuProfile').innerText = text.profile;
     if ($('menuDashboard')) $('menuDashboard').innerText = text.monthlyDashboardNav;
+    if ($('menuCards')) $('menuCards').innerText = text.cardsNav;
     if ($('soloModeHint')) $('soloModeHint').innerText = text.soloModeHint;
     if ($('profilePageKicker')) $('profilePageKicker').innerText = text.profileKicker;
     if ($('profilePageTitle')) $('profilePageTitle').innerText = text.profileTitle;
@@ -1256,6 +1312,7 @@ function closeModal(id) {
 function getCurrentNavTarget() {
     if ($('profilePage') && !$('profilePage').classList.contains('hidden')) return 'profile';
     if ($('monthlyDashboardPage') && !$('monthlyDashboardPage').classList.contains('hidden')) return 'dashboard';
+    if ($('cardsPage') && !$('cardsPage').classList.contains('hidden')) return 'cards';
     return 'home';
 }
 
@@ -1289,6 +1346,7 @@ function openProfileModal() {
     if ($('profileMessage')) $('profileMessage').innerText = '';
     if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
     if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
+    if ($('cardsPage')) $('cardsPage').classList.add('hidden');
     if ($('profilePage')) $('profilePage').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1298,8 +1356,20 @@ function openMonthlyDashboardPage() {
     setMobileNavActive('dashboard');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('cardsPage')) $('cardsPage').classList.add('hidden');
     if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.remove('hidden');
     renderMonthlyDashboard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openCardsPage() {
+    closeAppOverlays();
+    setMobileNavActive('cards');
+    if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
+    if ($('cardsPage')) $('cardsPage').classList.remove('hidden');
+    renderCardsPage();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1308,6 +1378,7 @@ function showDashboardPage() {
     setMobileNavActive('home');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
+    if ($('cardsPage')) $('cardsPage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1772,6 +1843,134 @@ function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
     }
 }
 
+function getCardBrand(cardName) {
+    const normalized = String(cardName || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const brands = [
+        { match: ['nubank', 'nu '], label: 'Nu', name: 'Nubank', color: '#6d28d9', accent: '#a855f7' },
+        { match: ['inter'], label: 'Inter', name: 'Inter', color: '#ff7a00', accent: '#ffb020' },
+        { match: ['itau', 'itaú'], label: 'Itaú', name: 'Itaú', color: '#003399', accent: '#ff7a00' },
+        { match: ['bradesco'], label: 'B', name: 'Bradesco', color: '#cc092f', accent: '#f43f5e' },
+        { match: ['santander'], label: 'S', name: 'Santander', color: '#e60000', accent: '#ff6b6b' },
+        { match: ['banco do brasil', 'bb'], label: 'BB', name: 'Banco do Brasil', color: '#facc15', accent: '#2563eb', text: '#172554' },
+        { match: ['caixa'], label: 'CX', name: 'Caixa', color: '#005ca9', accent: '#f97316' },
+        { match: ['c6'], label: 'C6', name: 'C6 Bank', color: '#111827', accent: '#facc15' },
+        { match: ['picpay'], label: 'P', name: 'PicPay', color: '#16a34a', accent: '#86efac' },
+        { match: ['mercado pago', 'mercadopago'], label: 'MP', name: 'Mercado Pago', color: '#009ee3', accent: '#67e8f9' },
+        { match: ['xp'], label: 'XP', name: 'XP', color: '#111827', accent: '#f59e0b' },
+        { match: ['next'], label: 'N', name: 'Next', color: '#22c55e', accent: '#0f172a' },
+        { match: ['neon'], label: 'Neon', name: 'Neon', color: '#00a5ff', accent: '#00f5d4' },
+        { match: ['will'], label: 'W', name: 'Will', color: '#facc15', accent: '#111827', text: '#111827' }
+    ];
+    const brand = brands.find((item) => item.match.some((key) => normalized.includes(key)));
+    if (brand) return brand;
+    const initials = String(cardName || '?')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase() || '?';
+    return { label: initials, name: cardName || 'Card', color: '#0e7490', accent: '#14b8a6' };
+}
+
+function getCardMetaValue(card, keys) {
+    const key = keys.find((item) => card?.[item] !== undefined && card?.[item] !== null && card?.[item] !== '');
+    return key ? card[key] : null;
+}
+
+function getExpensesForCard(card) {
+    return gastos.filter((item) => item.cardId === card.id);
+}
+
+function renderCardsPage() {
+    const grid = $('cardsGrid');
+    if (!grid) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const locale = getCurrentLocale();
+    const currency = (value) => `R$ ${Number(value || 0).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
+    const todayKey = formatDateInputValue(new Date());
+    const monthKey = getCurrentMonthKey();
+    const cardExpenses = gastos.filter((item) => item.cardId);
+    const totalCardSpending = cardExpenses.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const nextInstallments = cardExpenses
+        .filter((item) => item.installmentTotal > 1 && item.dataRaw >= todayKey)
+        .sort((a, b) => new Date(a.dataRaw) - new Date(b.dataRaw))
+        .slice(0, 6);
+
+    if ($('cardsRegisteredValue')) $('cardsRegisteredValue').innerText = String(currentCards.length);
+    if ($('cardsTotalSpentValue')) $('cardsTotalSpentValue').innerText = currency(totalCardSpending);
+
+    if (!currentCards.length) {
+        grid.innerHTML = `<div class="cards-empty-state">${escapeHtml(text.cardNoCards)}</div>`;
+    } else {
+        grid.innerHTML = currentCards.map((card) => {
+            const brand = getCardBrand(card.name);
+            const expenses = getExpensesForCard(card);
+            const invoice = expenses
+                .filter((item) => item.mes === monthKey)
+                .reduce((sum, item) => sum + Number(item.valor || 0), 0);
+            const limit = Number(getCardMetaValue(card, ['credit_limit', 'limit_amount', 'limit']) || 0);
+            const closing = getCardMetaValue(card, ['closing_day', 'statement_closing_day', 'due_day']);
+            const limitPercent = limit > 0 ? Math.min((invoice / limit) * 100, 100) : 0;
+            const recentExpenses = expenses.slice(0, 4);
+            return `
+                <article class="card-finance-card" style="--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};">
+                    <div class="card-visual">
+                        <div class="card-brand-logo">${escapeHtml(brand.label)}</div>
+                        <div>
+                            <p>${escapeHtml(brand.name)}</p>
+                            <h3>${escapeHtml(card.name)}</h3>
+                        </div>
+                    </div>
+                    <div class="card-finance-metrics">
+                        <div>
+                            <span>${escapeHtml(text.cardInvoiceLabel)}</span>
+                            <strong>${currency(invoice)}</strong>
+                        </div>
+                        <div>
+                            <span>${escapeHtml(text.cardLimitLabel)}</span>
+                            <strong>${limit > 0 ? currency(limit) : text.cardLimitNotSet}</strong>
+                        </div>
+                        <div>
+                            <span>${escapeHtml(text.cardClosingLabel)}</span>
+                            <strong>${closing ? String(closing).padStart(2, '0') : text.cardClosingNotSet}</strong>
+                        </div>
+                    </div>
+                    <div class="card-limit-track"><span style="width:${limitPercent}%"></span></div>
+                    <div class="card-expense-list">
+                        <p class="panel-label">${escapeHtml(text.cardExpensesLabel)}</p>
+                        ${recentExpenses.length ? recentExpenses.map((item) => `
+                            <div class="card-expense-row">
+                                <span>${escapeHtml(item.descricao)}</span>
+                                <strong>${currency(item.valor)}</strong>
+                            </div>
+                        `).join('') : `<div class="card-expense-empty">${escapeHtml(text.cardNoExpenses)}</div>`}
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    if ($('cardsInstallmentsList')) {
+        $('cardsInstallmentsList').innerHTML = nextInstallments.length
+            ? nextInstallments.map((item) => {
+                const card = currentCards.find((currentCard) => currentCard.id === item.cardId);
+                const brand = getCardBrand(card?.name || item.metodo);
+                return `
+                    <div class="installment-row">
+                        <span class="mini-card-logo" style="--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};">${escapeHtml(brand.label)}</span>
+                        <div>
+                            <strong>${escapeHtml(item.descricao)}</strong>
+                            <small>${escapeHtml(card?.name || text.cardMethod)} · ${item.installmentNumber}/${item.installmentTotal} · ${escapeHtml(formatExpenseDate(item.dataRaw))}</small>
+                        </div>
+                        <b>${currency(item.valor)}</b>
+                    </div>
+                `;
+            }).join('')
+            : `<div class="card-expense-empty">${escapeHtml(text.cardNoInstallments)}</div>`;
+    }
+}
+
 function dismissMonthlySummaryNotice() {
     const today = new Date();
     localStorage.setItem('pluri_summary_dismissed', `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
@@ -1818,6 +2017,7 @@ function showAppShell(show) {
     if (!show) {
         if ($('profilePage')) $('profilePage').classList.add('hidden');
         if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
+        if ($('cardsPage')) $('cardsPage').classList.add('hidden');
         if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     }
 }
@@ -2653,6 +2853,7 @@ function openConfigModal() {
     setMobileNavActive('settings');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
+    if ($('cardsPage')) $('cardsPage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     if (!currentHousehold) {
         showToast(currentLanguage === 'en-US' ? 'The home has not loaded yet. Try again in a moment.' : currentLanguage === 'es-ES' ? 'La casa aún no se ha cargado. Inténtalo de nuevo en un momento.' : 'A casa ainda não foi carregada. Tente novamente em instantes.');
@@ -3370,6 +3571,7 @@ function render() {
     if (activeMembers[1]) $('totalMember1').innerText = `R$ ${(totals[activeMembers[1].name] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     updateChart(activeMembers.map((member) => totals[member.name] || 0));
     renderMonthlyDashboard();
+    if ($('cardsPage') && !$('cardsPage').classList.contains('hidden')) renderCardsPage();
     updateMonthlySummaryNotice();
     if ($('profilePage') && !$('profilePage').classList.contains('hidden')) updateProfilePage();
 }
