@@ -2293,6 +2293,39 @@
             gap: 14px;
         }
 
+        .card-action-icons {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-action-icons button {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: currentColor;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .card-action-icons button:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.26);
+        }
+
+        .card-action-icons svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .card-brand-logo,
         .mini-card-logo {
             display: grid;
@@ -2483,7 +2516,7 @@
         .card-edit-panel {
             position: relative;
             z-index: 1;
-            display: grid;
+            display: none;
             grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 0.72fr));
             gap: 8px;
             margin-top: 16px;
@@ -2497,10 +2530,16 @@
         .card-edit-actions {
             position: relative;
             z-index: 1;
-            display: grid;
+            display: none;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             margin-top: 10px;
+        }
+
+        .card-edit-panel.is-open,
+        .card-edit-actions.is-open {
+            display: grid;
+            animation: enterUp 220ms ease both;
         }
 
         .card-edit-panel .input-vr {
@@ -3616,6 +3655,20 @@
             <div class="flex gap-2">
                 <button id="logoutModalCancel" type="button" onclick="closeModal('modalLogout')" class="flex-1 py-3 text-xs font-bold ghost-button">Continuar logado</button>
                 <button id="logoutModalConfirm" type="button" onclick="logout()" class="flex-1 py-3 rounded-xl font-black text-xs danger-button">Sim, sair</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDeleteCard" class="modal-overlay">
+        <div class="custom-card p-8 max-w-sm text-center mx-4">
+            <div class="w-16 h-16 rounded-3xl mx-auto mb-5 grid place-items-center" style="background: rgba(220, 38, 38, 0.10); color: #dc2626;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
+            </div>
+            <h3 id="deleteCardModalTitle" class="text-2xl font-black mb-2">Remover cartão?</h3>
+            <p id="deleteCardModalText" class="text-sm mb-6" style="color: var(--text-soft);">Os gastos antigos continuam salvos, mas o cartão sai da sua lista ativa.</p>
+            <div class="flex gap-2">
+                <button id="deleteCardModalCancel" type="button" onclick="closeModal('modalDeleteCard')" class="flex-1 py-3 text-xs font-bold ghost-button">Cancelar</button>
+                <button id="deleteCardModalConfirm" type="button" onclick="handleDeleteCardConfirm()" class="flex-1 py-3 rounded-xl font-black text-xs danger-button">Remover</button>
             </div>
         </div>
     </div>

@@ -90,6 +90,8 @@ let monthlyCategoryChart = null;
 let monthlyDailyChart = null;
 let monthlyDashboardPeriod = '';
 let deleteIdTemp = null;
+let editingCardId = null;
+let deleteCardIdTemp = null;
 
 document.getElementById('dataGasto').valueAsDate = new Date();
 
@@ -221,7 +223,10 @@ const translations = {
         cardAddButton: 'Adicionar cartão',
         cardManageLabel: 'Editar dados',
         cardSaveButton: 'Salvar cartão',
+        cardCancelButton: 'Cancelar',
         cardRemoveButton: 'Remover',
+        cardDeleteTitle: 'Remover cartão?',
+        cardDeleteText: 'Os gastos antigos continuam salvos, mas o cartão sai da sua lista ativa.',
         cardSaved: 'Cartão salvo.',
         cardRemoved: 'Cartão removido.',
         cardBillingFieldsMissing: 'Rode a migration de campos de cartão no Supabase para salvar limite, fechamento e vencimento.',
@@ -509,7 +514,10 @@ const translations = {
         cardAddButton: 'Add card',
         cardManageLabel: 'Edit data',
         cardSaveButton: 'Save card',
+        cardCancelButton: 'Cancel',
         cardRemoveButton: 'Remove',
+        cardDeleteTitle: 'Remove card?',
+        cardDeleteText: 'Past expenses stay saved, but the card leaves your active list.',
         cardSaved: 'Card saved.',
         cardRemoved: 'Card removed.',
         cardBillingFieldsMissing: 'Run the card fields migration in Supabase to save limit, closing and due dates.',
@@ -797,7 +805,10 @@ const translations = {
         cardAddButton: 'Agregar tarjeta',
         cardManageLabel: 'Editar datos',
         cardSaveButton: 'Guardar tarjeta',
+        cardCancelButton: 'Cancelar',
         cardRemoveButton: 'Eliminar',
+        cardDeleteTitle: '¿Eliminar tarjeta?',
+        cardDeleteText: 'Los gastos anteriores siguen guardados, pero la tarjeta sale de tu lista activa.',
         cardSaved: 'Tarjeta guardada.',
         cardRemoved: 'Tarjeta eliminada.',
         cardBillingFieldsMissing: 'Ejecuta la migración de campos de tarjeta en Supabase para guardar límite, cierre y vencimiento.',
@@ -1244,6 +1255,10 @@ function setLanguage(language) {
     if ($('logoutModalText')) $('logoutModalText').innerText = text.logoutConfirm;
     if ($('logoutModalCancel')) $('logoutModalCancel').innerText = text.logoutCancel;
     if ($('logoutModalConfirm')) $('logoutModalConfirm').innerText = text.logoutConfirmAction;
+    if ($('deleteCardModalTitle')) $('deleteCardModalTitle').innerText = text.cardDeleteTitle;
+    if ($('deleteCardModalText')) $('deleteCardModalText').innerText = text.cardDeleteText;
+    if ($('deleteCardModalCancel')) $('deleteCardModalCancel').innerText = text.cardCancelButton;
+    if ($('deleteCardModalConfirm')) $('deleteCardModalConfirm').innerText = text.cardRemoveButton;
     if ($('deleteAccountModalTitle')) $('deleteAccountModalTitle').innerText = text.deleteAccountTitle;
     if ($('deleteAccountModalText')) $('deleteAccountModalText').innerText = text.deleteAccountText;
     if ($('deleteAccountModalCancel')) $('deleteAccountModalCancel').innerText = text.deleteAccountCancel;
@@ -1418,7 +1433,7 @@ function getCurrentNavTarget() {
 }
 
 function closeAppOverlays(exceptId = '') {
-    ['modalConfig', 'modalExport', 'modalMonthlySummary', 'modalEdit', 'modalDelete', 'modalLogout', 'modalDeleteAccount'].forEach((id) => {
+    ['modalConfig', 'modalExport', 'modalMonthlySummary', 'modalEdit', 'modalDelete', 'modalLogout', 'modalDeleteAccount', 'modalDeleteCard'].forEach((id) => {
         if (id !== exceptId && $(id)) closeModal(id);
     });
     toggleLanguageDropdown(false);
@@ -2127,6 +2142,7 @@ function renderCardsPage() {
             const dueDay = getCardMetaValue(card, ['due_day']);
             const limitPercent = limit > 0 ? Math.min((invoice / limit) * 100, 100) : 0;
             const recentExpenses = expenses.slice(0, 4);
+            const isEditing = editingCardId === card.id;
             return `
                 <article class="card-finance-card" style="--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};">
                     <div class="card-visual">
@@ -2134,6 +2150,14 @@ function renderCardsPage() {
                         <div>
                             <p>${escapeHtml(brand.name)}</p>
                             <h3>${escapeHtml(card.name)}</h3>
+                        </div>
+                        <div class="card-action-icons">
+                            <button type="button" onclick='toggleCardEdit(${quoteJs(card.id)})' title="${escapeHtml(text.cardManageLabel)}" aria-label="${escapeHtml(text.cardManageLabel)}">
+                                <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                            </button>
+                            <button type="button" onclick='requestDeleteCard(${quoteJs(card.id)})' title="${escapeHtml(text.cardRemoveButton)}" aria-label="${escapeHtml(text.cardRemoveButton)}">
+                                <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                            </button>
                         </div>
                     </div>
                     <div class="card-finance-metrics">
@@ -2150,15 +2174,15 @@ function renderCardsPage() {
                             <strong>${closing ? String(closing).padStart(2, '0') : text.cardClosingNotSet}</strong>
                         </div>
                     </div>
-                    <div class="card-edit-panel">
+                    <div class="card-edit-panel ${isEditing ? 'is-open' : ''}">
                         <input type="text" id="editCardName-${card.id}" class="input-vr" value="${escapeHtml(card.name)}" placeholder="${escapeHtml(text.cardNamePlaceholder)}">
                         <input type="number" id="editCardLimit-${card.id}" class="input-vr" min="0" step="0.01" inputmode="decimal" value="${limit || ''}" placeholder="${escapeHtml(text.cardLimitPlaceholder)}">
                         <input type="number" id="editCardClosingDay-${card.id}" class="input-vr" min="1" max="31" inputmode="numeric" value="${closing || ''}" placeholder="${escapeHtml(text.cardClosingPlaceholder)}">
                         <input type="number" id="editCardDueDay-${card.id}" class="input-vr" min="1" max="31" inputmode="numeric" value="${dueDay || ''}" placeholder="${escapeHtml(text.cardDuePlaceholder)}">
                     </div>
-                    <div class="card-edit-actions">
+                    <div class="card-edit-actions ${isEditing ? 'is-open' : ''}">
                         <button type="button" onclick='saveCardDetails(${quoteJs(card.id)})' class="primary-button py-3 rounded-2xl font-black text-[10px] uppercase">${escapeHtml(text.cardSaveButton)}</button>
-                        <button type="button" onclick='removeCardById(${quoteJs(card.id)})' class="ghost-button py-3 rounded-2xl font-black text-[10px] uppercase">${escapeHtml(text.cardRemoveButton)}</button>
+                        <button type="button" onclick='toggleCardEdit("")' class="ghost-button py-3 rounded-2xl font-black text-[10px] uppercase">${escapeHtml(text.cardCancelButton)}</button>
                     </div>
                     <div class="card-limit-track"><span style="width:${limitPercent}%"></span></div>
                     <div class="card-expense-list">
@@ -2243,6 +2267,11 @@ async function handleCardManagerSubmit(event) {
     }
 }
 
+function toggleCardEdit(cardId) {
+    editingCardId = editingCardId === cardId ? null : (cardId || null);
+    renderCardsPage();
+}
+
 async function saveCardDetails(cardId) {
     const text = translations[currentLanguage] || translations['pt-BR'];
     const payload = getCardBillingPayload(cardId);
@@ -2257,6 +2286,7 @@ async function saveCardDetails(cardId) {
     if (!supabaseClient) {
         currentCards = currentCards.map((card) => card.id === cardId ? { ...card, ...updatePayload } : card);
         cartoes = currentCards.map((card) => card.name);
+        editingCardId = null;
         renderCardsPage();
         updateSeletorCartaoForm();
         return;
@@ -2272,15 +2302,37 @@ async function saveCardDetails(cardId) {
         return;
     }
     await loadRemoteState();
+    editingCardId = null;
     renderCardsPage();
     showToast(text.cardSaved, 'safe');
 }
 
-async function removeCardById(cardId) {
+function requestDeleteCard(cardId) {
+    deleteCardIdTemp = cardId;
     const text = translations[currentLanguage] || translations['pt-BR'];
+    if ($('deleteCardModalTitle')) $('deleteCardModalTitle').innerText = text.cardDeleteTitle;
+    if ($('deleteCardModalText')) $('deleteCardModalText').innerText = text.cardDeleteText;
+    if ($('deleteCardModalConfirm')) {
+        $('deleteCardModalConfirm').disabled = false;
+        $('deleteCardModalConfirm').innerText = text.cardRemoveButton;
+    }
+    openModal('modalDeleteCard');
+}
+
+async function handleDeleteCardConfirm() {
+    if (!deleteCardIdTemp) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const cardId = deleteCardIdTemp;
+    const button = $('deleteCardModalConfirm');
+    if (button) {
+        button.disabled = true;
+        button.innerText = text.saving;
+    }
     if (!supabaseClient) {
         currentCards = currentCards.filter((card) => card.id !== cardId);
         cartoes = currentCards.map((card) => card.name);
+        deleteCardIdTemp = null;
+        closeModal('modalDeleteCard');
         renderCardsPage();
         updateSeletorCartaoForm();
         return;
@@ -2288,9 +2340,15 @@ async function removeCardById(cardId) {
     const { error } = await supabaseClient.from('cards').delete().eq('id', cardId);
     if (error) {
         showToast(error.message);
+        if (button) {
+            button.disabled = false;
+            button.innerText = text.cardRemoveButton;
+        }
         return;
     }
     await loadRemoteState();
+    deleteCardIdTemp = null;
+    closeModal('modalDeleteCard');
     renderCardsPage();
     showToast(text.cardRemoved, 'safe');
 }
