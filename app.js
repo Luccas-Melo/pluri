@@ -1270,6 +1270,7 @@ function setLanguage(language) {
     if ($('mobileMenuCards')) $('mobileMenuCards').innerText = text.cardsNav;
     if ($('mobileMenuProfile')) $('mobileMenuProfile').innerText = text.profile;
     if ($('mobileMenuSettings')) $('mobileMenuSettings').innerText = text.settings;
+    if ($('mobileMenuMore')) $('mobileMenuMore').innerText = text.settings;
     if ($('mobileMenuExport')) $('mobileMenuExport').innerText = text.export;
     if ($('mobileMenuLogout')) $('mobileMenuLogout').innerText = text.logout;
     if ($('menuHome')) $('menuHome').innerText = text.home;
@@ -1524,12 +1525,26 @@ function closeAppOverlays(exceptId = '') {
     });
     toggleLanguageDropdown(false);
     toggleAppMenu(false);
+    toggleMobileMoreMenu(false);
 }
 
 function setMobileNavActive(target) {
     document.querySelectorAll('.mobile-bottom-item').forEach((item) => {
         item.classList.toggle('is-active', item.dataset.nav === target);
     });
+    const moreActive = ['cards', 'profile', 'settings'].includes(target);
+    const moreButton = $('mobileMoreTrigger');
+    if (moreButton) moreButton.classList.toggle('is-active', moreActive);
+}
+
+function toggleMobileMoreMenu(force) {
+    const menu = $('mobileMoreMenu');
+    const trigger = $('mobileMoreTrigger');
+    if (!menu || !trigger) return;
+    const shouldOpen = force === undefined ? menu.classList.contains('hidden') : Boolean(force);
+    menu.classList.toggle('hidden', !shouldOpen);
+    trigger.classList.toggle('is-open', shouldOpen);
+    trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
 }
 
 function toggleAppMenu(force) {
@@ -1543,6 +1558,7 @@ function toggleAppMenu(force) {
 
 function openProfileModal() {
     closeAppOverlays();
+    toggleMobileMoreMenu(false);
     setMobileNavActive('profile');
     updateProfilePage();
     if ($('profileMessage')) $('profileMessage').innerText = '';
@@ -1555,6 +1571,7 @@ function openProfileModal() {
 
 function openMonthlyDashboardPage() {
     closeAppOverlays();
+    toggleMobileMoreMenu(false);
     setMobileNavActive('dashboard');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
@@ -1566,6 +1583,7 @@ function openMonthlyDashboardPage() {
 
 function openCardsPage() {
     closeAppOverlays();
+    toggleMobileMoreMenu(false);
     setMobileNavActive('cards');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
@@ -1577,6 +1595,7 @@ function openCardsPage() {
 
 function showDashboardPage() {
     closeAppOverlays();
+    toggleMobileMoreMenu(false);
     setMobileNavActive('home');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
     if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
@@ -3082,6 +3101,7 @@ async function logout() {
 }
 
 function requestLogout() {
+    toggleMobileMoreMenu(false);
     closeAppOverlays('modalLogout');
     setMobileNavActive('logout');
     const text = translations[currentLanguage] || translations['pt-BR'];
@@ -4530,6 +4550,7 @@ function exportPdfReport(rows) {
 }
 
 function exportarRelatorio() {
+    toggleMobileMoreMenu(false);
     closeAppOverlays('modalExport');
     setMobileNavActive('export');
     openModal('modalExport');
@@ -4602,6 +4623,8 @@ function bindUiEvents() {
         if (customSelectFiltro && !customSelectFiltro.contains(event.target)) toggleFiltroDropdown(false);
         const appMenu = $('appMenu');
         if (appMenu && !appMenu.contains(event.target)) toggleAppMenu(false);
+        const mobileMoreWrap = $('mobileMoreWrap');
+        if (mobileMoreWrap && !mobileMoreWrap.contains(event.target)) toggleMobileMoreMenu(false);
         const languageSelect = $('languageSelectWrap');
         if (languageSelect && !languageSelect.contains(event.target)) toggleLanguageDropdown(false);
     });
@@ -4609,6 +4632,7 @@ function bindUiEvents() {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             toggleAppMenu(false);
+            toggleMobileMoreMenu(false);
             toggleLanguageDropdown(false);
         }
     });

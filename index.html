@@ -3252,6 +3252,78 @@
                 color: rgba(15, 23, 42, 0.54);
             }
 
+            #mobileMoreWrap {
+                position: relative;
+                display: inline-flex;
+            }
+
+            #mobileMoreMenu {
+                position: absolute;
+                right: 0;
+                bottom: calc(100% + 12px);
+                min-width: 190px;
+                display: grid;
+                gap: 7px;
+                padding: 10px;
+                border-radius: 26px;
+                background:
+                    linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.42)),
+                    rgba(241, 245, 249, 0.64);
+                border: 1px solid rgba(255, 255, 255, 0.68);
+                box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255,255,255,0.78);
+                backdrop-filter: blur(24px) saturate(160%);
+                -webkit-backdrop-filter: blur(24px) saturate(160%);
+                transform-origin: right bottom;
+                animation: mobileMoreIn 180ms ease both;
+            }
+
+            #mobileMoreMenu.hidden {
+                display: none;
+            }
+
+            .mobile-more-option {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 42px;
+                padding: 0 12px;
+                border: 0;
+                border-radius: 18px;
+                color: rgba(15, 23, 42, 0.72);
+                background: rgba(255,255,255,0.34);
+                font-size: 12px;
+                font-weight: 900;
+                text-align: left;
+                transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+            }
+
+            .mobile-more-option:hover,
+            .mobile-more-option:focus-visible,
+            .mobile-more-option:active {
+                transform: translateY(-1px);
+                background: rgba(255,255,255,0.76);
+                color: var(--primary-strong);
+            }
+
+            .mobile-more-option svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 1.9;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            .mobile-bottom-item.is-open svg {
+                transform: rotate(45deg);
+            }
+
+            @keyframes mobileMoreIn {
+                from { opacity: 0; transform: translateY(8px) scale(0.96); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
             body.dark-theme #mobileBottomMenu {
                 background:
                     linear-gradient(135deg, rgba(39, 39, 42, 0.72), rgba(10, 10, 12, 0.52)),
@@ -3268,6 +3340,26 @@
             body.dark-theme .mobile-bottom-item.is-active {
                 color: #f4f4f5;
                 background: rgba(255,255,255,0.14);
+            }
+
+            body.dark-theme #mobileMoreMenu {
+                background:
+                    linear-gradient(135deg, rgba(39, 39, 42, 0.82), rgba(10, 10, 12, 0.58)),
+                    rgba(10, 10, 12, 0.62);
+                border-color: rgba(255,255,255,0.16);
+                box-shadow: 0 24px 64px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255,255,255,0.12);
+            }
+
+            body.dark-theme .mobile-more-option {
+                color: rgba(244,244,245,0.74);
+                background: rgba(255,255,255,0.06);
+            }
+
+            body.dark-theme .mobile-more-option:hover,
+            body.dark-theme .mobile-more-option:focus-visible,
+            body.dark-theme .mobile-more-option:active {
+                color: #f4f4f5;
+                background: rgba(255,255,255,0.13);
             }
 
             .monthly-dashboard-hero,
@@ -4413,22 +4505,30 @@
             <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M13 16V8"/><path d="M18 16v-3"/></svg>
             <span id="mobileMenuDashboard" class="mobile-bottom-label">Dashboard</span>
         </button>
-        <button type="button" class="mobile-bottom-item" data-nav="cards" onclick="openCardsPage()" aria-label="Cartoes">
-            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
-            <span id="mobileMenuCards" class="mobile-bottom-label">Cartoes</span>
-        </button>
-        <button type="button" class="mobile-bottom-item" data-nav="profile" onclick="openProfileModal()" aria-label="Perfil">
-            <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-            <span id="mobileMenuProfile" class="mobile-bottom-label">Perfil</span>
-        </button>
-        <button type="button" class="mobile-bottom-item" data-nav="settings" onclick="openConfigModal()" aria-label="Configuracoes">
-            <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.1.35.3.69.6 1 .3.27.69.4 1.1.4H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>
-            <span id="mobileMenuSettings" class="mobile-bottom-label">Configuracoes</span>
-        </button>
         <button type="button" class="mobile-bottom-item" data-nav="export" onclick="exportarRelatorio()" aria-label="Exportar">
             <svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m8 11 4 4 4-4"/><path d="M5 20h14"/></svg>
             <span id="mobileMenuExport" class="mobile-bottom-label">Exportar</span>
         </button>
+        <div id="mobileMoreWrap">
+            <div id="mobileMoreMenu" class="hidden" aria-label="Mais opcoes">
+                <button type="button" class="mobile-more-option" onclick="openCardsPage()">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+                    <span id="mobileMenuCards">Cartoes</span>
+                </button>
+                <button type="button" class="mobile-more-option" onclick="openProfileModal()">
+                    <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span id="mobileMenuProfile">Perfil</span>
+                </button>
+                <button type="button" class="mobile-more-option" onclick="openConfigModal()">
+                    <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.1.35.3.69.6 1 .3.27.69.4 1.1.4H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>
+                    <span id="mobileMenuSettings">Configuracoes</span>
+                </button>
+            </div>
+            <button type="button" id="mobileMoreTrigger" class="mobile-bottom-item" data-nav="more" onclick="event.stopPropagation(); toggleMobileMoreMenu()" aria-label="Mais opcoes" aria-expanded="false" aria-controls="mobileMoreMenu">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                <span id="mobileMenuMore" class="mobile-bottom-label">Mais</span>
+            </button>
+        </div>
         <button type="button" class="mobile-bottom-item danger" data-nav="logout" onclick="requestLogout()" aria-label="Sair">
             <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
             <span id="mobileMenuLogout" class="mobile-bottom-label">Sair</span>
