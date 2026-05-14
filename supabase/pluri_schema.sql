@@ -88,6 +88,16 @@ create table if not exists public.savings_goals (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.category_budgets (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references public.households(id) on delete cascade,
+  category text not null,
+  monthly_limit numeric(12,2) not null default 0 check (monthly_limit >= 0),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  constraint category_budgets_household_category_unique unique (household_id, category)
+);
+
 create table if not exists public.expenses (
   id uuid primary key default gen_random_uuid(),
   household_id uuid not null references public.households(id) on delete cascade,
@@ -114,6 +124,7 @@ create index if not exists idx_household_members_household_id on public.househol
 create index if not exists idx_household_members_user_id on public.household_members(user_id);
 create index if not exists idx_cards_household_id on public.cards(household_id);
 create index if not exists idx_goals_household_id on public.savings_goals(household_id);
+create index if not exists idx_category_budgets_household_id on public.category_budgets(household_id);
 create index if not exists idx_expenses_household_id on public.expenses(household_id);
 create index if not exists idx_expenses_member_id on public.expenses(member_id);
 create index if not exists idx_expenses_occurred_on on public.expenses(occurred_on desc);
@@ -147,6 +158,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists trg_savings_goals_updated_at on public.savings_goals;
 create trigger trg_savings_goals_updated_at
 before update on public.savings_goals
+for each row execute function public.set_updated_at();
+
+drop trigger if exists trg_category_budgets_updated_at on public.category_budgets;
+create trigger trg_category_budgets_updated_at
+before update on public.category_budgets
 for each row execute function public.set_updated_at();
 
 drop trigger if exists trg_expenses_updated_at on public.expenses;
@@ -325,6 +341,7 @@ alter table public.household_members enable row level security;
 alter table public.cards enable row level security;
 alter table public.member_card_preferences enable row level security;
 alter table public.savings_goals enable row level security;
+alter table public.category_budgets enable row level security;
 alter table public.expenses enable row level security;
 
 create policy "profiles_select_own"
@@ -411,6 +428,17 @@ using (public.is_household_member(household_id));
 
 create policy "goals_manage_member"
 on public.savings_goals
+for all
+using (public.is_household_member(household_id))
+with check (public.is_household_member(household_id));
+
+create policy "category_budgets_read_member"
+on public.category_budgets
+for select
+using (public.is_household_member(household_id));
+
+create policy "category_budgets_manage_member"
+on public.category_budgets
 for all
 using (public.is_household_member(household_id))
 with check (public.is_household_member(household_id));

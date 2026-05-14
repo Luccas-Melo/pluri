@@ -1957,6 +1957,76 @@
             background: linear-gradient(180deg, var(--primary), #14b8a6);
         }
 
+        .budget-input-card,
+        .budget-progress-row {
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            padding: 14px;
+        }
+
+        .budget-input-card {
+            display: grid;
+            gap: 10px;
+        }
+
+        .budget-input-card span,
+        .budget-progress-head span {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text);
+        }
+
+        .budget-progress-row {
+            display: grid;
+            gap: 10px;
+        }
+
+        .budget-progress-head,
+        .budget-progress-foot {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .budget-progress-head strong {
+            font-size: 12px;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .budget-progress-foot small {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-soft);
+        }
+
+        .budget-progress-track {
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: color-mix(in srgb, var(--text-soft) 14%, transparent);
+        }
+
+        .budget-progress-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: var(--primary);
+            transition: width 450ms ease;
+        }
+
+        .budget-progress-row.warning .budget-progress-track span {
+            background: #f59e0b;
+        }
+
+        .budget-progress-row.danger .budget-progress-track span {
+            background: #ef4444;
+        }
+
         .profile-stat-card {
             min-height: 118px;
             padding: 20px;
@@ -2918,6 +2988,14 @@
             </div>
 
             <div class="mb-8">
+                <h3 id="categoryBudgetsLabel" class="text-[10px] font-black uppercase mb-3 tracking-widest">Orçamentos por categoria</h3>
+                <div class="soft-panel p-4 space-y-4">
+                    <p id="categoryBudgetsHint" class="text-[10px] muted-copy">Defina limites mensais. Deixe 0 para não acompanhar a categoria.</p>
+                    <div id="categoryBudgetsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+            <div class="mb-8">
                 <h3 id="settingsCardsLabel" class="text-[10px] font-black uppercase mb-3 tracking-widest">Meus Cartoes</h3>
                 <div class="soft-panel p-4 space-y-4">
                     <div class="flex gap-2">
@@ -3330,6 +3408,15 @@
                         </div>
                     </div>
                     <div class="w-16 h-16"><canvas id="chartDivisao"></canvas></div>
+                </div>
+
+                <div id="monthlyDashboardCard" class="custom-card p-6 hidden">
+                    <div class="mb-5">
+                        <p class="kicker mb-2">Dashboard</p>
+                        <h2 id="monthlyDashboardTitle" class="text-2xl font-black tracking-tight">Painel do mês</h2>
+                        <p id="monthlyDashboardSubtitle" class="list-copy">Acompanhe seus limites por categoria e veja onde o dinheiro está indo.</p>
+                    </div>
+                    <div id="monthlyBudgetList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
                 
                 <div id="listaGastosWrap">

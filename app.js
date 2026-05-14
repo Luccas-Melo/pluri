@@ -77,6 +77,7 @@ let currentLanguage = localStorage.getItem('pluri_language') || 'pt-BR';
 let gastos = [];
 let meta = { ...defaultMeta };
 let cartoes = [];
+let categoryBudgets = {};
 let cartaoFavorito = {};
 let appConfig = { ...defaultAppConfig };
 let householdTypeDraft = appConfig.householdType;
@@ -189,6 +190,15 @@ const translations = {
         languageLabel: 'Idioma',
         appProfileLabel: 'Perfil do App',
         savingsGoalLabel: 'Meta de Economia',
+        categoryBudgetsLabel: 'Orçamentos por categoria',
+        categoryBudgetsHint: 'Defina limites mensais. Deixe 0 para não acompanhar a categoria.',
+        monthlyDashboardTitle: 'Painel do mês',
+        monthlyDashboardSubtitle: 'Acompanhe seus limites por categoria e veja onde o dinheiro está indo.',
+        budgetUsed: 'usado',
+        budgetNoLimit: 'Sem limite definido',
+        budgetSafe: 'Dentro do limite',
+        budgetWarning: 'Perto do limite',
+        budgetExceeded: 'Limite ultrapassado',
         activateGoal: 'Ativar Meta',
         myCardsLabel: 'Meus cartões',
         syncLabel: 'Sincronização',
@@ -388,6 +398,15 @@ const translations = {
         languageLabel: 'Language',
         appProfileLabel: 'App profile',
         savingsGoalLabel: 'Savings goal',
+        categoryBudgetsLabel: 'Category budgets',
+        categoryBudgetsHint: 'Set monthly limits. Leave 0 to stop tracking a category.',
+        monthlyDashboardTitle: 'Monthly dashboard',
+        monthlyDashboardSubtitle: 'Track category limits and see where your money is going.',
+        budgetUsed: 'used',
+        budgetNoLimit: 'No limit set',
+        budgetSafe: 'Within limit',
+        budgetWarning: 'Near limit',
+        budgetExceeded: 'Limit exceeded',
         activateGoal: 'Activate goal',
         myCardsLabel: 'My cards',
         syncLabel: 'Sync',
@@ -587,6 +606,15 @@ const translations = {
         languageLabel: 'Idioma',
         appProfileLabel: 'Perfil de la app',
         savingsGoalLabel: 'Meta de ahorro',
+        categoryBudgetsLabel: 'Presupuestos por categoría',
+        categoryBudgetsHint: 'Define límites mensuales. Deja 0 para no seguir la categoría.',
+        monthlyDashboardTitle: 'Panel del mes',
+        monthlyDashboardSubtitle: 'Acompaña tus límites por categoría y ve a dónde va el dinero.',
+        budgetUsed: 'usado',
+        budgetNoLimit: 'Sin límite definido',
+        budgetSafe: 'Dentro del límite',
+        budgetWarning: 'Cerca del límite',
+        budgetExceeded: 'Límite superado',
         activateGoal: 'Activar meta',
         myCardsLabel: 'Mis tarjetas',
         syncLabel: 'Sincronización',
@@ -836,6 +864,10 @@ function setLanguage(language) {
     if ($('settingsLanguageLabel')) $('settingsLanguageLabel').innerText = text.languageLabel;
     if ($('settingsAppProfileLabel')) $('settingsAppProfileLabel').innerText = text.appProfileLabel;
     if ($('settingsGoalLabel')) $('settingsGoalLabel').innerText = text.savingsGoalLabel;
+    if ($('categoryBudgetsLabel')) $('categoryBudgetsLabel').innerText = text.categoryBudgetsLabel;
+    if ($('categoryBudgetsHint')) $('categoryBudgetsHint').innerText = text.categoryBudgetsHint;
+    if ($('monthlyDashboardTitle')) $('monthlyDashboardTitle').innerText = text.monthlyDashboardTitle;
+    if ($('monthlyDashboardSubtitle')) $('monthlyDashboardSubtitle').innerText = text.monthlyDashboardSubtitle;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
@@ -882,6 +914,8 @@ function setLanguage(language) {
     if ($('appShell') && !$('appShell').classList.contains('hidden')) {
         updateIdentityUI();
         renderPayerButtons();
+        renderBudgetSettings();
+        renderMonthlyDashboard();
         updateSeletorCartaoForm();
         render();
     }
@@ -1209,6 +1243,63 @@ function updateMonthlySummaryNotice() {
     notice.classList.toggle('hidden', !shouldShowMonthlySummaryNotice() || !summary.expenses.length);
 }
 
+function getCurrentMonthTotalByCategory() {
+    return getCurrentMonthExpenses().reduce((totals, item) => {
+        totals[item.categoria] = (totals[item.categoria] || 0) + Number(item.valor || 0);
+        return totals;
+    }, {});
+}
+
+function getBudgetStatus(spent, limit) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    if (!limit || limit <= 0) return { label: text.budgetNoLimit, tone: 'muted', percent: 0 };
+    const percent = Math.min((spent / limit) * 100, 160);
+    if (spent > limit) return { label: text.budgetExceeded, tone: 'danger', percent };
+    if (percent >= 80) return { label: text.budgetWarning, tone: 'warning', percent };
+    return { label: text.budgetSafe, tone: 'safe', percent };
+}
+
+function renderBudgetSettings() {
+    const grid = $('categoryBudgetsGrid');
+    if (!grid) return;
+    grid.innerHTML = categories.map((cat) => `
+        <label class="budget-input-card">
+            <span>${escapeHtml(getCategoryLabel(cat.id))}</span>
+            <input type="number" id="budget-${cat.id}" min="0" step="0.01" inputmode="decimal" class="input-vr" value="${Number(categoryBudgets[cat.id] || 0) || ''}" placeholder="0,00">
+        </label>
+    `).join('');
+}
+
+function renderMonthlyDashboard() {
+    const list = $('monthlyBudgetList');
+    const section = $('monthlyDashboardCard');
+    if (!list || !section) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
+    const totals = getCurrentMonthTotalByCategory();
+    const hasBudget = categories.some((cat) => Number(categoryBudgets[cat.id] || 0) > 0);
+    section.classList.toggle('hidden', !hasBudget && !gastos.length);
+    list.innerHTML = categories.map((cat) => {
+        const spent = Number(totals[cat.id] || 0);
+        const limit = Number(categoryBudgets[cat.id] || 0);
+        const status = getBudgetStatus(spent, limit);
+        const percentLabel = limit > 0 ? `${Math.round(Math.min((spent / limit) * 100, 999))}% ${text.budgetUsed}` : text.budgetNoLimit;
+        return `
+            <div class="budget-progress-row ${status.tone}">
+                <div class="budget-progress-head">
+                    <span>${escapeHtml(getCategoryLabel(cat.id))}</span>
+                    <strong>${currency(spent)}${limit > 0 ? ` / ${currency(limit)}` : ''}</strong>
+                </div>
+                <div class="budget-progress-track"><span style="width:${Math.min(status.percent, 100)}%"></span></div>
+                <div class="budget-progress-foot">
+                    <small>${escapeHtml(status.label)}</small>
+                    <small>${escapeHtml(percentLabel)}</small>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 function dismissMonthlySummaryNotice() {
     const today = new Date();
     localStorage.setItem('pluri_summary_dismissed', `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
@@ -1362,6 +1453,15 @@ function updateColorPickerLabels() {
 function isMissingCustomColorColumn(error) {
     const message = String(error?.message || '');
     return message.includes('custom_color') && message.includes('schema cache');
+}
+
+function isMissingCategoryBudgetsTable(error) {
+    const message = String(error?.message || '').toLowerCase();
+    return message.includes('category_budgets') && (
+        message.includes('schema cache') ||
+        message.includes('does not exist') ||
+        message.includes('not found')
+    );
 }
 
 async function persistMemberConfig(member, payload) {
@@ -1947,6 +2047,14 @@ async function loadRemoteState() {
         .maybeSingle();
     if (goalResult.error) throw goalResult.error;
 
+    let categoryBudgetRows = [];
+    const budgetResult = await supabaseClient
+        .from('category_budgets')
+        .select('*')
+        .eq('household_id', householdId);
+    if (budgetResult.error && !isMissingCategoryBudgetsTable(budgetResult.error)) throw budgetResult.error;
+    if (!budgetResult.error) categoryBudgetRows = budgetResult.data || [];
+
     const expensesResult = await supabaseClient
         .from('expenses')
         .select('*')
@@ -1969,6 +2077,10 @@ async function loadRemoteState() {
     currentMembers = activeMembers;
     currentCards = cardsResult.data || [];
     currentGoalId = goalResult.data?.id || null;
+    categoryBudgets = {};
+    categoryBudgetRows.forEach((row) => {
+        categoryBudgets[row.category] = Number(row.monthly_limit || 0);
+    });
 
     appConfig = {
         appName: currentHousehold.name,
@@ -2084,6 +2196,7 @@ function openConfigModal() {
     if ($('languageSelect')) $('languageSelect').value = currentLanguage;
     householdTypeDraft = appConfig.householdType;
     setHouseholdType(householdTypeDraft);
+    renderBudgetSettings();
     renderListaCartoesConfig();
     toggleMetaInputs();
     openModal('modalConfig');
@@ -2539,6 +2652,26 @@ async function saveConfig() {
             currentGoalId = insertGoal.data.id;
         }
 
+        const budgetPayload = categories.map((cat) => ({
+            household_id: currentHousehold.id,
+            category: cat.id,
+            monthly_limit: parseFloat($(`budget-${cat.id}`)?.value || '0') || 0
+        }));
+        const saveBudgets = await supabaseClient
+            .from('category_budgets')
+            .upsert(budgetPayload, { onConflict: 'household_id,category' });
+        if (saveBudgets.error && !isMissingCategoryBudgetsTable(saveBudgets.error)) {
+            showToast(saveBudgets.error.message);
+            return;
+        }
+        if (saveBudgets.error && isMissingCategoryBudgetsTable(saveBudgets.error)) {
+            showToast(currentLanguage === 'en-US'
+                ? 'Category budgets table does not exist yet. Run the budget SQL migration.'
+                : currentLanguage === 'es-ES'
+                    ? 'La tabla de presupuestos por categoría aún no existe. Ejecuta la migración SQL.'
+                    : 'A tabela de orçamentos por categoria ainda não existe. Rode a migração SQL.');
+        }
+
         closeModal('modalConfig');
         await loadRemoteState();
         showToast(text.configSaved);
@@ -2756,6 +2889,7 @@ function render() {
     $('totalMember0').innerText = `R$ ${(totals[activeMembers[0]?.name] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     if (activeMembers[1]) $('totalMember1').innerText = `R$ ${(totals[activeMembers[1].name] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     updateChart(activeMembers.map((member) => totals[member.name] || 0));
+    renderMonthlyDashboard();
     updateMonthlySummaryNotice();
     if ($('profilePage') && !$('profilePage').classList.contains('hidden')) updateProfilePage();
 }
