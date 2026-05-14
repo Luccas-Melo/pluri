@@ -2074,6 +2074,19 @@
             gap: 14px;
         }
 
+        .monthly-period-control {
+            display: grid;
+            max-width: 280px;
+            gap: 8px;
+        }
+
+        .monthly-period-control select {
+            width: 100%;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
         .monthly-stat-card,
         .monthly-chart-card {
             border: 1px solid var(--border);
@@ -3576,6 +3589,10 @@
                     <p id="monthlyDashboardPageKicker" class="kicker mb-3">Resumo inteligente</p>
                     <h2 id="monthlyDashboardTitle" class="text-4xl md:text-5xl font-black tracking-tight">Painel do mes</h2>
                     <p id="monthlyDashboardSubtitle" class="muted-copy text-base mt-3 max-w-2xl">Acompanhe seus limites por categoria e veja onde o dinheiro esta indo.</p>
+                    <label class="monthly-period-control mt-5">
+                        <span id="monthlyPeriodLabel" class="panel-label">Período</span>
+                        <select id="monthlyPeriodSelect" class="input-vr" onchange="setMonthlyDashboardPeriod(this.value)"></select>
+                    </label>
                 </div>
                 <div class="monthly-stat-grid">
                     <div class="monthly-stat-card">

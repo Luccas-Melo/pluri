@@ -88,6 +88,7 @@ let cartaoSelecionado = '';
 let chart = null;
 let monthlyCategoryChart = null;
 let monthlyDailyChart = null;
+let monthlyDashboardPeriod = '';
 let deleteIdTemp = null;
 
 document.getElementById('dataGasto').valueAsDate = new Date();
@@ -203,6 +204,7 @@ const translations = {
         monthlyDailyLabel: 'Evolução diária',
         monthlyCategoryLabel: 'Distribuição por categoria',
         monthlyBudgetHealthLabel: 'Saúde dos orçamentos',
+        monthlyPeriodLabel: 'Período',
         monthlyTopDayLabel: 'Dia mais caro',
         monthlyNoData: 'Sem dados para este mês ainda.',
         monthlyChangeUp: 'acima do mês anterior',
@@ -446,6 +448,7 @@ const translations = {
         monthlyDailyLabel: 'Daily trend',
         monthlyCategoryLabel: 'Category distribution',
         monthlyBudgetHealthLabel: 'Budget health',
+        monthlyPeriodLabel: 'Period',
         monthlyTopDayLabel: 'Most expensive day',
         monthlyNoData: 'No data for this month yet.',
         monthlyChangeUp: 'above previous month',
@@ -689,6 +692,7 @@ const translations = {
         monthlyDailyLabel: 'Evolución diaria',
         monthlyCategoryLabel: 'Distribución por categoría',
         monthlyBudgetHealthLabel: 'Salud de presupuestos',
+        monthlyPeriodLabel: 'Periodo',
         monthlyTopDayLabel: 'Día más caro',
         monthlyNoData: 'Todavía no hay datos para este mes.',
         monthlyChangeUp: 'por encima del mes anterior',
@@ -983,6 +987,7 @@ function setLanguage(language) {
     if ($('monthlyDailyLabel')) $('monthlyDailyLabel').innerText = text.monthlyDailyLabel;
     if ($('monthlyCategoryLabel')) $('monthlyCategoryLabel').innerText = text.monthlyCategoryLabel;
     if ($('monthlyBudgetHealthLabel')) $('monthlyBudgetHealthLabel').innerText = text.monthlyBudgetHealthLabel;
+    if ($('monthlyPeriodLabel')) $('monthlyPeriodLabel').innerText = text.monthlyPeriodLabel;
     if ($('monthlyAdjustLimitsBtn')) $('monthlyAdjustLimitsBtn').innerText = text.monthlyAdjustLimits;
     if ($('monthlyInsightsLabel')) $('monthlyInsightsLabel').innerText = text.monthlyInsightsLabel;
     if ($('monthlyInsightsTitle')) $('monthlyInsightsTitle').innerText = text.monthlyInsightsTitle;
@@ -1344,22 +1349,54 @@ function getCurrentMonthKey() {
     return String(new Date().getMonth() + 1).padStart(2, '0');
 }
 
+function getCurrentPeriodKey() {
+    const today = new Date();
+    return `${today.getFullYear()}-${getCurrentMonthKey()}`;
+}
+
+function getExpensePeriodKey(item) {
+    if (item?.dataRaw) return String(item.dataRaw).slice(0, 7);
+    const month = item?.mes || getCurrentMonthKey();
+    return `${new Date().getFullYear()}-${String(month).padStart(2, '0')}`;
+}
+
+function parsePeriodKey(periodKey) {
+    const [year, month] = String(periodKey || getCurrentPeriodKey()).split('-').map(Number);
+    return {
+        year: Number.isFinite(year) ? year : new Date().getFullYear(),
+        month: Number.isFinite(month) ? month : new Date().getMonth() + 1
+    };
+}
+
+function addMonthsToPeriod(periodKey, offset) {
+    const period = parsePeriodKey(periodKey);
+    const date = new Date(period.year, period.month - 1 + offset, 1);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatPeriodLabel(periodKey) {
+    const period = parsePeriodKey(periodKey);
+    const month = getCurrentMonths()[period.month] || String(period.month).padStart(2, '0');
+    return `${month} ${period.year}`;
+}
+
 function getCurrentMonthExpenses() {
     return gastos.filter((item) => item.mes === getCurrentMonthKey());
 }
 
-function getMonthExpensesByOffset(offset = 0) {
-    const base = new Date();
-    const target = new Date(base.getFullYear(), base.getMonth() + offset, 1);
-    const targetYear = target.getFullYear();
-    const targetMonth = target.getMonth();
+function getExpensesByPeriod(periodKey) {
+    const period = parsePeriodKey(periodKey);
     return gastos.filter((item) => {
         const date = item.dataRaw ? new Date(`${item.dataRaw}T00:00:00`) : null;
         if (date && !Number.isNaN(date.getTime())) {
-            return date.getFullYear() === targetYear && date.getMonth() === targetMonth;
+            return date.getFullYear() === period.year && date.getMonth() === period.month - 1;
         }
-        return offset === 0 && item.mes === String(targetMonth + 1).padStart(2, '0');
+        return period.year === new Date().getFullYear() && item.mes === String(period.month).padStart(2, '0');
     });
+}
+
+function getMonthExpensesByOffset(offset = 0) {
+    return getExpensesByPeriod(addMonthsToPeriod(getCurrentPeriodKey(), offset));
 }
 
 function getMonthlySummaryData() {
@@ -1407,9 +1444,9 @@ function getMonthlyCategoryTotals(expenses) {
     }, {});
 }
 
-function getMonthlyDailyTotals(expenses) {
-    const today = new Date();
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+function getMonthlyDailyTotals(expenses, periodKey = getCurrentPeriodKey()) {
+    const period = parsePeriodKey(periodKey);
+    const daysInMonth = new Date(period.year, period.month, 0).getDate();
     const totals = Array.from({ length: daysInMonth }, (_, index) => ({ day: index + 1, total: 0 }));
     expenses.forEach((item) => {
         const date = item.dataRaw ? new Date(`${item.dataRaw}T00:00:00`) : null;
@@ -1462,17 +1499,47 @@ function getBudgetAlertForCategory(categoryId) {
     return null;
 }
 
+function getAvailableDashboardPeriods() {
+    const periods = Array.from(new Set([
+        getCurrentPeriodKey(),
+        ...gastos.map(getExpensePeriodKey).filter(Boolean)
+    ]));
+    return periods.sort((a, b) => b.localeCompare(a));
+}
+
+function renderMonthlyPeriodSelect() {
+    const select = $('monthlyPeriodSelect');
+    if (!select) return;
+    const periods = getAvailableDashboardPeriods();
+    if (!monthlyDashboardPeriod || !periods.includes(monthlyDashboardPeriod)) {
+        monthlyDashboardPeriod = periods.includes(getCurrentPeriodKey()) ? getCurrentPeriodKey() : periods[0] || getCurrentPeriodKey();
+    }
+    select.innerHTML = periods.map((period) => `
+        <option value="${escapeHtml(period)}">${escapeHtml(formatPeriodLabel(period))}</option>
+    `).join('');
+    select.value = monthlyDashboardPeriod;
+}
+
+function setMonthlyDashboardPeriod(periodKey) {
+    monthlyDashboardPeriod = periodKey || getCurrentPeriodKey();
+    renderMonthlyDashboard();
+}
+
 function renderMonthlyDashboard() {
     const list = $('monthlyBudgetList');
     if (!list) return;
     const text = translations[currentLanguage] || translations['pt-BR'];
     const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
-    const currentExpenses = getMonthExpensesByOffset(0);
-    const previousExpenses = getMonthExpensesByOffset(-1);
+    renderMonthlyPeriodSelect();
+    const selectedPeriod = monthlyDashboardPeriod || getCurrentPeriodKey();
+    const previousPeriod = addMonthsToPeriod(selectedPeriod, -1);
+    const selectedMonth = parsePeriodKey(selectedPeriod).month;
+    const currentExpenses = getExpensesByPeriod(selectedPeriod);
+    const previousExpenses = getExpensesByPeriod(previousPeriod);
     const currentTotal = currentExpenses.reduce((sum, item) => sum + Number(item.valor || 0), 0);
     const previousTotal = previousExpenses.reduce((sum, item) => sum + Number(item.valor || 0), 0);
     const totals = getMonthlyCategoryTotals(currentExpenses);
-    const dailyTotals = getMonthlyDailyTotals(currentExpenses);
+    const dailyTotals = getMonthlyDailyTotals(currentExpenses, selectedPeriod);
     const topCategory = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
     const topDay = dailyTotals.slice().sort((a, b) => b.total - a.total)[0];
     const limits = categories
@@ -1496,7 +1563,7 @@ function renderMonthlyDashboard() {
         $('monthlyTopCategoryHint').innerText = topCategory ? currency(topCategory[1]) : '';
     }
     if ($('monthlyTopDayValue')) {
-        $('monthlyTopDayValue').innerText = topDay && topDay.total > 0 ? `${String(topDay.day).padStart(2, '0')}/${getCurrentMonthKey()}` : text.monthlyNoData;
+        $('monthlyTopDayValue').innerText = topDay && topDay.total > 0 ? `${String(topDay.day).padStart(2, '0')}/${String(selectedMonth).padStart(2, '0')}` : text.monthlyNoData;
     }
     if ($('monthlyTopDayHint')) {
         $('monthlyTopDayHint').innerText = topDay && topDay.total > 0 ? currency(topDay.total) : '';
@@ -1540,12 +1607,13 @@ function renderMonthlyDashboard() {
         totals,
         topCategory,
         topDay,
-        limits
+        limits,
+        selectedMonth
     });
     renderMonthlyCharts(totals, dailyTotals, text);
 }
 
-function renderMonthlyInsights({ text, currentExpenses, currentTotal, previousTotal, changePercent, totals, topCategory, topDay, limits }) {
+function renderMonthlyInsights({ text, currentExpenses, currentTotal, previousTotal, changePercent, totals, topCategory, topDay, limits, selectedMonth }) {
     const target = $('monthlyInsightsList');
     if (!target) return;
     const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
@@ -1604,7 +1672,7 @@ function renderMonthlyInsights({ text, currentExpenses, currentTotal, previousTo
         insights.push({
             tone: 'info',
             title: text.monthlyInsightBigDayTitle,
-            body: `${String(topDay.day).padStart(2, '0')}/${getCurrentMonthKey()} ${text.monthlyInsightBigDayText} ${currency(topDay.total)}.`
+            body: `${String(topDay.day).padStart(2, '0')}/${String(selectedMonth).padStart(2, '0')} ${text.monthlyInsightBigDayText} ${currency(topDay.total)}.`
         });
     }
 
