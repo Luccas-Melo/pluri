@@ -367,6 +367,7 @@ const translations = {
         exportTitle: 'Exportar relatório',
         exportSubtitle: 'Escolha o formato ideal para baixar ou compartilhar seus lançamentos filtrados.',
         exportCsv: 'Planilha CSV',
+        exportPdf: 'PDF visual',
         exportTxt: 'Texto TXT',
         exportXls: 'Excel XLS',
         exportWhatsapp: 'WhatsApp',
@@ -658,6 +659,7 @@ const translations = {
         exportTitle: 'Export report',
         exportSubtitle: 'Choose the best format to download or share your filtered entries.',
         exportCsv: 'CSV spreadsheet',
+        exportPdf: 'Visual PDF',
         exportTxt: 'TXT text',
         exportXls: 'Excel XLS',
         exportWhatsapp: 'WhatsApp',
@@ -949,6 +951,7 @@ const translations = {
         exportTitle: 'Exportar informe',
         exportSubtitle: 'Elige el mejor formato para descargar o compartir tus movimientos filtrados.',
         exportCsv: 'Planilla CSV',
+        exportPdf: 'PDF visual',
         exportTxt: 'Texto TXT',
         exportXls: 'Excel XLS',
         exportWhatsapp: 'WhatsApp',
@@ -1305,6 +1308,7 @@ function setLanguage(language) {
     if ($('exportModalTitle')) $('exportModalTitle').innerText = text.exportTitle;
     if ($('exportModalSubtitle')) $('exportModalSubtitle').innerText = text.exportSubtitle;
     if ($('exportCsvLabel')) $('exportCsvLabel').innerText = text.exportCsv;
+    if ($('exportPdfLabel')) $('exportPdfLabel').innerText = text.exportPdf;
     if ($('exportTxtLabel')) $('exportTxtLabel').innerText = text.exportTxt;
     if ($('exportXlsLabel')) $('exportXlsLabel').innerText = text.exportXls;
     if ($('exportWhatsappLabel')) $('exportWhatsappLabel').innerText = text.exportWhatsapp;
@@ -4095,6 +4099,111 @@ function buildXlsExport(rows) {
     return `<!doctype html><html><head><meta charset="utf-8"></head><body><table><thead><tr>${header.map((item) => `<th>${item}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
 }
 
+function buildPdfReportHtml(rows) {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const total = rows.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const byCategory = rows.reduce((acc, item) => {
+        acc[item.categoria] = (acc[item.categoria] || 0) + Number(item.valor || 0);
+        return acc;
+    }, {});
+    const byPayer = rows.reduce((acc, item) => {
+        acc[item.pagador] = (acc[item.pagador] || 0) + Number(item.valor || 0);
+        return acc;
+    }, {});
+    const maxCategory = Math.max(...Object.values(byCategory), 1);
+    const categoryRows = Object.entries(byCategory)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, value]) => `
+            <div class="bar-row">
+                <div><strong>${escapeHtml(name)}</strong><span>R$ ${formatMoneyForExport(value)}</span></div>
+                <i><b style="width:${Math.max((value / maxCategory) * 100, 6)}%"></b></i>
+            </div>
+        `).join('');
+    const payerCards = Object.entries(byPayer).map(([name, value]) => `
+        <div class="stat-card"><span>${escapeHtml(name)}</span><strong>R$ ${formatMoneyForExport(value)}</strong></div>
+    `).join('');
+    const tableRows = rows.map((item) => `
+        <tr>
+            <td>${escapeHtml(item.data)}</td>
+            <td>${escapeHtml(item.pagador)}</td>
+            <td>${escapeHtml(item.categoria)}</td>
+            <td>${escapeHtml(item.metodo)}</td>
+            <td>${escapeHtml(item.descricao)}</td>
+            <td>R$ ${escapeHtml(formatMoneyForExport(item.valor))}</td>
+        </tr>
+    `).join('');
+    const generatedAt = new Date().toLocaleString(getCurrentLocale());
+    return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(text.exportReportHeading)} - ${escapeHtml(appConfig.appName)}</title>
+<style>
+@page { size: A4; margin: 14mm; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #0f172a; background: #eef7fa; }
+.report { max-width: 980px; margin: 0 auto; background: #f8fbfc; padding: 28px; }
+.hero { border-radius: 30px; padding: 30px; color: white; background: radial-gradient(circle at 90% 0%, rgba(236,72,153,.55), transparent 30%), linear-gradient(135deg,#0e7490,#0891b2 45%,#64748b); }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.logo { width: 58px; height: 58px; border-radius: 20px; background: rgba(255,255,255,.92); display: grid; place-items: center; color: #0e7490; font-weight: 950; }
+.kicker { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 900; opacity: .8; }
+h1 { margin: 14px 0 8px; font-size: 42px; line-height: .95; letter-spacing: -.06em; }
+.hero p { max-width: 620px; margin: 0; opacity: .9; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 18px 0; }
+.stat-card { border: 1px solid #dbe7ee; border-radius: 22px; padding: 18px; background: white; box-shadow: 0 14px 30px rgba(15,23,42,.06); }
+.stat-card span { display: block; color: #64748b; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; }
+.stat-card strong { display: block; margin-top: 8px; font-size: 24px; }
+.section { margin-top: 18px; padding: 20px; border-radius: 26px; background: white; border: 1px solid #dbe7ee; }
+.section h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -.04em; }
+.bar-row { display: grid; gap: 8px; margin-bottom: 12px; }
+.bar-row div { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+.bar-row span { color: #64748b; font-weight: 800; }
+.bar-row i { height: 10px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.bar-row b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#0e7490,#14b8a6); }
+table { width: 100%; border-collapse: collapse; font-size: 11px; overflow: hidden; border-radius: 18px; }
+th { text-align: left; color: #64748b; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; background: #f1f5f9; }
+td, th { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+tr:last-child td { border-bottom: 0; }
+.footer { margin-top: 18px; color: #64748b; font-size: 10px; text-align: center; }
+@media print { body { background: white; } .report { padding: 0; } }
+</style>
+</head>
+<body>
+<main class="report">
+    <section class="hero">
+        <div class="brand"><div class="logo">Pluri</div><div class="kicker">${escapeHtml(generatedAt)}</div></div>
+        <h1>${escapeHtml(text.exportReportHeading)}</h1>
+        <p>${escapeHtml(appConfig.appName)} | ${rows.length} ${escapeHtml(text.summaryTransactions.toLowerCase())}</p>
+    </section>
+    <section class="stats">
+        <div class="stat-card"><span>${escapeHtml(text.summaryTotal)}</span><strong>R$ ${formatMoneyForExport(total)}</strong></div>
+        <div class="stat-card"><span>${escapeHtml(text.summaryAverage)}</span><strong>R$ ${formatMoneyForExport(total / Math.max(rows.length, 1))}</strong></div>
+        <div class="stat-card"><span>${escapeHtml(text.summaryTransactions)}</span><strong>${rows.length}</strong></div>
+    </section>
+    <section class="stats">${payerCards || '<div class="stat-card"><span>-</span><strong>-</strong></div>'}</section>
+    <section class="section"><h2>${escapeHtml(text.monthlyCategoryLabel || text.exportHeaderCategory)}</h2>${categoryRows || `<p>${escapeHtml(text.summaryNoCategory)}</p>`}</section>
+    <section class="section"><h2>${escapeHtml(text.historyTitle)}</h2><table><thead><tr>${getExportHeaders().map((item) => `<th>${escapeHtml(item)}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table></section>
+    <div class="footer">Pluri Finance</div>
+</main>
+</body>
+</html>`;
+}
+
+function exportPdfReport(rows) {
+    const reportWindow = window.open('', '_blank', 'noopener,noreferrer');
+    if (!reportWindow) {
+        downloadExport(buildPdfReportHtml(rows), 'html', 'text/html;charset=utf-8');
+        return;
+    }
+    reportWindow.document.open();
+    reportWindow.document.write(buildPdfReportHtml(rows));
+    reportWindow.document.close();
+    reportWindow.onload = () => {
+        reportWindow.focus();
+        reportWindow.print();
+    };
+}
+
 function exportarRelatorio() {
     closeAppOverlays('modalExport');
     setMobileNavActive('export');
@@ -4118,6 +4227,11 @@ function exportReportAs(format) {
 
     if (format === 'xls') {
         downloadExport(buildXlsExport(rows), 'xls', 'application/vnd.ms-excel;charset=utf-8');
+        return;
+    }
+
+    if (format === 'pdf') {
+        exportPdfReport(rows);
         return;
     }
 
