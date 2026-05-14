@@ -209,6 +209,25 @@ const translations = {
         monthlyChangeDown: 'abaixo do mês anterior',
         monthlyChangeFlat: 'igual ao mês anterior',
         monthlyAdjustLimits: 'Ajustar limites',
+        monthlyInsightsLabel: 'Leitura do mês',
+        monthlyInsightsTitle: 'O que merece sua atenção',
+        monthlyInsightEmpty: 'Assim que você registrar alguns lançamentos, o Pluri mostra alertas e oportunidades aqui.',
+        monthlyInsightBudgetExceededTitle: 'Limite estourado',
+        monthlyInsightBudgetExceededText: 'passou do limite em',
+        monthlyInsightBudgetWarningTitle: 'Quase no limite',
+        monthlyInsightWarningText: 'já consumiu',
+        monthlyInsightTopCategoryTitle: 'Categoria dominante',
+        monthlyInsightTopCategoryText: 'concentra',
+        monthlyInsightTopCategorySuffix: 'dos gastos do mês.',
+        monthlyInsightMonthUpTitle: 'Mês mais pesado',
+        monthlyInsightMonthDownTitle: 'Mês mais leve',
+        monthlyInsightMonthChangeText: 'em relação ao mês anterior.',
+        monthlyInsightBigDayTitle: 'Pico de gastos',
+        monthlyInsightBigDayText: 'foi o dia com maior saída.',
+        monthlyInsightNoBudgetTitle: 'Defina seus limites',
+        monthlyInsightNoBudgetText: 'Adicionar limites por categoria deixa o painel mais útil e ajuda a evitar surpresas.',
+        monthlyInsightStableTitle: 'Tudo sob controle',
+        monthlyInsightStableText: 'Nenhum alerta importante apareceu neste mês. Continue acompanhando para manter o ritmo.',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sem limite definido',
         budgetSafe: 'Dentro do limite',
@@ -430,6 +449,25 @@ const translations = {
         monthlyChangeDown: 'below previous month',
         monthlyChangeFlat: 'same as previous month',
         monthlyAdjustLimits: 'Adjust limits',
+        monthlyInsightsLabel: 'Monthly read',
+        monthlyInsightsTitle: 'What deserves your attention',
+        monthlyInsightEmpty: 'Once you add a few entries, Pluri will show alerts and opportunities here.',
+        monthlyInsightBudgetExceededTitle: 'Limit exceeded',
+        monthlyInsightBudgetExceededText: 'went over the limit in',
+        monthlyInsightBudgetWarningTitle: 'Near the limit',
+        monthlyInsightWarningText: 'has already used',
+        monthlyInsightTopCategoryTitle: 'Dominant category',
+        monthlyInsightTopCategoryText: 'represents',
+        monthlyInsightTopCategorySuffix: 'of this month spending.',
+        monthlyInsightMonthUpTitle: 'Heavier month',
+        monthlyInsightMonthDownTitle: 'Lighter month',
+        monthlyInsightMonthChangeText: 'compared with the previous month.',
+        monthlyInsightBigDayTitle: 'Spending peak',
+        monthlyInsightBigDayText: 'was the day with the highest outflow.',
+        monthlyInsightNoBudgetTitle: 'Set your limits',
+        monthlyInsightNoBudgetText: 'Adding category limits makes the dashboard more useful and helps avoid surprises.',
+        monthlyInsightStableTitle: 'Everything under control',
+        monthlyInsightStableText: 'No major alerts showed up this month. Keep tracking to maintain the pace.',
         budgetUsed: 'used',
         budgetNoLimit: 'No limit set',
         budgetSafe: 'Within limit',
@@ -651,6 +689,25 @@ const translations = {
         monthlyChangeDown: 'por debajo del mes anterior',
         monthlyChangeFlat: 'igual al mes anterior',
         monthlyAdjustLimits: 'Ajustar límites',
+        monthlyInsightsLabel: 'Lectura del mes',
+        monthlyInsightsTitle: 'Lo que merece tu atención',
+        monthlyInsightEmpty: 'Cuando registres algunos movimientos, Pluri mostrará alertas y oportunidades aquí.',
+        monthlyInsightBudgetExceededTitle: 'Límite superado',
+        monthlyInsightBudgetExceededText: 'superó el límite en',
+        monthlyInsightBudgetWarningTitle: 'Cerca del límite',
+        monthlyInsightWarningText: 'ya consumió',
+        monthlyInsightTopCategoryTitle: 'Categoría dominante',
+        monthlyInsightTopCategoryText: 'concentra',
+        monthlyInsightTopCategorySuffix: 'de los gastos del mes.',
+        monthlyInsightMonthUpTitle: 'Mes más pesado',
+        monthlyInsightMonthDownTitle: 'Mes más liviano',
+        monthlyInsightMonthChangeText: 'en relación con el mes anterior.',
+        monthlyInsightBigDayTitle: 'Pico de gastos',
+        monthlyInsightBigDayText: 'fue el día con mayor salida.',
+        monthlyInsightNoBudgetTitle: 'Define tus límites',
+        monthlyInsightNoBudgetText: 'Agregar límites por categoría hace el panel más útil y ayuda a evitar sorpresas.',
+        monthlyInsightStableTitle: 'Todo bajo control',
+        monthlyInsightStableText: 'No apareció ninguna alerta importante este mes. Sigue acompañando para mantener el ritmo.',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sin límite definido',
         budgetSafe: 'Dentro del límite',
@@ -918,6 +975,8 @@ function setLanguage(language) {
     if ($('monthlyCategoryLabel')) $('monthlyCategoryLabel').innerText = text.monthlyCategoryLabel;
     if ($('monthlyBudgetHealthLabel')) $('monthlyBudgetHealthLabel').innerText = text.monthlyBudgetHealthLabel;
     if ($('monthlyAdjustLimitsBtn')) $('monthlyAdjustLimitsBtn').innerText = text.monthlyAdjustLimits;
+    if ($('monthlyInsightsLabel')) $('monthlyInsightsLabel').innerText = text.monthlyInsightsLabel;
+    if ($('monthlyInsightsTitle')) $('monthlyInsightsTitle').innerText = text.monthlyInsightsTitle;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
@@ -1441,7 +1500,108 @@ function renderMonthlyDashboard() {
         `;
     }).join('');
 
+    renderMonthlyInsights({
+        text,
+        currentExpenses,
+        currentTotal,
+        previousTotal,
+        changePercent,
+        totals,
+        topCategory,
+        topDay,
+        limits
+    });
     renderMonthlyCharts(totals, dailyTotals, text);
+}
+
+function renderMonthlyInsights({ text, currentExpenses, currentTotal, previousTotal, changePercent, totals, topCategory, topDay, limits }) {
+    const target = $('monthlyInsightsList');
+    if (!target) return;
+    const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
+    const insights = [];
+    const exceeded = limits
+        .filter((item) => item.spent > item.limit)
+        .sort((a, b) => (b.spent / b.limit) - (a.spent / a.limit));
+    const warning = limits
+        .filter((item) => item.spent <= item.limit && item.spent / item.limit >= 0.8)
+        .sort((a, b) => (b.spent / b.limit) - (a.spent / a.limit));
+
+    if (!currentExpenses.length) {
+        insights.push({
+            tone: 'neutral',
+            title: text.monthlyDashboardTitle,
+            body: text.monthlyInsightEmpty
+        });
+    }
+
+    if (exceeded[0]) {
+        const item = exceeded[0];
+        insights.push({
+            tone: 'danger',
+            title: text.monthlyInsightBudgetExceededTitle,
+            body: `${getCategoryLabel(item.cat.id)} ${text.monthlyInsightBudgetExceededText} ${currency(item.spent - item.limit)}.`
+        });
+    } else if (warning[0]) {
+        const item = warning[0];
+        insights.push({
+            tone: 'warning',
+            title: text.monthlyInsightBudgetWarningTitle,
+            body: `${getCategoryLabel(item.cat.id)} ${text.monthlyInsightWarningText} ${Math.round((item.spent / item.limit) * 100)}% ${text.budgetUsed}.`
+        });
+    }
+
+    if (topCategory && currentTotal > 0) {
+        const categoryShare = Math.round((Number(topCategory[1] || 0) / currentTotal) * 100);
+        if (categoryShare >= 35) {
+            insights.push({
+                tone: 'info',
+                title: text.monthlyInsightTopCategoryTitle,
+                body: `${getCategoryLabel(topCategory[0])} ${text.monthlyInsightTopCategoryText} ${categoryShare}% ${text.monthlyInsightTopCategorySuffix}`
+            });
+        }
+    }
+
+    if (previousTotal > 0 && Math.abs(changePercent) >= 15) {
+        insights.push({
+            tone: changePercent > 0 ? 'warning' : 'safe',
+            title: changePercent > 0 ? text.monthlyInsightMonthUpTitle : text.monthlyInsightMonthDownTitle,
+            body: `${changePercent > 0 ? '+' : ''}${Math.round(changePercent)}% ${text.monthlyInsightMonthChangeText}`
+        });
+    }
+
+    if (topDay && topDay.total > 0 && currentTotal > 0 && topDay.total / currentTotal >= 0.3) {
+        insights.push({
+            tone: 'info',
+            title: text.monthlyInsightBigDayTitle,
+            body: `${String(topDay.day).padStart(2, '0')}/${getCurrentMonthKey()} ${text.monthlyInsightBigDayText} ${currency(topDay.total)}.`
+        });
+    }
+
+    if (!limits.length && currentExpenses.length) {
+        insights.push({
+            tone: 'neutral',
+            title: text.monthlyInsightNoBudgetTitle,
+            body: text.monthlyInsightNoBudgetText
+        });
+    }
+
+    if (!insights.length) {
+        insights.push({
+            tone: 'safe',
+            title: text.monthlyInsightStableTitle,
+            body: text.monthlyInsightStableText
+        });
+    }
+
+    target.innerHTML = insights.slice(0, 4).map((insight) => `
+        <div class="monthly-insight-card ${insight.tone}">
+            <span></span>
+            <div>
+                <strong>${escapeHtml(insight.title)}</strong>
+                <p>${escapeHtml(insight.body)}</p>
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderMonthlyCharts(categoryTotals, dailyTotals, text) {

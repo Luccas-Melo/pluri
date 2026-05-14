@@ -2113,6 +2113,79 @@
             margin-top: 14px;
         }
 
+        .monthly-insights-panel {
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 8% 12%, rgba(14, 116, 144, 0.12), transparent 28%),
+                radial-gradient(circle at 92% 0%, rgba(236, 72, 153, 0.10), transparent 26%),
+                var(--bg-panel);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .monthly-insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .monthly-insight-card {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            min-height: 116px;
+            padding: 16px;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.52);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+        }
+
+        body.dark-theme .monthly-insight-card {
+            background: rgba(24, 24, 27, 0.68);
+        }
+
+        .monthly-insight-card > span {
+            width: 10px;
+            height: 10px;
+            margin-top: 5px;
+            border-radius: 999px;
+            background: var(--primary);
+            box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 16%, transparent);
+        }
+
+        .monthly-insight-card strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 950;
+            color: var(--text);
+        }
+
+        .monthly-insight-card p {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.45;
+            color: var(--text-soft);
+        }
+
+        .monthly-insight-card.danger > span {
+            background: #ef4444;
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.14);
+        }
+
+        .monthly-insight-card.warning > span {
+            background: #f59e0b;
+            box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.16);
+        }
+
+        .monthly-insight-card.safe > span {
+            background: #10b981;
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14);
+        }
+
         .profile-stat-card {
             min-height: 118px;
             padding: 20px;
@@ -2698,6 +2771,10 @@
 
             .monthly-chart-shell {
                 height: 220px;
+            }
+
+            .monthly-insights-grid {
+                grid-template-columns: 1fr;
             }
 
             .primary-theme .active-chip,
@@ -3506,6 +3583,12 @@
                         <small id="monthlyTopDayHint"></small>
                     </div>
                 </div>
+            </div>
+
+            <div class="monthly-insights-panel">
+                <p id="monthlyInsightsLabel" class="kicker mb-2">Leitura do mês</p>
+                <h3 id="monthlyInsightsTitle" class="text-2xl font-black tracking-tight mb-4">O que merece sua atenção</h3>
+                <div id="monthlyInsightsList" class="monthly-insights-grid"></div>
             </div>
 
             <div class="monthly-chart-grid">
