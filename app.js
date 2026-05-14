@@ -86,6 +86,8 @@ let categoriaSelecionada = 'Comida';
 let metodoPagamento = 'PIX';
 let cartaoSelecionado = '';
 let chart = null;
+let monthlyCategoryChart = null;
+let monthlyDailyChart = null;
 let deleteIdTemp = null;
 
 document.getElementById('dataGasto').valueAsDate = new Date();
@@ -194,6 +196,19 @@ const translations = {
         categoryBudgetsHint: 'Defina limites mensais. Deixe 0 para não acompanhar a categoria.',
         monthlyDashboardTitle: 'Painel do mês',
         monthlyDashboardSubtitle: 'Acompanhe seus limites por categoria e veja onde o dinheiro está indo.',
+        monthlyDashboardNav: 'Painel',
+        monthlyDashboardKicker: 'Resumo inteligente',
+        monthlyTotalLabel: 'Gasto no mês',
+        monthlyPreviousLabel: 'Mês anterior',
+        monthlyDailyLabel: 'Evolução diária',
+        monthlyCategoryLabel: 'Distribuição por categoria',
+        monthlyBudgetHealthLabel: 'Saúde dos orçamentos',
+        monthlyTopDayLabel: 'Dia mais caro',
+        monthlyNoData: 'Sem dados para este mês ainda.',
+        monthlyChangeUp: 'acima do mês anterior',
+        monthlyChangeDown: 'abaixo do mês anterior',
+        monthlyChangeFlat: 'igual ao mês anterior',
+        monthlyAdjustLimits: 'Ajustar limites',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sem limite definido',
         budgetSafe: 'Dentro do limite',
@@ -402,6 +417,19 @@ const translations = {
         categoryBudgetsHint: 'Set monthly limits. Leave 0 to stop tracking a category.',
         monthlyDashboardTitle: 'Monthly dashboard',
         monthlyDashboardSubtitle: 'Track category limits and see where your money is going.',
+        monthlyDashboardNav: 'Dashboard',
+        monthlyDashboardKicker: 'Smart summary',
+        monthlyTotalLabel: 'Month spending',
+        monthlyPreviousLabel: 'Previous month',
+        monthlyDailyLabel: 'Daily trend',
+        monthlyCategoryLabel: 'Category distribution',
+        monthlyBudgetHealthLabel: 'Budget health',
+        monthlyTopDayLabel: 'Most expensive day',
+        monthlyNoData: 'No data for this month yet.',
+        monthlyChangeUp: 'above previous month',
+        monthlyChangeDown: 'below previous month',
+        monthlyChangeFlat: 'same as previous month',
+        monthlyAdjustLimits: 'Adjust limits',
         budgetUsed: 'used',
         budgetNoLimit: 'No limit set',
         budgetSafe: 'Within limit',
@@ -610,6 +638,19 @@ const translations = {
         categoryBudgetsHint: 'Define límites mensuales. Deja 0 para no seguir la categoría.',
         monthlyDashboardTitle: 'Panel del mes',
         monthlyDashboardSubtitle: 'Acompaña tus límites por categoría y ve a dónde va el dinero.',
+        monthlyDashboardNav: 'Panel',
+        monthlyDashboardKicker: 'Resumen inteligente',
+        monthlyTotalLabel: 'Gasto del mes',
+        monthlyPreviousLabel: 'Mes anterior',
+        monthlyDailyLabel: 'Evolución diaria',
+        monthlyCategoryLabel: 'Distribución por categoría',
+        monthlyBudgetHealthLabel: 'Salud de presupuestos',
+        monthlyTopDayLabel: 'Día más caro',
+        monthlyNoData: 'Todavía no hay datos para este mes.',
+        monthlyChangeUp: 'por encima del mes anterior',
+        monthlyChangeDown: 'por debajo del mes anterior',
+        monthlyChangeFlat: 'igual al mes anterior',
+        monthlyAdjustLimits: 'Ajustar límites',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sin límite definido',
         budgetSafe: 'Dentro del límite',
@@ -868,6 +909,15 @@ function setLanguage(language) {
     if ($('categoryBudgetsHint')) $('categoryBudgetsHint').innerText = text.categoryBudgetsHint;
     if ($('monthlyDashboardTitle')) $('monthlyDashboardTitle').innerText = text.monthlyDashboardTitle;
     if ($('monthlyDashboardSubtitle')) $('monthlyDashboardSubtitle').innerText = text.monthlyDashboardSubtitle;
+    if ($('monthlyDashboardPageKicker')) $('monthlyDashboardPageKicker').innerText = text.monthlyDashboardKicker;
+    if ($('monthlyTotalLabel')) $('monthlyTotalLabel').innerText = text.monthlyTotalLabel;
+    if ($('monthlyPreviousLabel')) $('monthlyPreviousLabel').innerText = text.monthlyPreviousLabel;
+    if ($('monthlyTopCategoryLabel')) $('monthlyTopCategoryLabel').innerText = text.summaryTopCategory;
+    if ($('monthlyTopDayLabel')) $('monthlyTopDayLabel').innerText = text.monthlyTopDayLabel;
+    if ($('monthlyDailyLabel')) $('monthlyDailyLabel').innerText = text.monthlyDailyLabel;
+    if ($('monthlyCategoryLabel')) $('monthlyCategoryLabel').innerText = text.monthlyCategoryLabel;
+    if ($('monthlyBudgetHealthLabel')) $('monthlyBudgetHealthLabel').innerText = text.monthlyBudgetHealthLabel;
+    if ($('monthlyAdjustLimitsBtn')) $('monthlyAdjustLimitsBtn').innerText = text.monthlyAdjustLimits;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
@@ -922,11 +972,14 @@ function setLanguage(language) {
     if ($('appHeaderKicker')) $('appHeaderKicker').innerText = text.appHeaderKicker;
     if ($('appHeaderSubtitle')) $('appHeaderSubtitle').innerText = text.appHeaderSubtitle;
     if ($('mobileMenuHome')) $('mobileMenuHome').innerText = text.home;
+    if ($('mobileMenuDashboard')) $('mobileMenuDashboard').innerText = text.monthlyDashboardNav;
     if ($('mobileMenuProfile')) $('mobileMenuProfile').innerText = text.profile;
     if ($('mobileMenuSettings')) $('mobileMenuSettings').innerText = text.settings;
     if ($('mobileMenuExport')) $('mobileMenuExport').innerText = text.export;
     if ($('mobileMenuLogout')) $('mobileMenuLogout').innerText = text.logout;
+    if ($('menuHome')) $('menuHome').innerText = text.home;
     if ($('menuProfile')) $('menuProfile').innerText = text.profile;
+    if ($('menuDashboard')) $('menuDashboard').innerText = text.monthlyDashboardNav;
     if ($('soloModeHint')) $('soloModeHint').innerText = text.soloModeHint;
     if ($('profilePageKicker')) $('profilePageKicker').innerText = text.profileKicker;
     if ($('profilePageTitle')) $('profilePageTitle').innerText = text.profileTitle;
@@ -1045,6 +1098,7 @@ function applyTheme(mode) {
 
 function toggleTheme() {
     applyTheme(currentThemeMode === 'dark' ? 'light' : 'dark');
+    renderMonthlyDashboard();
 }
 
 function escapeHtml(value) {
@@ -1127,7 +1181,9 @@ function closeModal(id) {
 }
 
 function getCurrentNavTarget() {
-    return $('profilePage') && !$('profilePage').classList.contains('hidden') ? 'profile' : 'home';
+    if ($('profilePage') && !$('profilePage').classList.contains('hidden')) return 'profile';
+    if ($('monthlyDashboardPage') && !$('monthlyDashboardPage').classList.contains('hidden')) return 'dashboard';
+    return 'home';
 }
 
 function closeAppOverlays(exceptId = '') {
@@ -1159,7 +1215,18 @@ function openProfileModal() {
     updateProfilePage();
     if ($('profileMessage')) $('profileMessage').innerText = '';
     if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
     if ($('profilePage')) $('profilePage').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openMonthlyDashboardPage() {
+    closeAppOverlays();
+    setMobileNavActive('dashboard');
+    if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.remove('hidden');
+    renderMonthlyDashboard();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1167,6 +1234,7 @@ function showDashboardPage() {
     closeAppOverlays();
     setMobileNavActive('home');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1212,6 +1280,20 @@ function getCurrentMonthExpenses() {
     return gastos.filter((item) => item.mes === getCurrentMonthKey());
 }
 
+function getMonthExpensesByOffset(offset = 0) {
+    const base = new Date();
+    const target = new Date(base.getFullYear(), base.getMonth() + offset, 1);
+    const targetYear = target.getFullYear();
+    const targetMonth = target.getMonth();
+    return gastos.filter((item) => {
+        const date = item.dataRaw ? new Date(`${item.dataRaw}T00:00:00`) : null;
+        if (date && !Number.isNaN(date.getTime())) {
+            return date.getFullYear() === targetYear && date.getMonth() === targetMonth;
+        }
+        return offset === 0 && item.mes === String(targetMonth + 1).padStart(2, '0');
+    });
+}
+
 function getMonthlySummaryData() {
     const currentMonthExpenses = getCurrentMonthExpenses();
     const total = currentMonthExpenses.reduce((sum, item) => sum + item.valor, 0);
@@ -1250,6 +1332,26 @@ function getCurrentMonthTotalByCategory() {
     }, {});
 }
 
+function getMonthlyCategoryTotals(expenses) {
+    return expenses.reduce((totals, item) => {
+        totals[item.categoria] = (totals[item.categoria] || 0) + Number(item.valor || 0);
+        return totals;
+    }, {});
+}
+
+function getMonthlyDailyTotals(expenses) {
+    const today = new Date();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const totals = Array.from({ length: daysInMonth }, (_, index) => ({ day: index + 1, total: 0 }));
+    expenses.forEach((item) => {
+        const date = item.dataRaw ? new Date(`${item.dataRaw}T00:00:00`) : null;
+        if (!date || Number.isNaN(date.getTime())) return;
+        const dayIndex = date.getDate() - 1;
+        if (totals[dayIndex]) totals[dayIndex].total += Number(item.valor || 0);
+    });
+    return totals;
+}
+
 function getBudgetStatus(spent, limit) {
     const text = translations[currentLanguage] || translations['pt-BR'];
     if (!limit || limit <= 0) return { label: text.budgetNoLimit, tone: 'muted', percent: 0 };
@@ -1272,13 +1374,53 @@ function renderBudgetSettings() {
 
 function renderMonthlyDashboard() {
     const list = $('monthlyBudgetList');
-    const section = $('monthlyDashboardCard');
-    if (!list || !section) return;
+    if (!list) return;
     const text = translations[currentLanguage] || translations['pt-BR'];
     const currency = (value) => `R$ ${Number(value || 0).toLocaleString(getCurrentLocale(), { minimumFractionDigits: 2 })}`;
-    const totals = getCurrentMonthTotalByCategory();
-    const hasBudget = categories.some((cat) => Number(categoryBudgets[cat.id] || 0) > 0);
-    section.classList.toggle('hidden', !hasBudget && !gastos.length);
+    const currentExpenses = getMonthExpensesByOffset(0);
+    const previousExpenses = getMonthExpensesByOffset(-1);
+    const currentTotal = currentExpenses.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const previousTotal = previousExpenses.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const totals = getMonthlyCategoryTotals(currentExpenses);
+    const dailyTotals = getMonthlyDailyTotals(currentExpenses);
+    const topCategory = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+    const topDay = dailyTotals.slice().sort((a, b) => b.total - a.total)[0];
+    const limits = categories
+        .map((cat) => ({ cat, spent: Number(totals[cat.id] || 0), limit: Number(categoryBudgets[cat.id] || 0) }))
+        .filter((item) => item.limit > 0);
+    const exceeded = limits.filter((item) => item.spent > item.limit).length;
+    const warning = limits.filter((item) => item.spent <= item.limit && item.spent / item.limit >= 0.8).length;
+    const healthy = limits.length ? Math.max(limits.length - exceeded - warning, 0) : 0;
+    const changePercent = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+    const changeLabel = previousTotal > 0
+        ? `${changePercent >= 0 ? '+' : ''}${Math.round(changePercent)}% ${changePercent > 0 ? text.monthlyChangeUp : changePercent < 0 ? text.monthlyChangeDown : text.monthlyChangeFlat}`
+        : text.monthlyNoData;
+
+    if ($('monthlyTotalValue')) $('monthlyTotalValue').innerText = currency(currentTotal);
+    if ($('monthlyPreviousValue')) $('monthlyPreviousValue').innerText = currency(previousTotal);
+    if ($('monthlyPreviousHint')) $('monthlyPreviousHint').innerText = changeLabel;
+    if ($('monthlyTopCategoryValue')) {
+        $('monthlyTopCategoryValue').innerText = topCategory ? getCategoryLabel(topCategory[0]) : text.monthlyNoData;
+    }
+    if ($('monthlyTopCategoryHint')) {
+        $('monthlyTopCategoryHint').innerText = topCategory ? currency(topCategory[1]) : '';
+    }
+    if ($('monthlyTopDayValue')) {
+        $('monthlyTopDayValue').innerText = topDay && topDay.total > 0 ? `${String(topDay.day).padStart(2, '0')}/${getCurrentMonthKey()}` : text.monthlyNoData;
+    }
+    if ($('monthlyTopDayHint')) {
+        $('monthlyTopDayHint').innerText = topDay && topDay.total > 0 ? currency(topDay.total) : '';
+    }
+    if ($('monthlyBudgetHealthValue')) {
+        $('monthlyBudgetHealthValue').innerText = limits.length ? `${healthy}/${limits.length}` : text.budgetNoLimit;
+    }
+    if ($('monthlyBudgetHealthHint')) {
+        const hints = [];
+        if (exceeded) hints.push(`${exceeded} ${text.budgetExceeded.toLowerCase()}`);
+        if (warning) hints.push(`${warning} ${text.budgetWarning.toLowerCase()}`);
+        $('monthlyBudgetHealthHint').innerText = hints.length ? hints.join(' | ') : (limits.length ? text.budgetSafe : text.categoryBudgetsHint);
+    }
+
     list.innerHTML = categories.map((cat) => {
         const spent = Number(totals[cat.id] || 0);
         const limit = Number(categoryBudgets[cat.id] || 0);
@@ -1298,6 +1440,77 @@ function renderMonthlyDashboard() {
             </div>
         `;
     }).join('');
+
+    renderMonthlyCharts(totals, dailyTotals, text);
+}
+
+function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
+    const categoryCanvas = $('monthlyCategoryChartCanvas');
+    const dailyCanvas = $('monthlyDailyChartCanvas');
+    const styles = getComputedStyle(document.documentElement);
+    const textColor = styles.getPropertyValue('--text').trim() || '#0f172a';
+    const gridColor = styles.getPropertyValue('--border').trim() || 'rgba(148, 163, 184, 0.2)';
+    const palette = ['#0e7490', '#14b8a6', '#ec4899', '#7c3aed', '#f59e0b'];
+
+    if (categoryCanvas) {
+        const categoryValues = categories.map((cat) => Number(categoryTotals[cat.id] || 0));
+        const hasData = categoryValues.some((value) => value > 0);
+        if (monthlyCategoryChart) monthlyCategoryChart.destroy();
+        monthlyCategoryChart = new Chart(categoryCanvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: hasData ? categories.map((cat) => getCategoryLabel(cat.id)) : [text.monthlyNoData],
+                datasets: [{
+                    data: hasData ? categoryValues : [1],
+                    backgroundColor: hasData ? palette : ['rgba(148, 163, 184, 0.28)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: textColor, boxWidth: 10, usePointStyle: true, font: { weight: 700 } }
+                    }
+                }
+            }
+        });
+    }
+
+    if (dailyCanvas) {
+        if (monthlyDailyChart) monthlyDailyChart.destroy();
+        monthlyDailyChart = new Chart(dailyCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: dailyTotals.map((item) => String(item.day).padStart(2, '0')),
+                datasets: [{
+                    data: dailyTotals.map((item) => item.total),
+                    backgroundColor: '#0e7490',
+                    borderRadius: 10,
+                    maxBarThickness: 18
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        ticks: { color: textColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColor, callback: (value) => `R$ ${Number(value).toLocaleString(getCurrentLocale())}` },
+                        grid: { color: gridColor }
+                    }
+                }
+            }
+        });
+    }
 }
 
 function dismissMonthlySummaryNotice() {
@@ -1345,6 +1558,7 @@ function showAppShell(show) {
     $('appShell').classList.toggle('hidden', !show);
     if (!show) {
         if ($('profilePage')) $('profilePage').classList.add('hidden');
+        if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
         if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     }
 }
@@ -2179,6 +2393,7 @@ function openConfigModal() {
     closeAppOverlays('modalConfig');
     setMobileNavActive('settings');
     if ($('profilePage')) $('profilePage').classList.add('hidden');
+    if ($('monthlyDashboardPage')) $('monthlyDashboardPage').classList.add('hidden');
     if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
     if (!currentHousehold) {
         showToast(currentLanguage === 'en-US' ? 'The home has not loaded yet. Try again in a moment.' : currentLanguage === 'es-ES' ? 'La casa aún no se ha cargado. Inténtalo de nuevo en un momento.' : 'A casa ainda não foi carregada. Tente novamente em instantes.');

@@ -2027,6 +2027,92 @@
             background: #ef4444;
         }
 
+        .monthly-dashboard-page {
+            animation: pageEnter 0.42s cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .monthly-dashboard-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            gap: 22px;
+            padding: 28px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .monthly-dashboard-hero::after {
+            content: "";
+            position: absolute;
+            right: -90px;
+            top: -120px;
+            width: 280px;
+            height: 280px;
+            border-radius: 999px;
+            background: rgba(20, 184, 166, 0.14);
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .monthly-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .monthly-stat-card,
+        .monthly-chart-card {
+            border: 1px solid var(--border);
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42)),
+                var(--bg-panel);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        body.dark-theme .monthly-stat-card,
+        body.dark-theme .monthly-chart-card {
+            background:
+                linear-gradient(135deg, rgba(39,39,42,0.72), rgba(10,10,12,0.56)),
+                var(--bg-panel);
+        }
+
+        .monthly-stat-card {
+            padding: 18px;
+            min-height: 124px;
+        }
+
+        .monthly-stat-card strong {
+            display: block;
+            margin-top: 10px;
+            font-size: clamp(24px, 4vw, 38px);
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .monthly-stat-card small {
+            display: block;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-soft);
+        }
+
+        .monthly-chart-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+            gap: 18px;
+        }
+
+        .monthly-chart-card {
+            padding: 20px;
+            min-height: 320px;
+        }
+
+        .monthly-chart-shell {
+            height: 240px;
+            margin-top: 14px;
+        }
+
         .profile-stat-card {
             min-height: 118px;
             padding: 20px;
@@ -2505,7 +2591,7 @@
                 bottom: max(14px, env(safe-area-inset-bottom));
                 transform: translateX(-50%);
                 z-index: 10000;
-                width: min(90vw, 372px);
+                width: min(92vw, 392px);
                 min-height: 62px;
                 display: flex;
                 align-items: center;
@@ -2524,13 +2610,13 @@
             }
 
             .mobile-bottom-item {
-                min-width: 48px;
+                min-width: 42px;
                 height: 48px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 gap: 7px;
-                padding: 0 14px;
+                padding: 0 11px;
                 border: 0;
                 border-radius: 999px;
                 color: rgba(15, 23, 42, 0.56);
@@ -2557,7 +2643,7 @@
             }
 
             .mobile-bottom-item.is-active {
-                min-width: 94px;
+                min-width: 82px;
                 color: var(--primary-strong);
                 background: rgba(255, 255, 255, 0.88);
                 box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
@@ -2594,6 +2680,24 @@
             body.dark-theme .mobile-bottom-item.is-active {
                 color: #f4f4f5;
                 background: rgba(255,255,255,0.14);
+            }
+
+            .monthly-dashboard-hero,
+            .monthly-chart-grid,
+            .monthly-stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .monthly-dashboard-hero {
+                padding: 22px;
+            }
+
+            .monthly-chart-card {
+                min-height: 280px;
+            }
+
+            .monthly-chart-shell {
+                height: 220px;
             }
 
             .primary-theme .active-chip,
@@ -3250,6 +3354,14 @@
                         <span></span>
                     </button>
                     <div id="appMenuPanel" class="menu-panel">
+                        <button type="button" class="menu-item" onclick="showDashboardPage()" aria-label="Home">
+                            <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg></span>
+                            <span id="menuHome" class="menu-label">Inicio</span>
+                        </button>
+                        <button type="button" class="menu-item" onclick="openMonthlyDashboardPage()" aria-label="Dashboard">
+                            <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M13 16V8"/><path d="M18 16v-3"/></svg></span>
+                            <span id="menuDashboard" class="menu-label">Dashboard</span>
+                        </button>
                         <button type="button" class="menu-item" onclick="openProfileModal()" aria-label="Perfil">
                             <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg></span>
                             <span id="menuProfile" class="menu-label">Perfil</span>
@@ -3366,6 +3478,60 @@
             </div>
         </section>
 
+        <section id="monthlyDashboardPage" class="monthly-dashboard-page hidden space-y-6">
+            <div class="monthly-dashboard-hero custom-card">
+                <div>
+                    <p id="monthlyDashboardPageKicker" class="kicker mb-3">Resumo inteligente</p>
+                    <h2 id="monthlyDashboardTitle" class="text-4xl md:text-5xl font-black tracking-tight">Painel do mes</h2>
+                    <p id="monthlyDashboardSubtitle" class="muted-copy text-base mt-3 max-w-2xl">Acompanhe seus limites por categoria e veja onde o dinheiro esta indo.</p>
+                </div>
+                <div class="monthly-stat-grid">
+                    <div class="monthly-stat-card">
+                        <p id="monthlyTotalLabel" class="panel-label">Gasto no mes</p>
+                        <strong id="monthlyTotalValue">R$ 0,00</strong>
+                    </div>
+                    <div class="monthly-stat-card">
+                        <p id="monthlyPreviousLabel" class="panel-label">Mes anterior</p>
+                        <strong id="monthlyPreviousValue">R$ 0,00</strong>
+                        <small id="monthlyPreviousHint"></small>
+                    </div>
+                    <div class="monthly-stat-card">
+                        <p id="monthlyTopCategoryLabel" class="panel-label">Categoria destaque</p>
+                        <strong id="monthlyTopCategoryValue">-</strong>
+                        <small id="monthlyTopCategoryHint"></small>
+                    </div>
+                    <div class="monthly-stat-card">
+                        <p id="monthlyTopDayLabel" class="panel-label">Dia mais caro</p>
+                        <strong id="monthlyTopDayValue">-</strong>
+                        <small id="monthlyTopDayHint"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="monthly-chart-grid">
+                <div class="monthly-chart-card">
+                    <p id="monthlyCategoryLabel" class="kicker mb-2">Distribuicao por categoria</p>
+                    <div class="monthly-chart-shell"><canvas id="monthlyCategoryChartCanvas"></canvas></div>
+                </div>
+                <div class="monthly-chart-card">
+                    <p id="monthlyDailyLabel" class="kicker mb-2">Evolucao diaria</p>
+                    <div class="monthly-chart-shell"><canvas id="monthlyDailyChartCanvas"></canvas></div>
+                </div>
+            </div>
+
+            <div class="monthly-chart-card">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+                    <div>
+                        <p id="monthlyBudgetHealthLabel" class="kicker mb-2">Saude dos orcamentos</p>
+                        <h3 id="monthlyBudgetHealthValue" class="text-3xl font-black tracking-tight">-</h3>
+                        <p id="monthlyBudgetHealthHint" class="muted-copy text-sm mt-1"></p>
+                    </div>
+                    <button type="button" id="monthlyAdjustLimitsBtn" onclick="openConfigModal()" class="ghost-button px-4 py-3 font-black text-xs uppercase">Ajustar limites</button>
+                </div>
+                <div id="monthlyBudgetList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+        </section>
+
         <div id="dashboardPage">
         <!--
         <div class="flex justify-end mb-4">
@@ -3410,15 +3576,6 @@
                     <div class="w-16 h-16"><canvas id="chartDivisao"></canvas></div>
                 </div>
 
-                <div id="monthlyDashboardCard" class="custom-card p-6 hidden">
-                    <div class="mb-5">
-                        <p class="kicker mb-2">Dashboard</p>
-                        <h2 id="monthlyDashboardTitle" class="text-2xl font-black tracking-tight">Painel do mês</h2>
-                        <p id="monthlyDashboardSubtitle" class="list-copy">Acompanhe seus limites por categoria e veja onde o dinheiro está indo.</p>
-                    </div>
-                    <div id="monthlyBudgetList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-                </div>
-                
                 <div id="listaGastosWrap">
                     <div class="list-head">
                         <div>
@@ -3539,6 +3696,10 @@
         <button type="button" class="mobile-bottom-item is-active" data-nav="home" onclick="showDashboardPage()" aria-label="Home">
             <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>
             <span id="mobileMenuHome" class="mobile-bottom-label">Inicio</span>
+        </button>
+        <button type="button" class="mobile-bottom-item" data-nav="dashboard" onclick="openMonthlyDashboardPage()" aria-label="Dashboard">
+            <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M13 16V8"/><path d="M18 16v-3"/></svg>
+            <span id="mobileMenuDashboard" class="mobile-bottom-label">Dashboard</span>
         </button>
         <button type="button" class="mobile-bottom-item" data-nav="profile" onclick="openProfileModal()" aria-label="Perfil">
             <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
