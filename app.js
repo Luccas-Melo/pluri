@@ -161,6 +161,14 @@ const translations = {
         onboardingStructureLabel: 'Estrutura',
         onboardingCouple: 'Casal',
         onboardingSolo: 'Solo',
+        onboardingCardsLabel: 'Cartões iniciais',
+        onboardingCardsPlaceholder: 'Ex: Nubank, Inter, C6',
+        onboardingClosingDayLabel: 'Fechamento do mês',
+        onboardingClosingDayPlaceholder: 'Dia do fechamento. Ex: 10',
+        onboardingCategoriesLabel: 'Categorias mais usadas',
+        onboardingGoalLabel: 'Objetivo financeiro',
+        onboardingGoalPlaceholder: 'Ex: Guardar para viagem',
+        onboardingGoalTargetPlaceholder: 'Meta opcional R$',
         onboardingCreate: 'Criar minha casa',
         onboardingRequired: 'Preencha os campos obrigatórios.',
         onboardingCreating: 'Criando estrutura inicial...',
@@ -249,6 +257,13 @@ const translations = {
         budgetAlertExceeded: 'ultrapassou o orçamento do mês',
         budgetAlertWarning: 'já consumiu',
         budgetAlertOfLimit: 'do limite',
+        notificationsKicker: 'Notificações',
+        notificationsTitle: 'Atenção financeira',
+        notificationsEmpty: 'Sem alertas importantes agora.',
+        notificationMonthClosing: 'O mês está perto de fechar. Revise seus gastos e veja o painel mensal.',
+        notificationGoalWarning: 'Sua meta está perto do limite planejado.',
+        notificationInvoiceSoon: 'Fatura chegando',
+        notificationSummaryReady: 'Seu resumo financeiro já pode ser conferido.',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sem limite definido',
         budgetSafe: 'Dentro do limite',
@@ -421,6 +436,14 @@ const translations = {
         onboardingStructureLabel: 'Structure',
         onboardingCouple: 'Couple',
         onboardingSolo: 'Solo',
+        onboardingCardsLabel: 'Initial cards',
+        onboardingCardsPlaceholder: 'Ex: Nubank, Inter, C6',
+        onboardingClosingDayLabel: 'Month closing day',
+        onboardingClosingDayPlaceholder: 'Closing day. Ex: 10',
+        onboardingCategoriesLabel: 'Most used categories',
+        onboardingGoalLabel: 'Financial goal',
+        onboardingGoalPlaceholder: 'Ex: Save for a trip',
+        onboardingGoalTargetPlaceholder: 'Optional target $',
         onboardingCreate: 'Create my home',
         onboardingRequired: 'Fill in the required fields.',
         onboardingCreating: 'Creating initial structure...',
@@ -509,6 +532,13 @@ const translations = {
         budgetAlertExceeded: 'went over this month budget',
         budgetAlertWarning: 'has already used',
         budgetAlertOfLimit: 'of the limit',
+        notificationsKicker: 'Notifications',
+        notificationsTitle: 'Financial attention',
+        notificationsEmpty: 'No important alerts right now.',
+        notificationMonthClosing: 'The month is close to closing. Review spending and check the monthly dashboard.',
+        notificationGoalWarning: 'Your goal is getting close to the planned limit.',
+        notificationInvoiceSoon: 'Invoice coming',
+        notificationSummaryReady: 'Your financial summary is ready to review.',
         budgetUsed: 'used',
         budgetNoLimit: 'No limit set',
         budgetSafe: 'Within limit',
@@ -681,6 +711,14 @@ const translations = {
         onboardingStructureLabel: 'Estructura',
         onboardingCouple: 'Pareja',
         onboardingSolo: 'Solo',
+        onboardingCardsLabel: 'Tarjetas iniciales',
+        onboardingCardsPlaceholder: 'Ej: Nubank, Inter, C6',
+        onboardingClosingDayLabel: 'Cierre del mes',
+        onboardingClosingDayPlaceholder: 'Día de cierre. Ej: 10',
+        onboardingCategoriesLabel: 'Categorías más usadas',
+        onboardingGoalLabel: 'Objetivo financiero',
+        onboardingGoalPlaceholder: 'Ej: Ahorrar para viaje',
+        onboardingGoalTargetPlaceholder: 'Meta opcional $',
         onboardingCreate: 'Crear mi casa',
         onboardingRequired: 'Completa los campos obligatorios.',
         onboardingCreating: 'Creando estructura inicial...',
@@ -769,6 +807,13 @@ const translations = {
         budgetAlertExceeded: 'superó el presupuesto del mes',
         budgetAlertWarning: 'ya consumió',
         budgetAlertOfLimit: 'del límite',
+        notificationsKicker: 'Notificaciones',
+        notificationsTitle: 'Atención financiera',
+        notificationsEmpty: 'No hay alertas importantes ahora.',
+        notificationMonthClosing: 'El mes está cerca de cerrar. Revisa tus gastos y mira el panel mensual.',
+        notificationGoalWarning: 'Tu meta está cerca del límite planeado.',
+        notificationInvoiceSoon: 'Factura llegando',
+        notificationSummaryReady: 'Tu resumen financiero ya se puede revisar.',
         budgetUsed: 'usado',
         budgetNoLimit: 'Sin límite definido',
         budgetSafe: 'Dentro del límite',
@@ -1010,6 +1055,10 @@ function setLanguage(language) {
     if ($('onboardingStructureLabel')) $('onboardingStructureLabel').innerText = text.onboardingStructureLabel;
     if ($('onboardingModeCouple')) $('onboardingModeCouple').innerText = text.onboardingCouple;
     if ($('onboardingModeSolo')) $('onboardingModeSolo').innerText = text.onboardingSolo;
+    if ($('onboardingCardsLabel')) $('onboardingCardsLabel').innerText = text.onboardingCardsLabel;
+    if ($('onboardingClosingDayLabel')) $('onboardingClosingDayLabel').innerText = text.onboardingClosingDayLabel;
+    if ($('onboardingCategoriesLabel')) $('onboardingCategoriesLabel').innerText = text.onboardingCategoriesLabel;
+    if ($('onboardingGoalLabel')) $('onboardingGoalLabel').innerText = text.onboardingGoalLabel;
     if ($('onboardingPessoa1Label')) $('onboardingPessoa1Label').innerText = text.memberOnePlaceholder;
     if ($('onboardingPessoa2Label')) $('onboardingPessoa2Label').innerText = text.memberTwoPlaceholder;
     if ($('onboardingSubmitBtn')) $('onboardingSubmitBtn').innerText = text.onboardingCreate;
@@ -1045,6 +1094,8 @@ function setLanguage(language) {
     if ($('cardsRegisteredLabel')) $('cardsRegisteredLabel').innerText = text.cardsRegisteredLabel;
     if ($('cardsTotalSpentLabel')) $('cardsTotalSpentLabel').innerText = text.cardsTotalSpentLabel;
     if ($('cardsNextInstallmentsTitle')) $('cardsNextInstallmentsTitle').innerText = text.cardNextInstallmentsLabel;
+    if ($('notificationsKicker')) $('notificationsKicker').innerText = text.notificationsKicker;
+    if ($('notificationsTitle')) $('notificationsTitle').innerText = text.notificationsTitle;
     if ($('settingsActivateGoalLabel')) $('settingsActivateGoalLabel').innerText = text.activateGoal;
     if ($('settingsCardsLabel')) $('settingsCardsLabel').innerText = text.myCardsLabel;
     if ($('dangerAccountLabel')) $('dangerAccountLabel').innerText = text.accountLabel;
@@ -1059,6 +1110,10 @@ function setLanguage(language) {
     if ($('authPasswordConfirm')) $('authPasswordConfirm').placeholder = text.confirmPasswordPlaceholder;
     if ($('authIncome')) $('authIncome').placeholder = text.incomePlaceholder;
     if ($('onboardingAppName')) $('onboardingAppName').placeholder = text.appNamePlaceholder;
+    if ($('onboardingCards')) $('onboardingCards').placeholder = text.onboardingCardsPlaceholder;
+    if ($('onboardingClosingDay')) $('onboardingClosingDay').placeholder = text.onboardingClosingDayPlaceholder;
+    if ($('onboardingGoalName')) $('onboardingGoalName').placeholder = text.onboardingGoalPlaceholder;
+    if ($('onboardingGoalTarget')) $('onboardingGoalTarget').placeholder = text.onboardingGoalTargetPlaceholder;
     if ($('onboardingPessoa1')) $('onboardingPessoa1').placeholder = text.namePlaceholder;
     if ($('onboardingPessoa2')) $('onboardingPessoa2').placeholder = text.memberTwoPlaceholder;
     if ($('profileFullName')) $('profileFullName').placeholder = text.namePlaceholder;
@@ -1096,6 +1151,7 @@ function setLanguage(language) {
         updateSeletorCartaoForm();
         render();
     }
+    if ($('onboardingOverlay') && !$('onboardingOverlay').classList.contains('hidden')) renderOnboardingCategories();
     if ($('appHeaderKicker')) $('appHeaderKicker').innerText = text.appHeaderKicker;
     if ($('appHeaderSubtitle')) $('appHeaderSubtitle').innerText = text.appHeaderSubtitle;
     if ($('mobileMenuHome')) $('mobileMenuHome').innerText = text.home;
@@ -1501,6 +1557,70 @@ function updateMonthlySummaryNotice() {
     notice.classList.toggle('hidden', !shouldShowMonthlySummaryNotice() || !summary.expenses.length);
 }
 
+function getDaysUntilMonthDay(day) {
+    const parsedDay = Number(day || 0);
+    if (!parsedDay) return null;
+    const today = new Date();
+    const candidate = new Date(today.getFullYear(), today.getMonth(), Math.min(parsedDay, 31));
+    if (candidate < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+        candidate.setMonth(candidate.getMonth() + 1);
+    }
+    return Math.ceil((candidate - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+}
+
+function getSmartNotifications() {
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const notifications = [];
+    const today = new Date();
+    if (today.getDate() >= 25 && getMonthlySummaryData().expenses.length) {
+        notifications.push({ tone: 'info', title: text.summaryTitle, body: text.notificationMonthClosing });
+    }
+    if (shouldShowMonthlySummaryNotice() && getMonthlySummaryData().expenses.length) {
+        notifications.push({ tone: 'safe', title: text.summaryReadyTitle, body: text.notificationSummaryReady });
+    }
+    if (meta.ativa && meta.alvo > 0) {
+        const percent = (Number(meta.atual || 0) / Number(meta.alvo || 1)) * 100;
+        if (percent >= 80) {
+            notifications.push({
+                tone: percent >= 100 ? 'danger' : 'warning',
+                title: meta.nome || text.savingsGoalLabel,
+                body: `${text.notificationGoalWarning} ${Math.round(percent)}%`
+            });
+        }
+    }
+    currentCards.forEach((card) => {
+        const closing = getCardMetaValue(card, ['closing_day', 'statement_closing_day', 'due_day']);
+        const days = getDaysUntilMonthDay(closing);
+        if (days !== null && days <= 3) {
+            notifications.push({
+                tone: 'warning',
+                title: `${text.notificationInvoiceSoon}: ${card.name}`,
+                body: `${text.cardClosingLabel}: ${String(closing).padStart(2, '0')}`
+            });
+        }
+    });
+    return notifications.slice(0, 4);
+}
+
+function renderSmartNotifications() {
+    const list = $('smartNotificationsList');
+    const section = $('smartNotifications');
+    if (!list || !section) return;
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const notifications = getSmartNotifications();
+    list.innerHTML = notifications.length
+        ? notifications.map((item) => `
+            <div class="smart-notification ${item.tone}">
+                <span></span>
+                <div>
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <p>${escapeHtml(item.body)}</p>
+                </div>
+            </div>
+        `).join('')
+        : `<div class="card-expense-empty">${escapeHtml(text.notificationsEmpty)}</div>`;
+}
+
 function getCurrentMonthTotalByCategory() {
     return getCurrentMonthExpenses().reduce((totals, item) => {
         totals[item.categoria] = (totals[item.categoria] || 0) + Number(item.valor || 0);
@@ -1546,6 +1666,26 @@ function renderBudgetSettings() {
             <input type="number" id="budget-${cat.id}" min="0" step="0.01" inputmode="decimal" class="input-vr" value="${Number(categoryBudgets[cat.id] || 0) || ''}" placeholder="0,00">
         </label>
     `).join('');
+}
+
+function getPreferredCategoryOrder() {
+    try {
+        return JSON.parse(localStorage.getItem('pluri_preferred_categories') || '[]');
+    } catch (error) {
+        return [];
+    }
+}
+
+function getOrderedCategories() {
+    const preferred = getPreferredCategoryOrder();
+    return categories.slice().sort((a, b) => {
+        const aIndex = preferred.indexOf(a.id);
+        const bIndex = preferred.indexOf(b.id);
+        if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+        if (aIndex >= 0) return -1;
+        if (bIndex >= 0) return 1;
+        return 0;
+    });
 }
 
 function getBudgetAlertForCategory(categoryId) {
@@ -1845,21 +1985,22 @@ function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
 
 function getCardBrand(cardName) {
     const normalized = String(cardName || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const logo = (domain) => `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
     const brands = [
-        { match: ['nubank', 'nu '], label: 'Nu', name: 'Nubank', color: '#6d28d9', accent: '#a855f7' },
-        { match: ['inter'], label: 'Inter', name: 'Inter', color: '#ff7a00', accent: '#ffb020' },
-        { match: ['itau', 'itaú'], label: 'Itaú', name: 'Itaú', color: '#003399', accent: '#ff7a00' },
-        { match: ['bradesco'], label: 'B', name: 'Bradesco', color: '#cc092f', accent: '#f43f5e' },
-        { match: ['santander'], label: 'S', name: 'Santander', color: '#e60000', accent: '#ff6b6b' },
-        { match: ['banco do brasil', 'bb'], label: 'BB', name: 'Banco do Brasil', color: '#facc15', accent: '#2563eb', text: '#172554' },
-        { match: ['caixa'], label: 'CX', name: 'Caixa', color: '#005ca9', accent: '#f97316' },
-        { match: ['c6'], label: 'C6', name: 'C6 Bank', color: '#111827', accent: '#facc15' },
-        { match: ['picpay'], label: 'P', name: 'PicPay', color: '#16a34a', accent: '#86efac' },
-        { match: ['mercado pago', 'mercadopago'], label: 'MP', name: 'Mercado Pago', color: '#009ee3', accent: '#67e8f9' },
-        { match: ['xp'], label: 'XP', name: 'XP', color: '#111827', accent: '#f59e0b' },
-        { match: ['next'], label: 'N', name: 'Next', color: '#22c55e', accent: '#0f172a' },
-        { match: ['neon'], label: 'Neon', name: 'Neon', color: '#00a5ff', accent: '#00f5d4' },
-        { match: ['will'], label: 'W', name: 'Will', color: '#facc15', accent: '#111827', text: '#111827' }
+        { match: ['nubank', 'nu '], label: 'Nu', name: 'Nubank', color: '#6d28d9', accent: '#a855f7', logoUrl: logo('nubank.com.br') },
+        { match: ['inter'], label: 'Inter', name: 'Inter', color: '#ff7a00', accent: '#ffb020', logoUrl: logo('bancointer.com.br') },
+        { match: ['itau', 'itaú'], label: 'Itaú', name: 'Itaú', color: '#003399', accent: '#ff7a00', logoUrl: logo('itau.com.br') },
+        { match: ['bradesco'], label: 'B', name: 'Bradesco', color: '#cc092f', accent: '#f43f5e', logoUrl: logo('bradesco.com.br') },
+        { match: ['santander'], label: 'S', name: 'Santander', color: '#e60000', accent: '#ff6b6b', logoUrl: logo('santander.com.br') },
+        { match: ['banco do brasil', 'bb'], label: 'BB', name: 'Banco do Brasil', color: '#facc15', accent: '#2563eb', text: '#172554', logoUrl: logo('bb.com.br') },
+        { match: ['caixa'], label: 'CX', name: 'Caixa', color: '#005ca9', accent: '#f97316', logoUrl: logo('caixa.gov.br') },
+        { match: ['c6'], label: 'C6', name: 'C6 Bank', color: '#111827', accent: '#facc15', logoUrl: logo('c6bank.com.br') },
+        { match: ['picpay'], label: 'P', name: 'PicPay', color: '#16a34a', accent: '#86efac', logoUrl: logo('picpay.com') },
+        { match: ['mercado pago', 'mercadopago'], label: 'MP', name: 'Mercado Pago', color: '#009ee3', accent: '#67e8f9', logoUrl: logo('mercadopago.com.br') },
+        { match: ['xp'], label: 'XP', name: 'XP', color: '#111827', accent: '#f59e0b', logoUrl: logo('xpinc.com') },
+        { match: ['next'], label: 'N', name: 'Next', color: '#22c55e', accent: '#0f172a', logoUrl: logo('next.me') },
+        { match: ['neon'], label: 'Neon', name: 'Neon', color: '#00a5ff', accent: '#00f5d4', logoUrl: logo('neon.com.br') },
+        { match: ['will'], label: 'W', name: 'Will', color: '#facc15', accent: '#111827', text: '#111827', logoUrl: logo('willbank.com.br') }
     ];
     const brand = brands.find((item) => item.match.some((key) => normalized.includes(key)));
     if (brand) return brand;
@@ -1871,6 +2012,13 @@ function getCardBrand(cardName) {
         .join('')
         .toUpperCase() || '?';
     return { label: initials, name: cardName || 'Card', color: '#0e7490', accent: '#14b8a6' };
+}
+
+function renderCardLogo(brand, className = 'card-brand-logo') {
+    const fallback = escapeHtml(brand.label);
+    const style = `--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};`;
+    if (!brand.logoUrl) return `<span class="${className}" style="${style}">${fallback}</span>`;
+    return `<span class="${className}" style="${style}"><img src="${escapeHtml(brand.logoUrl)}" alt="${escapeHtml(brand.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.parentElement.textContent='${fallback}';"></span>`;
 }
 
 function getCardMetaValue(card, keys) {
@@ -1916,7 +2064,7 @@ function renderCardsPage() {
             return `
                 <article class="card-finance-card" style="--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};">
                     <div class="card-visual">
-                        <div class="card-brand-logo">${escapeHtml(brand.label)}</div>
+                        ${renderCardLogo(brand)}
                         <div>
                             <p>${escapeHtml(brand.name)}</p>
                             <h3>${escapeHtml(card.name)}</h3>
@@ -1958,7 +2106,7 @@ function renderCardsPage() {
                 const brand = getCardBrand(card?.name || item.metodo);
                 return `
                     <div class="installment-row">
-                        <span class="mini-card-logo" style="--card-brand:${brand.color}; --card-accent:${brand.accent}; --card-text:${brand.text || '#ffffff'};">${escapeHtml(brand.label)}</span>
+                        ${renderCardLogo(brand, 'mini-card-logo')}
                         <div>
                             <strong>${escapeHtml(item.descricao)}</strong>
                             <small>${escapeHtml(card?.name || text.cardMethod)} · ${item.installmentNumber}/${item.installmentTotal} · ${escapeHtml(formatExpenseDate(item.dataRaw))}</small>
@@ -2804,8 +2952,72 @@ function prefFillOnboarding() {
     $('onboardingPessoa1').value = currentProfile?.full_name || '';
     $('onboardingPessoa2').value = '';
     $('onboardingIncome').value = currentProfile?.monthly_income || '';
+    if ($('onboardingCards')) $('onboardingCards').value = '';
+    if ($('onboardingClosingDay')) $('onboardingClosingDay').value = '';
+    if ($('onboardingGoalName')) $('onboardingGoalName').value = '';
+    if ($('onboardingGoalTarget')) $('onboardingGoalTarget').value = '';
+    renderOnboardingCategories();
     setOnboardingHouseholdType('couple');
     $('onboardingMessage').innerText = '';
+}
+
+function renderOnboardingCategories() {
+    const grid = $('onboardingCategoriesGrid');
+    if (!grid) return;
+    const selected = getPreferredCategoryOrder();
+    grid.innerHTML = categories.map((cat) => `
+        <button type="button" class="onboarding-category-chip ${selected.includes(cat.id) ? 'is-active' : ''}" data-category="${escapeHtml(cat.id)}" onclick="toggleOnboardingCategory(this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${cat.svg}</svg>
+            ${escapeHtml(getCategoryLabel(cat.id))}
+        </button>
+    `).join('');
+}
+
+function toggleOnboardingCategory(button) {
+    button.classList.toggle('is-active');
+}
+
+function getOnboardingSelectedCategories() {
+    return Array.from(document.querySelectorAll('.onboarding-category-chip.is-active'))
+        .map((button) => button.dataset.category)
+        .filter(Boolean);
+}
+
+function parseOnboardingCards() {
+    return String($('onboardingCards')?.value || '')
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .filter((name, index, list) => list.findIndex((item) => item.toLowerCase() === name.toLowerCase()) === index)
+        .slice(0, 8);
+}
+
+async function insertOnboardingCards(householdId, cardNames, closingDay) {
+    if (!cardNames.length) return;
+    const rows = cardNames.map((name) => ({
+        household_id: householdId,
+        name,
+        closing_day: closingDay || null,
+        is_active: true
+    }));
+    let result = await supabaseClient.from('cards').insert(rows);
+    if (result.error && String(result.error.message || '').includes('closing_day')) {
+        result = await supabaseClient.from('cards').insert(rows.map(({ closing_day, ...row }) => row));
+    }
+    if (result.error) showToast(result.error.message);
+}
+
+async function insertOnboardingGoal(householdId, goalName, goalTarget) {
+    if (!goalName && !goalTarget) return;
+    const payload = {
+        household_id: householdId,
+        name: goalName || (translations[currentLanguage] || translations['pt-BR']).savingsGoalLabel,
+        target_amount: goalTarget || 0,
+        current_amount: 0,
+        is_active: true
+    };
+    const { error } = await supabaseClient.from('savings_goals').insert(payload);
+    if (error) showToast(error.message);
 }
 
 async function handleOnboardingSubmit(event) {
@@ -2816,6 +3028,11 @@ async function handleOnboardingSubmit(event) {
     const pessoa1 = $('onboardingPessoa1').value.trim();
     const pessoa2 = $('onboardingPessoa2').value.trim();
     const monthlyIncome = parseFloat($('onboardingIncome').value || '0') || null;
+    const onboardingCards = parseOnboardingCards();
+    const closingDay = Math.min(Math.max(parseInt($('onboardingClosingDay')?.value || '0', 10) || 0, 0), 31);
+    const selectedCategories = getOnboardingSelectedCategories();
+    const goalName = $('onboardingGoalName')?.value.trim() || '';
+    const goalTarget = parseFloat($('onboardingGoalTarget')?.value || '0') || 0;
 
     if (!appName || !pessoa1 || !monthlyIncome || (onboardingHouseholdType === 'couple' && !pessoa2)) {
         const text = translations[currentLanguage] || translations['pt-BR'];
@@ -2841,6 +3058,19 @@ async function handleOnboardingSubmit(event) {
     if (!data) {
         $('onboardingMessage').innerText = text.onboardingCreateError;
         return;
+    }
+
+    const householdId = typeof data === 'string'
+        ? data
+        : Array.isArray(data)
+            ? data[0]?.household_id || data[0]?.id
+            : data?.household_id || data?.id;
+    if (householdId) {
+        await insertOnboardingCards(householdId, onboardingCards, closingDay);
+        await insertOnboardingGoal(householdId, goalName, goalTarget);
+    }
+    if (selectedCategories.length) {
+        localStorage.setItem('pluri_preferred_categories', JSON.stringify(selectedCategories));
     }
 
     await loadRemoteState();
@@ -3055,7 +3285,9 @@ function limparValor() {
 function renderCategories() {
     const grid = $('categoryGrid');
     grid.innerHTML = '';
-    categories.forEach((cat) => {
+    const orderedCategories = getOrderedCategories();
+    if (!orderedCategories.some((cat) => cat.id === categoriaSelecionada)) categoriaSelecionada = orderedCategories[0]?.id || 'Comida';
+    orderedCategories.forEach((cat) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = `category-chip p-2 rounded-2xl border flex flex-col items-center transition-all ${cat.id === categoriaSelecionada ? 'active-chip' : ''}`;
@@ -3573,6 +3805,7 @@ function render() {
     renderMonthlyDashboard();
     if ($('cardsPage') && !$('cardsPage').classList.contains('hidden')) renderCardsPage();
     updateMonthlySummaryNotice();
+    renderSmartNotifications();
     if ($('profilePage') && !$('profilePage').classList.contains('hidden')) updateProfilePage();
 }
 

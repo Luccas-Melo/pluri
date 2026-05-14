@@ -401,6 +401,34 @@
             box-shadow: var(--shadow);
         }
 
+        .onboarding-category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .onboarding-category-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 42px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text-soft);
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+
+        .onboarding-category-chip.is-active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
         .kicker {
             color: var(--primary-strong);
             font-size: 10px;
@@ -2283,6 +2311,14 @@
             font-size: 18px;
         }
 
+        .card-brand-logo img,
+        .mini-card-logo img {
+            width: 62%;
+            height: 62%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
         .card-visual p {
             font-size: 10px;
             font-weight: 900;
@@ -2427,6 +2463,55 @@
             display: grid;
             place-items: center;
             text-align: center;
+        }
+
+        .smart-notifications {
+            padding: 18px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            background: var(--bg-panel);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .smart-notifications-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .smart-notification {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            padding: 13px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+        }
+
+        .smart-notification > span {
+            width: 10px;
+            height: 10px;
+            margin-top: 5px;
+            border-radius: 999px;
+            background: var(--primary);
+        }
+
+        .smart-notification.warning > span { background: #f59e0b; }
+        .smart-notification.danger > span { background: #ef4444; }
+        .smart-notification.safe > span { background: #10b981; }
+
+        .smart-notification strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 950;
+            color: var(--text);
+        }
+
+        .smart-notification p {
+            margin-top: 4px;
+            font-size: 12px;
+            font-weight: 750;
+            color: var(--text-soft);
         }
 
         .profile-stat-card {
@@ -3027,6 +3112,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .onboarding-category-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .primary-theme .active-chip,
             .secondary-theme .active-chip,
             .primary-button,
@@ -3320,6 +3409,29 @@
                             <div id="onboardingPessoa2Wrap">
                                 <label id="onboardingPessoa2Label" class="panel-label mb-2 block">Pessoa 2</label>
                                 <input type="text" id="onboardingPessoa2" class="input-vr w-full" placeholder="Nome da outra pessoa">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label id="onboardingCardsLabel" class="panel-label mb-2 block">Cartões iniciais</label>
+                            <input type="text" id="onboardingCards" class="input-vr w-full" placeholder="Ex: Nubank, Inter, C6">
+                        </div>
+
+                        <div>
+                            <label id="onboardingClosingDayLabel" class="panel-label mb-2 block">Fechamento do mês</label>
+                            <input type="number" id="onboardingClosingDay" min="1" max="31" inputmode="numeric" class="input-vr w-full" placeholder="Dia do fechamento. Ex: 10">
+                        </div>
+
+                        <div>
+                            <label id="onboardingCategoriesLabel" class="panel-label mb-2 block">Categorias mais usadas</label>
+                            <div id="onboardingCategoriesGrid" class="onboarding-category-grid"></div>
+                        </div>
+
+                        <div>
+                            <label id="onboardingGoalLabel" class="panel-label mb-2 block">Objetivo financeiro</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <input type="text" id="onboardingGoalName" class="input-vr w-full" placeholder="Ex: Guardar para viagem">
+                                <input type="number" id="onboardingGoalTarget" min="0" step="0.01" inputmode="decimal" class="input-vr w-full" placeholder="Meta opcional R$">
                             </div>
                         </div>
 
@@ -3916,6 +4028,11 @@
                 <button type="button" id="summaryDismissBtn" onclick="dismissMonthlySummaryNotice()" class="ghost-button px-4 py-3 font-black text-xs uppercase">Depois</button>
                 <button type="button" id="summaryOpenBtn" onclick="openMonthlySummary()" class="primary-button px-5 py-3 rounded-2xl font-black text-xs uppercase">Ver resumo</button>
             </div>
+        </div>
+        <div id="smartNotifications" class="smart-notifications mb-6">
+            <p id="notificationsKicker" class="kicker mb-2">Notificações</p>
+            <h2 id="notificationsTitle" class="text-2xl font-black tracking-tight mb-4">Atenção financeira</h2>
+            <div id="smartNotificationsList" class="smart-notifications-list"></div>
         </div>
         <div class="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6">
             <div class="lg:col-span-8 space-y-6">
