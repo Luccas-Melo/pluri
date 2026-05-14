@@ -99,6 +99,9 @@ create table if not exists public.expenses (
   payment_method text not null check (payment_method in ('pix', 'cash', 'debit_card', 'credit_card', 'bank_slip', 'other')),
   occurred_on date not null,
   is_fixed boolean not null default false,
+  installment_group_id uuid,
+  installment_number integer not null default 1 check (installment_number >= 1),
+  installment_total integer not null default 1 check (installment_total >= 1),
   notes text,
   external_ref text,
   created_by uuid references public.profiles(id) on delete set null,
@@ -114,6 +117,7 @@ create index if not exists idx_goals_household_id on public.savings_goals(househ
 create index if not exists idx_expenses_household_id on public.expenses(household_id);
 create index if not exists idx_expenses_member_id on public.expenses(member_id);
 create index if not exists idx_expenses_occurred_on on public.expenses(occurred_on desc);
+create index if not exists idx_expenses_installment_group_id on public.expenses(installment_group_id);
 
 drop trigger if exists trg_profiles_updated_at on public.profiles;
 create trigger trg_profiles_updated_at

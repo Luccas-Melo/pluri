@@ -146,6 +146,11 @@ const translations = {
         deleteAccountConfirm: 'Sim, apagar',
         deleteAccountMissingRpc: 'A funcao delete_my_account ainda nao existe no Supabase. Rode o SQL de apagar conta.',
         fixed: 'Fixo',
+        installment: 'Parcelado',
+        installmentsLabel: 'Parcelas',
+        installmentsPlaceholder: 'Ex: 6',
+        installmentHint: 'O valor informado sera repetido mensalmente por parcela.',
+        installmentInvalid: 'Informe pelo menos 2 parcelas.',
         updatePassword: 'Atualizar senha',
         settingsKicker: 'Preferencias',
         settingsTitle: 'Configuracoes',
@@ -280,6 +285,11 @@ const translations = {
         deleteAccountConfirm: 'Yes, delete',
         deleteAccountMissingRpc: 'The delete_my_account function does not exist in Supabase yet. Run the delete account SQL.',
         fixed: 'Fixed',
+        installment: 'Installment',
+        installmentsLabel: 'Installments',
+        installmentsPlaceholder: 'Ex: 6',
+        installmentHint: 'The entered amount will repeat monthly per installment.',
+        installmentInvalid: 'Enter at least 2 installments.',
         updatePassword: 'Update password',
         settingsKicker: 'Preferences',
         settingsTitle: 'Settings',
@@ -414,6 +424,11 @@ const translations = {
         deleteAccountConfirm: 'Si, eliminar',
         deleteAccountMissingRpc: 'La funcion delete_my_account aun no existe en Supabase. Ejecuta el SQL para eliminar cuenta.',
         fixed: 'Fijo',
+        installment: 'En cuotas',
+        installmentsLabel: 'Cuotas',
+        installmentsPlaceholder: 'Ej: 6',
+        installmentHint: 'El valor informado se repetira mensualmente por cuota.',
+        installmentInvalid: 'Informa al menos 2 cuotas.',
         updatePassword: 'Actualizar contrasena',
         settingsKicker: 'Preferencias',
         settingsTitle: 'Configuracion',
@@ -575,6 +590,10 @@ function setLanguage(language) {
     if ($('googleAuthLabel')) $('googleAuthLabel').innerText = text.google;
     if ($('recoverySubmitBtn')) $('recoverySubmitBtn').innerText = text.updatePassword;
     if ($('fixedLabel')) $('fixedLabel').innerText = text.fixed;
+    if ($('installmentLabel')) $('installmentLabel').innerText = text.installment;
+    if ($('installmentsFieldLabel')) $('installmentsFieldLabel').innerText = text.installmentsLabel;
+    if ($('installmentsCount')) $('installmentsCount').placeholder = text.installmentsPlaceholder;
+    if ($('installmentHint')) $('installmentHint').innerText = text.installmentHint;
     if ($('settingsKicker')) $('settingsKicker').innerText = text.settingsKicker;
     if ($('settingsTitle')) $('settingsTitle').innerText = text.settingsTitle;
     if ($('settingsLanguageLabel')) $('settingsLanguageLabel').innerText = text.languageLabel;
@@ -737,6 +756,26 @@ function isCartaoMetodo(value) {
 function formatExpenseDate(dateStr) {
     const date = new Date(`${dateStr}T12:00:00`);
     return isNaN(date.getTime()) ? dateStr : date.toLocaleDateString(getCurrentLocale(), { day: '2-digit', month: 'short' });
+}
+
+function formatDateInputValue(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function addMonthsToDate(dateStr, monthsToAdd) {
+    const [year, month, day] = String(dateStr).split('-').map(Number);
+    const targetMonthIndex = (month - 1) + monthsToAdd;
+    const targetYear = year + Math.floor(targetMonthIndex / 12);
+    const normalizedMonth = ((targetMonthIndex % 12) + 12) % 12;
+    const lastDay = new Date(targetYear, normalizedMonth + 1, 0).getDate();
+    return formatDateInputValue(new Date(targetYear, normalizedMonth, Math.min(day, lastDay)));
+}
+
+function createGroupId() {
+    return crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function showToast(msg) {
@@ -1121,7 +1160,10 @@ function makeUiExpense(row) {
         mes: row.occurred_on.substring(5, 7),
         dataRaw: row.occurred_on,
         dataDisplay: formatExpenseDate(row.occurred_on),
-        isFixo: Boolean(row.is_fixed)
+        isFixo: Boolean(row.is_fixed),
+        installmentGroupId: row.installment_group_id || null,
+        installmentNumber: Number(row.installment_number || 1),
+        installmentTotal: Number(row.installment_total || 1)
     };
 }
 
@@ -1875,6 +1917,14 @@ function setMetodo(metodo) {
     $('seletorCartao').classList.toggle('hidden', !isCartaoMetodo(metodo));
 }
 
+function toggleInstallments() {
+    const checked = $('isParcelado')?.checked;
+    $('installmentFields')?.classList.toggle('hidden', !checked);
+    if (checked && $('installmentsCount') && Number($('installmentsCount').value || 0) < 2) {
+        $('installmentsCount').value = 2;
+    }
+}
+
 function setValorRapido(valor) {
     const input = $('valor');
     input.value = ((parseFloat(input.value) || 0) + valor).toFixed(2);
@@ -1918,23 +1968,50 @@ async function handleExpenseSubmit(event) {
     const occurredOn = $('dataGasto').value;
     const member = currentMembers.find((item) => item.display_name === pagadorAtual);
     const card = currentCards.find((item) => item.name === $('tipoCartao').value);
+    const isInstallment = Boolean($('isParcelado')?.checked);
+    const installmentTotal = isInstallment ? parseInt($('installmentsCount')?.value || '0', 10) : 1;
+    if (isInstallment && (!installmentTotal || installmentTotal < 2)) {
+        showToast(text.installmentInvalid);
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = textoOriginal;
+        return;
+    }
 
-    const { data, error } = await supabaseClient
+    const installmentGroupId = isInstallment ? createGroupId() : null;
+    const baseExpense = {
+        household_id: currentHousehold.id,
+        member_id: member?.id,
+        card_id: isCartaoMetodo(metodoPagamento) ? card?.id || null : null,
+        amount: parseFloat($('valor').value),
+        category: categoriaSelecionada,
+        description: $('descricao').value.trim() || categoriaSelecionada,
+        payment_method: getPaymentMethodForDb(),
+        is_fixed: $('isFixo').checked,
+        created_by: currentSession.user.id
+    };
+    const expensesToInsert = Array.from({ length: installmentTotal }, (_, index) => ({
+        ...baseExpense,
+        occurred_on: addMonthsToDate(occurredOn, index),
+        installment_group_id: installmentGroupId,
+        installment_number: index + 1,
+        installment_total: installmentTotal
+    }));
+
+    let insertResult = await supabaseClient
         .from('expenses')
-        .insert({
-            household_id: currentHousehold.id,
-            member_id: member?.id,
-            card_id: isCartaoMetodo(metodoPagamento) ? card?.id || null : null,
-            amount: parseFloat($('valor').value),
-            category: categoriaSelecionada,
-            description: $('descricao').value.trim() || categoriaSelecionada,
-            payment_method: getPaymentMethodForDb(),
-            occurred_on: occurredOn,
-            is_fixed: $('isFixo').checked,
-            created_by: currentSession.user.id
-        })
-        .select()
-        .single();
+        .insert(expensesToInsert)
+        .select();
+
+    if (insertResult.error && String(insertResult.error.message || '').includes('installment_')) {
+        const fallbackExpenses = expensesToInsert.map(({ installment_group_id, installment_number, installment_total, ...expense }) => expense);
+        showToast('Campos de parcelamento ainda nao existem no Supabase. Salvando sem marcadores de parcela.');
+        insertResult = await supabaseClient
+            .from('expenses')
+            .insert(fallbackExpenses)
+            .select();
+    }
+
+    const { data, error } = insertResult;
 
     btnSubmit.disabled = false;
     btnSubmit.innerText = textoOriginal;
@@ -1946,10 +2023,12 @@ async function handleExpenseSubmit(event) {
 
     if (isCartaoMetodo(metodoPagamento) && card?.name) await salvarCartaoFavorito(pagadorAtual, card.name);
 
-    gastos.unshift(makeUiExpense(data));
+    gastos.unshift(...(data || []).map(makeUiExpense));
+    gastos.sort((a, b) => new Date(b.dataRaw) - new Date(a.dataRaw));
     render();
     event.target.reset();
     $('dataGasto').valueAsDate = new Date();
+    toggleInstallments();
     setMetodo('PIX');
     updateSeletorCartaoForm();
     showToast('Gasto registrado!');
@@ -2281,6 +2360,9 @@ function render() {
             pagador: getDisplayMemberName(originalPagador),
             dataDisplay: formatExpenseDate(gasto.dataRaw)
         };
+        const installmentBadge = gasto.installmentTotal > 1
+            ? `<span class="installment-badge">${gasto.installmentNumber}/${gasto.installmentTotal}</span>`
+            : '';
 
         lista.innerHTML += `
             <div class="expense-card p-3 lg:p-4 ${isPrimary ? 'border-[var(--member-primary)]' : 'border-[var(--member-secondary-color)]'}">
@@ -2289,7 +2371,7 @@ function render() {
                         <span class="w-2 h-2 rounded-full ${isPrimary ? 'bg-[var(--member-primary)]' : 'bg-[var(--member-secondary-color)]'}"></span>
                         <div>
                             <p class="font-bold text-xs expense-title">${escapeHtml(gasto.descricao)}</p>
-                            <p class="text-[8px] font-bold uppercase tracking-wider expense-meta">${escapeHtml(gasto.pagador)} • ${escapeHtml(gasto.metodo)} • ${escapeHtml(gasto.dataDisplay)}</p>
+                            <p class="text-[8px] font-bold uppercase tracking-wider expense-meta">${escapeHtml(gasto.pagador)} • ${escapeHtml(gasto.metodo)} • ${escapeHtml(gasto.dataDisplay)} ${installmentBadge}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
@@ -2313,7 +2395,7 @@ function render() {
                     </div>
                     <p class="font-bold text-base expense-title mb-3">${escapeHtml(gasto.descricao)}</p>
                     <div class="flex justify-between items-center">
-                        <p class="text-xs font-medium expense-meta">${escapeHtml(gasto.metodo)} • ${escapeHtml(gasto.dataDisplay)}</p>
+                        <p class="text-xs font-medium expense-meta">${escapeHtml(gasto.metodo)} • ${escapeHtml(gasto.dataDisplay)} ${installmentBadge}</p>
                         <p class="font-black text-base ${isPrimary ? 'expense-amount-primary' : 'expense-amount-secondary'}">R$ ${gasto.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                 </div>

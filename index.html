@@ -918,6 +918,26 @@
             color: var(--text-soft) !important;
         }
 
+        .installment-panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .installment-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 6px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--primary) 12%, transparent);
+            color: var(--primary-strong);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+        }
+
         .category-chip span,
         .chip-metodo {
             color: inherit !important;
@@ -3380,6 +3400,20 @@
                             <div class="flex items-center justify-center rounded-xl gap-2 soft-panel px-3">
                                 <input type="checkbox" id="isFixo" class="pretty-checkbox"><label id="fixedLabel" for="isFixo" class="text-[8px] font-bold uppercase" style="color: var(--text-soft);">Fixo</label>
                             </div>
+                        </div>
+
+                        <div class="soft-panel p-3">
+                            <div class="installment-panel">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="isParcelado" onchange="toggleInstallments()" class="pretty-checkbox">
+                                    <label id="installmentLabel" for="isParcelado" class="text-[8px] font-bold uppercase" style="color: var(--text-soft);">Parcelado</label>
+                                </div>
+                                <div id="installmentFields" class="hidden flex items-center gap-2">
+                                    <label id="installmentsFieldLabel" for="installmentsCount" class="text-[8px] font-bold uppercase" style="color: var(--text-soft);">Parcelas</label>
+                                    <input type="number" id="installmentsCount" min="2" max="72" step="1" value="2" class="input-vr w-20 text-center font-black" placeholder="Ex: 6">
+                                </div>
+                            </div>
+                            <p id="installmentHint" class="text-[9px] mt-2" style="color: var(--text-soft);">O valor informado sera repetido mensalmente por parcela.</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
