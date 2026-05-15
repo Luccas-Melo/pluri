@@ -1133,7 +1133,7 @@
 
         .adaptive-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(138px, 100%), 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
         }
 
@@ -1141,10 +1141,42 @@
             min-width: 0;
         }
 
+        .adaptive-card-grid > *:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+        }
+
         .budget-adaptive-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 12px;
+        }
+
+        .budget-adaptive-grid > * {
+            grid-column: span 2;
+            min-width: 0;
+        }
+
+        .budget-adaptive-grid > *:last-child:nth-child(3n + 1) {
+            grid-column: 1 / -1;
+        }
+
+        .budget-adaptive-grid > *:nth-last-child(2):nth-child(3n + 1),
+        .budget-adaptive-grid > *:last-child:nth-child(3n + 2) {
+            grid-column: span 3;
+        }
+
+        @media (max-width: 768px) {
+            .budget-adaptive-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .budget-adaptive-grid > * {
+                grid-column: span 1;
+            }
+
+            .budget-adaptive-grid > *:last-child:nth-child(odd) {
+                grid-column: 1 / -1;
+            }
         }
 
         .installment-panel {
