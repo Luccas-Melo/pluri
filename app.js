@@ -2875,18 +2875,12 @@ function setPayer(pagador) {
 function setHouseholdType(type) {
     householdTypeDraft = type === 'solo' ? 'solo' : 'couple';
     $('btnModeCouple').className = householdTypeDraft === 'couple'
-        ? 'py-3 rounded-2xl font-black text-[10px] uppercase active-chip'
-        : 'py-3 rounded-2xl font-black text-[10px] uppercase';
-    $('btnModeCouple').style.background = householdTypeDraft === 'couple' ? '' : 'var(--bg-elevated)';
-    $('btnModeCouple').style.border = '1px solid var(--border)';
-    $('btnModeCouple').style.color = householdTypeDraft === 'couple' ? '' : 'var(--text)';
+        ? 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase is-selected'
+        : 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase';
 
     $('btnModeSolo').className = householdTypeDraft === 'solo'
-        ? 'py-3 rounded-2xl font-black text-[10px] uppercase active-chip'
-        : 'py-3 rounded-2xl font-black text-[10px] uppercase';
-    $('btnModeSolo').style.background = householdTypeDraft === 'solo' ? '' : 'var(--bg-elevated)';
-    $('btnModeSolo').style.border = '1px solid var(--border)';
-    $('btnModeSolo').style.color = householdTypeDraft === 'solo' ? '' : 'var(--text)';
+        ? 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase is-selected'
+        : 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase';
     $('editPessoa2Nome').disabled = householdTypeDraft === 'solo';
     $('editPessoa2Nome').parentElement.classList.toggle('opacity-50', householdTypeDraft === 'solo');
 }
@@ -2894,18 +2888,12 @@ function setHouseholdType(type) {
 function setOnboardingHouseholdType(type) {
     onboardingHouseholdType = type === 'solo' ? 'solo' : 'couple';
     $('onboardingModeCouple').className = onboardingHouseholdType === 'couple'
-        ? 'py-3 rounded-2xl font-black text-[10px] uppercase active-chip'
-        : 'py-3 rounded-2xl font-black text-[10px] uppercase';
-    $('onboardingModeCouple').style.background = onboardingHouseholdType === 'couple' ? '' : 'var(--bg-elevated)';
-    $('onboardingModeCouple').style.border = '1px solid var(--border)';
-    $('onboardingModeCouple').style.color = onboardingHouseholdType === 'couple' ? '' : 'var(--text)';
+        ? 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase is-selected'
+        : 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase';
 
     $('onboardingModeSolo').className = onboardingHouseholdType === 'solo'
-        ? 'py-3 rounded-2xl font-black text-[10px] uppercase active-chip'
-        : 'py-3 rounded-2xl font-black text-[10px] uppercase';
-    $('onboardingModeSolo').style.background = onboardingHouseholdType === 'solo' ? '' : 'var(--bg-elevated)';
-    $('onboardingModeSolo').style.border = '1px solid var(--border)';
-    $('onboardingModeSolo').style.color = onboardingHouseholdType === 'solo' ? '' : 'var(--text)';
+        ? 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase is-selected'
+        : 'household-mode-button py-3 rounded-2xl font-black text-[10px] uppercase';
     $('onboardingPessoa2Wrap').classList.toggle('opacity-50', onboardingHouseholdType === 'solo');
     $('onboardingPessoa2').disabled = onboardingHouseholdType === 'solo';
 }
@@ -4509,7 +4497,8 @@ body { margin: 0; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #0
 .report { max-width: 980px; margin: 0 auto; background: #f8fbfc; padding: 28px; }
 .hero { border-radius: 30px; padding: 30px; color: white; background: radial-gradient(circle at 90% 0%, rgba(236,72,153,.55), transparent 30%), linear-gradient(135deg,#0e7490,#0891b2 45%,#64748b); }
 .brand { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.logo { width: 58px; height: 58px; border-radius: 20px; background: rgba(255,255,255,.92); display: grid; place-items: center; color: #0e7490; font-weight: 950; }
+.logo { width: 58px; height: 58px; border-radius: 20px; background: rgba(255,255,255,.92); display: grid; place-items: center; overflow: hidden; }
+.logo img { width: 40px; height: 40px; object-fit: contain; display: block; }
 .kicker { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 900; opacity: .8; }
 h1 { margin: 14px 0 8px; font-size: 42px; line-height: .95; letter-spacing: -.06em; }
 .hero p { max-width: 620px; margin: 0; opacity: .9; }
@@ -4535,7 +4524,7 @@ tr:last-child td { border-bottom: 0; }
 <body>
 <main class="report">
     <section class="hero">
-        <div class="brand"><div class="logo">Pluri</div><div class="kicker">${escapeHtml(generatedAt)}</div></div>
+        <div class="brand"><div class="logo"><img src="logo-pluri.png" alt="Pluri"></div><div class="kicker">${escapeHtml(generatedAt)}</div></div>
         <h1>${escapeHtml(text.exportReportHeading)}</h1>
         <p>${escapeHtml(appConfig.appName)} | ${rows.length} ${escapeHtml(text.summaryTransactions.toLowerCase())}</p>
     </section>
