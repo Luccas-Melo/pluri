@@ -408,6 +408,8 @@ const translations = {
         setupHint: 'Assim que salvar o arquivo e recarregar a página, o app usa o novo projeto automaticamente.',
         defineNewPassword: 'Defina sua nova senha.',
         signingIn: 'Entrando...',
+        loginSuccessTitle: 'Login feito com sucesso!',
+        loginSuccessText: 'Tudo certo. Estamos preparando seu Pluri.',
         loadingDashboard: 'Carregando painel...',
         creating: 'Criando...',
         sending: 'Enviando...',
@@ -713,6 +715,8 @@ const translations = {
         setupHint: 'After saving the file and reloading the page, the app automatically uses the new project.',
         defineNewPassword: 'Set your new password.',
         signingIn: 'Signing in...',
+        loginSuccessTitle: 'Signed in successfully!',
+        loginSuccessText: 'All set. We are preparing your Pluri.',
         loadingDashboard: 'Loading dashboard...',
         creating: 'Creating...',
         sending: 'Sending...',
@@ -1018,6 +1022,8 @@ const translations = {
         setupHint: 'Cuando guardes el archivo y recargues la página, la app usará el nuevo proyecto automáticamente.',
         defineNewPassword: 'Define tu nueva contraseña.',
         signingIn: 'Entrando...',
+        loginSuccessTitle: '¡Login realizado con éxito!',
+        loginSuccessText: 'Todo listo. Estamos preparando tu Pluri.',
         loadingDashboard: 'Cargando panel...',
         creating: 'Creando...',
         sending: 'Enviando...',
@@ -1311,6 +1317,8 @@ function setLanguage(language) {
     if ($('logoutModalText')) $('logoutModalText').innerText = text.logoutConfirm;
     if ($('logoutModalCancel')) $('logoutModalCancel').innerText = text.logoutCancel;
     if ($('logoutModalConfirm')) $('logoutModalConfirm').innerText = text.logoutConfirmAction;
+    if ($('loginSuccessTitle')) $('loginSuccessTitle').innerText = text.loginSuccessTitle;
+    if ($('loginSuccessText')) $('loginSuccessText').innerText = text.loginSuccessText;
     if ($('deleteCardModalTitle')) $('deleteCardModalTitle').innerText = text.cardDeleteTitle;
     if ($('deleteCardModalText')) $('deleteCardModalText').innerText = text.cardDeleteText;
     if ($('deleteCardModalCancel')) $('deleteCardModalCancel').innerText = text.cardCancelButton;
@@ -1476,6 +1484,10 @@ function syncModalState() {
 function focusFirstModalElement(modal) {
     const focusable = modal.querySelector('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
     if (focusable) window.setTimeout(() => focusable.focus({ preventScroll: true }), 80);
+}
+
+function wait(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function openModal(id) {
@@ -3055,12 +3067,19 @@ async function handleAuthSubmit(event) {
         }
 
         if (data?.session) {
+            setAuthButtonLoading(submitButton, true, text.loginSuccessTitle);
+            if ($('loginSuccessTitle')) $('loginSuccessTitle').innerText = text.loginSuccessTitle;
+            if ($('loginSuccessText')) $('loginSuccessText').innerText = text.loginSuccessText;
+            openModal('modalLoginSuccess');
+            await wait(850);
             setAuthButtonLoading(submitButton, true, text.loadingDashboard);
             await handleAuthState(data.session);
+            closeModal('modalLoginSuccess');
             completedAuthNavigation = true;
         }
     } catch (stateError) {
         console.error(stateError);
+        closeModal('modalLoginSuccess');
         $('authMessage').innerText = stateError.message || text.accountOpenError;
     } finally {
         if (!completedAuthNavigation) {

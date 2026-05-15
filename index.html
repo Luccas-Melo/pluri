@@ -242,14 +242,16 @@
         #modalDelete,
         #modalDeleteCard,
         #modalDeleteAccount,
-        #modalLogout {
+        #modalLogout,
+        #modalLoginSuccess {
             z-index: 10020 !important;
         }
 
         #modalDelete > .custom-card,
         #modalDeleteCard > .custom-card,
         #modalDeleteAccount > .custom-card,
-        #modalLogout > .custom-card {
+        #modalLogout > .custom-card,
+        #modalLoginSuccess > .custom-card {
             position: relative;
             z-index: 1;
         }
@@ -843,6 +845,71 @@
             color: var(--text-soft);
             font-size: 13px;
             line-height: 1.6;
+        }
+
+        .login-success-card {
+            overflow: hidden;
+            animation: loginSuccessIn 320ms cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .login-success-card::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--primary) 24%, transparent), transparent 26%),
+                radial-gradient(circle at 65% 55%, rgba(236, 72, 153, 0.12), transparent 22%);
+            pointer-events: none;
+        }
+
+        .login-success-orb {
+            position: relative;
+            width: 78px;
+            height: 78px;
+            display: grid;
+            place-items: center;
+            border-radius: 28px;
+            background: color-mix(in srgb, var(--primary) 14%, #fff);
+            box-shadow: 0 18px 40px color-mix(in srgb, var(--primary) 18%, transparent);
+            animation: loginOrbPop 520ms cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .login-success-orb img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .login-success-bar {
+            position: relative;
+            height: 7px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+        }
+
+        .login-success-bar span {
+            position: absolute;
+            inset: 0;
+            transform-origin: left;
+            background: var(--primary);
+            animation: loginBarFill 850ms ease both;
+        }
+
+        @keyframes loginSuccessIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes loginOrbPop {
+            0% { transform: scale(0.72) rotate(-8deg); opacity: 0; }
+            70% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        @keyframes loginBarFill {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
         }
 
         @keyframes softRise {
@@ -2193,7 +2260,7 @@
 
         .monthly-stat-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
             gap: 14px;
         }
 
@@ -2277,7 +2344,7 @@
 
         .monthly-insights-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
             gap: 12px;
         }
 
@@ -2351,7 +2418,7 @@
         .cards-summary-grid,
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(310px, 100%), 1fr));
             gap: 16px;
         }
 
@@ -3843,6 +3910,18 @@
                 <button id="logoutModalCancel" type="button" onclick="closeModal('modalLogout')" class="flex-1 py-3 text-xs font-bold ghost-button">Continuar logado</button>
                 <button id="logoutModalConfirm" type="button" onclick="logout()" class="flex-1 py-3 rounded-xl font-black text-xs danger-button">Sim, sair</button>
             </div>
+        </div>
+    </div>
+
+    <div id="modalLoginSuccess" class="modal-overlay">
+        <div class="custom-card p-8 max-w-sm text-center mx-4 login-success-card">
+            <div class="login-success-orb mx-auto mb-5">
+                <img src="logo-pluri.png" alt="Pluri">
+            </div>
+            <p class="kicker mb-2">Pluri</p>
+            <h3 id="loginSuccessTitle" class="text-2xl font-black mb-2">Login feito com sucesso!</h3>
+            <p id="loginSuccessText" class="text-sm" style="color: var(--text-soft);">Tudo certo. Estamos preparando seu Pluri.</p>
+            <div class="login-success-bar mt-6"><span></span></div>
         </div>
     </div>
 
