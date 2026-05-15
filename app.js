@@ -2094,9 +2094,14 @@ function renderMonthlyInsights({ text, currentExpenses, currentTotal, previousTo
 function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
     const categoryCanvas = $('monthlyCategoryChartCanvas');
     const dailyCanvas = $('monthlyDailyChartCanvas');
-    const styles = getComputedStyle(document.documentElement);
+    const styles = getComputedStyle(document.body);
     const textColor = styles.getPropertyValue('--text').trim() || '#0f172a';
-    const gridColor = styles.getPropertyValue('--border').trim() || 'rgba(148, 163, 184, 0.2)';
+    const softTextColor = styles.getPropertyValue('--text-soft').trim() || textColor;
+    const gridColor = currentThemeMode === 'dark'
+        ? 'rgba(244, 244, 245, 0.12)'
+        : (styles.getPropertyValue('--border').trim() || 'rgba(148, 163, 184, 0.2)');
+    const tooltipBg = currentThemeMode === 'dark' ? '#18181b' : '#ffffff';
+    const tooltipText = currentThemeMode === 'dark' ? '#f4f4f5' : '#0f172a';
     const palette = ['#0e7490', '#14b8a6', '#ec4899', '#7c3aed', '#f59e0b'];
 
     if (categoryCanvas) {
@@ -2120,7 +2125,14 @@ function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { color: textColor, boxWidth: 10, usePointStyle: true, font: { weight: 700 } }
+                        labels: { color: softTextColor, boxWidth: 10, usePointStyle: true, font: { weight: 800 } }
+                    },
+                    tooltip: {
+                        backgroundColor: tooltipBg,
+                        titleColor: tooltipText,
+                        bodyColor: tooltipText,
+                        borderColor: gridColor,
+                        borderWidth: 1
                     }
                 }
             }
@@ -2143,16 +2155,25 @@ function renderMonthlyCharts(categoryTotals, dailyTotals, text) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: tooltipBg,
+                        titleColor: tooltipText,
+                        bodyColor: tooltipText,
+                        borderColor: gridColor,
+                        borderWidth: 1
+                    }
+                },
                 scales: {
                     x: {
-                        ticks: { color: textColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+                        ticks: { color: softTextColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
                         grid: { display: false }
                     },
                     y: {
                         beginAtZero: true,
-                        ticks: { color: textColor, callback: (value) => `R$ ${Number(value).toLocaleString(getCurrentLocale())}` },
-                        grid: { color: gridColor }
+                        ticks: { color: softTextColor, callback: (value) => `R$ ${Number(value).toLocaleString(getCurrentLocale())}` },
+                        grid: { color: gridColor, drawBorder: false }
                     }
                 }
             }

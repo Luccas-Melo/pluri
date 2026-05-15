@@ -2114,6 +2114,15 @@
             z-index: 1;
         }
 
+        body.dark-theme .profile-card-main {
+            background:
+                radial-gradient(circle at 50% 0%, rgba(14, 116, 144, 0.18), transparent 42%),
+                rgba(24, 24, 27, 0.86);
+            border-color: rgba(255,255,255,0.12);
+            color: #f4f4f5;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.42);
+        }
+
         .profile-card-main .primary-button {
             width: fit-content;
             padding-left: 22px;
@@ -2643,6 +2652,28 @@
             border-radius: 18px;
             background: var(--bg-elevated);
             color: var(--text);
+        }
+
+        .card-expense-empty,
+        .cards-empty-state {
+            padding: 14px 16px;
+            color: var(--text-soft);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        body.dark-theme .card-expense-row,
+        body.dark-theme .installment-row,
+        body.dark-theme .card-expense-empty,
+        body.dark-theme .cards-empty-state {
+            background: rgba(24, 24, 27, 0.72);
+            border-color: rgba(255,255,255,0.12);
+            color: rgba(244,244,245,0.86);
+        }
+
+        body.dark-theme .card-expense-empty,
+        body.dark-theme .cards-empty-state {
+            color: rgba(244,244,245,0.78);
         }
 
         .card-expense-row {
