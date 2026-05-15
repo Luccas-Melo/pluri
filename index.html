@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0F0D15">
@@ -2642,6 +2643,12 @@
             font-weight: 950;
             text-transform: uppercase;
             opacity: 0.72;
+        }
+
+        .card-finance-card .card-expense-list .panel-label {
+            color: rgba(255,255,255,0.86) !important;
+            opacity: 1;
+            text-shadow: 0 1px 12px rgba(0,0,0,0.22);
         }
 
         .card-finance-metrics strong {

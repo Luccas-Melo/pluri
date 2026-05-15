@@ -4563,7 +4563,166 @@ tr:last-child td { border-bottom: 0; }
 </html>`;
 }
 
-function exportPdfReport(rows) {
+function loadImageDataUrl(src) {
+    return new Promise((resolve) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        image.onerror = () => resolve('');
+        image.src = src;
+    });
+}
+
+function drawPdfStat(doc, x, y, w, label, value) {
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(219, 231, 238);
+    doc.roundedRect(x, y, w, 24, 5, 5, 'FD');
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text(String(label).toUpperCase(), x + 5, y + 8);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(14);
+    doc.text(String(value), x + 5, y + 18);
+}
+
+function drawPdfSectionTitle(doc, title, x, y) {
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text(title, x, y);
+}
+
+async function exportPdfReport(rows) {
+    const jsPdfCtor = window.jspdf?.jsPDF;
+    if (!jsPdfCtor) {
+        printPdfReport(rows);
+        return;
+    }
+
+    const text = translations[currentLanguage] || translations['pt-BR'];
+    const doc = new jsPdfCtor({ unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    const contentWidth = pageWidth - margin * 2;
+    const total = rows.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const byCategory = rows.reduce((acc, item) => {
+        acc[item.categoria] = (acc[item.categoria] || 0) + Number(item.valor || 0);
+        return acc;
+    }, {});
+    const byPayer = rows.reduce((acc, item) => {
+        acc[item.pagador] = (acc[item.pagador] || 0) + Number(item.valor || 0);
+        return acc;
+    }, {});
+    const generatedAt = new Date().toLocaleString(getCurrentLocale());
+    const logoData = await loadImageDataUrl('logo-pluri.png');
+
+    doc.setFillColor(238, 247, 250);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    doc.setFillColor(14, 116, 144);
+    doc.roundedRect(margin, 14, contentWidth, 42, 7, 7, 'F');
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin + 6, 22, 18, 18, 5, 5, 'F');
+    if (logoData) doc.addImage(logoData, 'PNG', margin + 10, 26, 10, 10);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text(text.exportReportHeading, margin + 6, 47);
+    doc.setFontSize(8);
+    doc.text(generatedAt, pageWidth - margin - 6, 28, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`${appConfig.appName} | ${rows.length} ${text.summaryTransactions.toLowerCase()}`, margin + 6, 54);
+
+    const statY = 66;
+    const statW = (contentWidth - 8) / 3;
+    drawPdfStat(doc, margin, statY, statW, text.summaryTotal, `R$ ${formatMoneyForExport(total)}`);
+    drawPdfStat(doc, margin + statW + 4, statY, statW, text.summaryAverage, `R$ ${formatMoneyForExport(total / Math.max(rows.length, 1))}`);
+    drawPdfStat(doc, margin + (statW + 4) * 2, statY, statW, text.summaryTransactions, String(rows.length));
+
+    let y = statY + 36;
+    if (Object.keys(byPayer).length) {
+        Object.entries(byPayer).slice(0, 3).forEach(([name, value], index) => {
+            drawPdfStat(doc, margin + index * (statW + 4), y, statW, name, `R$ ${formatMoneyForExport(value)}`);
+        });
+        y += 34;
+    }
+
+    drawPdfSectionTitle(doc, text.monthlyCategoryLabel || text.exportHeaderCategory, margin, y);
+    y += 8;
+    const maxCategory = Math.max(...Object.values(byCategory), 1);
+    Object.entries(byCategory).sort((a, b) => b[1] - a[1]).slice(0, 6).forEach(([name, value]) => {
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text(name, margin, y);
+        doc.text(`R$ ${formatMoneyForExport(value)}`, pageWidth - margin, y, { align: 'right' });
+        doc.setFillColor(226, 232, 240);
+        doc.roundedRect(margin, y + 3, contentWidth, 3, 1.5, 1.5, 'F');
+        doc.setFillColor(20, 184, 166);
+        doc.roundedRect(margin, y + 3, Math.max((value / maxCategory) * contentWidth, 8), 3, 1.5, 1.5, 'F');
+        y += 12;
+    });
+
+    y += 8;
+    drawPdfSectionTitle(doc, text.historyTitle, margin, y);
+    y += 8;
+    const headers = getExportHeaders();
+    const colWidths = [22, 26, 28, 24, 58, 26];
+    doc.setFillColor(241, 245, 249);
+    doc.rect(margin, y - 5, contentWidth, 8, 'F');
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    let x = margin + 2;
+    headers.forEach((header, index) => {
+        doc.text(header.toUpperCase(), x, y);
+        x += colWidths[index];
+    });
+    y += 8;
+
+    doc.setFont('helvetica', 'normal');
+    rows.forEach((item) => {
+        if (y > pageHeight - 18) {
+            doc.addPage();
+            doc.setFillColor(238, 247, 250);
+            doc.rect(0, 0, pageWidth, pageHeight, 'F');
+            y = 18;
+        }
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(8);
+        const rowValues = [
+            item.data,
+            item.pagador,
+            item.categoria,
+            item.metodo,
+            item.descricao,
+            `R$ ${formatMoneyForExport(item.valor)}`
+        ];
+        x = margin + 2;
+        rowValues.forEach((value, index) => {
+            const lines = doc.splitTextToSize(String(value || ''), colWidths[index] - 3);
+            doc.text(lines.slice(0, 2), x, y);
+            x += colWidths[index];
+        });
+        doc.setDrawColor(226, 232, 240);
+        doc.line(margin, y + 5, pageWidth - margin, y + 5);
+        y += 9;
+    });
+
+    doc.save(`${getExportFileBaseName()}.pdf`);
+}
+
+function printPdfReport(rows) {
     const reportWindow = window.open('', '_blank', 'noopener,noreferrer');
     if (!reportWindow) {
         downloadExport(buildPdfReportHtml(rows), 'html', 'text/html;charset=utf-8');
@@ -4585,7 +4744,7 @@ function exportarRelatorio() {
     openModal('modalExport');
 }
 
-function exportReportAs(format) {
+async function exportReportAs(format) {
     const text = translations[currentLanguage] || translations['pt-BR'];
     const rows = getExportRows();
     if (!rows.length) {
@@ -4606,7 +4765,7 @@ function exportReportAs(format) {
     }
 
     if (format === 'pdf') {
-        exportPdfReport(rows);
+        await exportPdfReport(rows);
         return;
     }
 
